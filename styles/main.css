@@ -156,14 +156,18 @@ a {
 }
 
 #price--list {
+  text-align: center;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 #price--list li {
-  color: var(--mainTextColor);
-  font-weight: 500;
-  opacity: 0.8;
-  text-align: center;
+  text-align: left;
+  width: 100%;
 }
 
 #qualifications--list li span {
