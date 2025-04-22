@@ -96,7 +96,7 @@ li {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 2.8em;
   font-weight: 700;
-  text-transform: lowercase;
+
   margin-bottom: 0.2em;
   color: var(--logoGrey);
 }
@@ -470,6 +470,11 @@ h2 {
 
 #username, h2 {
   animation: fadeInUp 0.8s ease-out forwards;
+  color: var(--mainTextColor)
+}
+
+#username {
+  color: var(--secondaryTextColor);
 }
 
 h2 {
