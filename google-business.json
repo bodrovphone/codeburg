@@ -1,0 +1,97 @@
+{
+  "business_info": {
+    "name": "CodeBurg",
+    "category": "Coworking Space",
+    "subcategories": [
+      "Business Center",
+      "Corporate Office",
+      "Event Space",
+      "Internet Cafe",
+      "Virtual Office Rental"
+    ],
+    "description": "CodeBurg is a developer-focused coworking space in Burgas, Bulgaria, offering 24/7 access, modern facilities, and a vibrant tech community. Located in the city center near the Black Sea coast, we provide the perfect environment for remote workers, freelancers, and tech professionals.",
+    "address": {
+      "street": "ul. Peyo K. Yavorov 1",
+      "city": "Burgas",
+      "postal_code": "8000",
+      "country": "Bulgaria"
+    },
+    "contact": {
+      "phone": "+359-88-4489289",
+      "email": "alex@obodsoft.com",
+      "website": "https://codeburg.bg"
+    },
+    "hours": {
+      "monday": "24 hours",
+      "tuesday": "24 hours",
+      "wednesday": "24 hours",
+      "thursday": "24 hours",
+      "friday": "24 hours",
+      "saturday": "24 hours",
+      "sunday": "24 hours"
+    },
+    "amenities": [
+      "Free Wi-Fi",
+      "Coffee and Tea",
+      "24/7 Access",
+      "Ergonomic Chairs",
+      "Height Adjustable Desks",
+      "High-Speed Internet",
+      "Lounge Area",
+      "Parking Available",
+      "Near Public Transportation",
+      "Air Conditioning",
+      "Meeting Rooms",
+      "Printer Available"
+    ],
+    "attributes": [
+      "Wheelchair accessible",
+      "LGBTQ+ friendly",
+      "Good for working on laptop",
+      "Free parking",
+      "Dogs allowed"
+    ],
+    "services": [
+      "Daily desk rental",
+      "Monthly memberships",
+      "Meeting room rental",
+      "Event hosting",
+      "Virtual office services",
+      "Mail handling",
+      "Printing services"
+    ],
+    "target_keywords": [
+      "coworking space Burgas",
+      "office space Burgas",
+      "коворкинг Бургас",
+      "remote work Bulgaria",
+      "developer workspace Burgas",
+      "tech hub Bulgaria",
+      "24/7 coworking"
+    ],
+    "nearby_landmarks": [
+      "Sea Garden (Morska Gradina)",
+      "Burgas Beach",
+      "Burgas City Center",
+      "Burgas Port",
+      "Alexandrovska Street",
+      "Burgas Archaeological Museum"
+    ]
+  },
+  "seo_recommendations": {
+    "post_topics": [
+      "Why Burgas is perfect for remote work",
+      "Benefits of coworking near the sea",
+      "Tech community events in Burgas",
+      "Digital nomad guide to Bulgaria",
+      "Best coworking practices for developers"
+    ],
+    "review_prompts": [
+      "How was your experience with our 24/7 access?",
+      "What do you think about our location near the sea?",
+      "How did our tech community help your projects?",
+      "Rate our ergonomic workspace setup",
+      "Feedback on our coffee and amenities"
+    ]
+  }
+} 

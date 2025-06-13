@@ -102,10 +102,9 @@ li {
   opacity: 1;
 }
 
-#wrapper--hero {
-  display: flex;
-  align-items: center;
-  gap: 2em;
+
+
+#contacts {
   margin-top: 4em;
 }
 
@@ -501,6 +500,11 @@ a {
 }
 
 @media (max-width: 600px) {
+  #container--main {
+    padding: 1rem 0.5rem;
+    border-radius: 0;
+  }
+
   #wrapper--hero {
     flex-direction: column;
     align-items: center;
@@ -513,8 +517,12 @@ a {
   }
 
   .section--page {
-    padding-top: 1em;
-    padding-bottom: 1em;
+    padding: 1rem;
+    margin-bottom: 1em;
+    border-radius: 0;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    width: calc(100% + 1rem);
   }
 
   .card--work-history {
@@ -925,5 +933,122 @@ html {
 
 .footer-watermark {
   margin-top: 1rem;
+}
+
+/* FAQ Section Styling */
+.faq-item {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.faq-item h3 {
+    color: var(--mainLinkColor-dark);
+    margin-bottom: 1rem;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.faq-item p {
+    line-height: 1.6;
+    color: var(--secondaryTextColor);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .faq-item {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .faq-item h3 {
+        font-size: 1.1em;
+    }
+}
+
+/* Map Container Styles */
+.map-container {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.map-container h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5em;
+  color: var(--mainTextColor);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.map-container h3 i {
+  color: var(--accentColor);
+  font-size: 1.2em;
+}
+
+.map-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.map-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--accentColor);
+}
+
+.map-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 10px;
+}
+
+.map-caption {
+  margin-top: 1rem;
+  color: var(--secondaryTextColor);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-caption i {
+  color: var(--accentColor);
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .map-wrapper {
+    padding-bottom: 75%; /* Taller on mobile for better usability */
+    border-radius: 8px;
+  }
+  
+  .map-container h3 {
+    font-size: 1.3em;
+  }
+  
+  .map-caption {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    margin: 1rem 0.5rem 0;
+  }
 }
 
