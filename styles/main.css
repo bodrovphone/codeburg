@@ -414,6 +414,38 @@ a {
   opacity: 0.8;
 }
 
+.price-eur {
+  font-size: 1.1em;
+  color: #666;
+  opacity: 0.8;
+  margin-top: 0.5rem;
+}
+
+.featured .price-eur {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pricing-disclaimer {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 248, 220, 0.8);
+  border-left: 4px solid #f39c12;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pricing-disclaimer p {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.6;
+  color: #8b6914;
+}
+
+.pricing-disclaimer i {
+  color: #f39c12;
+  margin-right: 0.5rem;
+}
+
 .price-features {
   margin: 1.5rem 0;
 }
