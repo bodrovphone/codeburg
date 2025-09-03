@@ -143,6 +143,31 @@ li {
   transform: scale(1.1);
 }
 
+/* Explicitly hide video controls across all browsers */
+.hero-video::-webkit-media-controls {
+  display: none !important;
+}
+
+.hero-video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+.hero-video::-webkit-media-controls-panel {
+  display: none !important;
+}
+
+.hero-video::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
+.hero-video::-moz-media-controls {
+  display: none !important;
+}
+
+.hero-video::-ms-media-controls {
+  display: none !important;
+}
+
 .hero-overlay {
   position: absolute;
   top: 0;

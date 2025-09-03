@@ -350,4 +350,68 @@ function formatDisplayDate(dateString) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', initAvailabilityButton);
+// Video autoplay fix for mobile devices (especially iOS)
+function ensureVideoAutoplay() {
+  const video = document.querySelector('.hero-video');
+  if (video) {
+    // Try to play the video
+    const playPromise = video.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // Video autoplay started successfully
+          console.log('Video autoplay started');
+        })
+        .catch(error => {
+          // Autoplay was prevented
+          console.log('Video autoplay prevented:', error);
+          
+          // Add a play button overlay or user interaction handler
+          const heroContent = document.querySelector('.hero-content');
+          if (heroContent && !document.querySelector('.video-play-button')) {
+            // Create a play button overlay
+            const playButton = document.createElement('button');
+            playButton.className = 'video-play-button';
+            playButton.innerHTML = '<i class="fas fa-play-circle"></i>';
+            playButton.setAttribute('aria-label', 'Play video');
+            playButton.style.cssText = `
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              z-index: 10;
+              background: rgba(0,0,0,0.5);
+              border: 2px solid white;
+              color: white;
+              font-size: 3rem;
+              width: 80px;
+              height: 80px;
+              border-radius: 50%;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            `;
+            
+            playButton.addEventListener('click', () => {
+              video.play();
+              playButton.style.display = 'none';
+            });
+            
+            heroContent.appendChild(playButton);
+          }
+        });
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAvailabilityButton();
+  ensureVideoAutoplay();
+  
+  // Also try on visibility change (when user switches tabs back)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      ensureVideoAutoplay();
+    }
+  });
+});
