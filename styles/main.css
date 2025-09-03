@@ -118,15 +118,25 @@ li {
 .hero-content {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
   min-height: 400px;
   background-color: #ffffff;
+  padding: 2rem;
+  @media (max-width: 768px) {
+    min-height: 350px;
+    padding: 1.5rem;
+  }
   @media (max-width: 600px) {
-    gap: 0;
     min-height: 300px;
+    padding: 1rem;
+  }
+  /* Landscape mode on mobile/tablet */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    min-height: 280px;
+    padding: 1rem;
   }
 }
 
@@ -168,6 +178,50 @@ li {
   display: none !important;
 }
 
+/* Custom play button for iOS Safari */
+.video-play-button {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 15 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 2px solid rgba(255, 255, 255, 0.9) !important;
+  color: white !important;
+  font-size: 2.5rem !important;
+  width: 70px !important;
+  height: 70px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  outline: none !important;
+}
+
+.video-play-button:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+  transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
+.video-play-button:active {
+  transform: translate(-50%, -50%) scale(0.95) !important;
+}
+
+.video-play-button i {
+  pointer-events: none !important;
+}
+
+/* Hide native iOS video overlay controls */
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
 .hero-overlay {
   position: absolute;
   top: 0;
@@ -183,12 +237,32 @@ li {
   z-index: 3;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 2rem;
   width: 100%;
-  @media (max-width: 600px) {
-    gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Tablet portrait and smaller */
+  @media (max-width: 768px) {
+    gap: 1.5rem;
     flex-direction: column;
     text-align: center;
+  }
+  /* Mobile */
+  @media (max-width: 600px) {
+    gap: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+  /* Landscape mode on mobile/tablet */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    flex-direction: row;
+    gap: 0.5rem;
+    text-align: left;
+  }
+  /* Small landscape (phones) */
+  @media (max-width: 768px) and (orientation: landscape) {
+    gap: 0.25rem;
   }
 }
 
@@ -197,6 +271,47 @@ li {
   height: 200px;
   object-fit: contain;
   animation: fadeIn 1s ease-out;
+  flex-shrink: 0;
+  /* Tablet */
+  @media (max-width: 768px) {
+    width: 150px;
+    height: 150px;
+  }
+  /* Mobile portrait */
+  @media (max-width: 600px) {
+    width: 120px;
+    height: 120px;
+  }
+  /* Landscape mode */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Hero text container */
+.hero-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  /* Center text on tablets and mobile */
+  @media (max-width: 768px) {
+    align-items: center;
+    text-align: center;
+  }
+  /* Landscape adjustments */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    align-items: flex-start;
+    text-align: left;
+    justify-content: center;
+  }
+  @media (max-width: 768px) and (orientation: landscape) {
+    align-items: flex-start;
+    text-align: left;
+    justify-content: center;
+  }
 }
 
 #username {
@@ -206,6 +321,41 @@ li {
   letter-spacing: -0.02em;
   margin-bottom: 0.2em;
   color: var(--logoGrey);
+  /* Tablet size */
+  @media (max-width: 768px) {
+    font-size: 2.5em;
+  }
+  /* Mobile size */
+  @media (max-width: 600px) {
+    font-size: 2em;
+  }
+  /* Landscape mode */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    font-size: 2.2em;
+    margin-bottom: 0.1em;
+  }
+}
+
+.hero-text h2 {
+  font-size: 1.2em;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--secondaryTextColor);
+  margin: 0;
+  /* Tablet size */
+  @media (max-width: 768px) {
+    font-size: 1.1em;
+  }
+  /* Mobile size */
+  @media (max-width: 600px) {
+    font-size: 1em;
+    line-height: 1.3;
+  }
+  /* Landscape mode */
+  @media (max-width: 1024px) and (orientation: landscape) {
+    font-size: 1em;
+    line-height: 1.3;
+  }
 }
 
 #bio,
@@ -856,20 +1006,7 @@ a {
     padding-top: 55px; /* Further reduced by half */
   }
 
-  /* Hero text adjustments for mobile */
-  #username {
-    font-size: 2.2em !important;
-  }
-
-  .hero-text h2 {
-    font-size: 1.1em !important;
-    line-height: 1.3;
-  }
-
-  .hero-logo {
-    width: 150px !important;
-    height: 150px !important;
-  }
+  /* Removed duplicate hero styles - now handled by nested media queries above */
 
   .main-nav {
     padding: 0.5rem;
@@ -1017,18 +1154,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Add responsive adjustments */
-@media (max-width: 768px) {
-  .hero-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .hero-logo {
-    width: 150px;
-    height: 150px;
-  }
-}
+/* Removed duplicate responsive styles - handled by nested media queries above */
 
 /* Add some animations */
 @keyframes fadeIn {

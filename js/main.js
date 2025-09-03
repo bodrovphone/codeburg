@@ -353,55 +353,88 @@ function formatDisplayDate(dateString) {
 // Video autoplay fix for mobile devices (especially iOS)
 function ensureVideoAutoplay() {
   const video = document.querySelector('.hero-video');
-  if (video) {
-    // Try to play the video
+  if (!video) return;
+
+  // Remove any existing play button first
+  const existingButton = document.querySelector('.video-play-button');
+  if (existingButton) {
+    existingButton.remove();
+  }
+
+  // Ensure video attributes are set for iOS
+  video.setAttribute('autoplay', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.muted = true;
+  video.defaultMuted = true;
+
+  // Function to attempt video playback
+  const attemptPlay = () => {
     const playPromise = video.play();
     
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
-          // Video autoplay started successfully
           console.log('Video autoplay started');
+          // Remove play button if it exists
+          const button = document.querySelector('.video-play-button');
+          if (button) button.remove();
         })
         .catch(error => {
-          // Autoplay was prevented
-          console.log('Video autoplay prevented:', error);
-          
-          // Add a play button overlay or user interaction handler
-          const heroContent = document.querySelector('.hero-content');
-          if (heroContent && !document.querySelector('.video-play-button')) {
-            // Create a play button overlay
-            const playButton = document.createElement('button');
-            playButton.className = 'video-play-button';
-            playButton.innerHTML = '<i class="fas fa-play-circle"></i>';
-            playButton.setAttribute('aria-label', 'Play video');
-            playButton.style.cssText = `
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              z-index: 10;
-              background: rgba(0,0,0,0.5);
-              border: 2px solid white;
-              color: white;
-              font-size: 3rem;
-              width: 80px;
-              height: 80px;
-              border-radius: 50%;
-              cursor: pointer;
-              transition: all 0.3s ease;
-            `;
-            
-            playButton.addEventListener('click', () => {
-              video.play();
-              playButton.style.display = 'none';
-            });
-            
-            heroContent.appendChild(playButton);
+          console.log('Video autoplay failed:', error);
+          // Only add play button if truly needed
+          if (video.paused) {
+            addPlayButton(video);
           }
         });
     }
-  }
+  };
+
+  // Try playing immediately
+  attemptPlay();
+
+  // iOS Safari needs user interaction - listen for first touch
+  const handleFirstTouch = () => {
+    if (video.paused) {
+      video.play().then(() => {
+        const button = document.querySelector('.video-play-button');
+        if (button) button.remove();
+      }).catch(console.error);
+    }
+  };
+
+  document.addEventListener('touchstart', handleFirstTouch, { once: true });
+  document.addEventListener('click', handleFirstTouch, { once: true });
+}
+
+// Separate function to add play button when needed
+function addPlayButton(video) {
+  const heroContent = document.querySelector('.hero-content');
+  if (!heroContent || document.querySelector('.video-play-button')) return;
+
+  const playButton = document.createElement('button');
+  playButton.className = 'video-play-button';
+  playButton.innerHTML = '<i class="fas fa-play-circle"></i>';
+  playButton.setAttribute('aria-label', 'Play video');
+  
+  playButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    video.muted = true; // Ensure muted for iOS
+    video.play().then(() => {
+      playButton.remove();
+    }).catch(error => {
+      console.error('Play failed:', error);
+      // Try once more with user gesture
+      setTimeout(() => {
+        video.play().then(() => {
+          playButton.remove();
+        });
+      }, 100);
+    });
+  });
+  
+  heroContent.appendChild(playButton);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
