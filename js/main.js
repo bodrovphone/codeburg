@@ -44,10 +44,11 @@ const languageButton = document.querySelector('.language-button');
 const languageDropdown = document.querySelector('.language-dropdown');
 
 if (languageButton instanceof HTMLElement && languageDropdown instanceof HTMLElement) {
-  languageButton.addEventListener('click', function() {
+  languageButton.addEventListener('click', function(event) {
     // Only handle dropdown on mobile screens
     if (window.innerWidth <= 600) {
-      languageDropdown.style.display = 
+      event.stopPropagation();
+      languageDropdown.style.display =
         languageDropdown.style.display === 'flex' ? 'none' : 'flex';
     }
   });
@@ -55,7 +56,7 @@ if (languageButton instanceof HTMLElement && languageDropdown instanceof HTMLEle
   // Close dropdown when clicking outside (only on mobile)
   document.addEventListener('click', function(event) {
     if (event.target instanceof HTMLElement) {
-      if (window.innerWidth <= 600 && !event.target.closest('.language-switcher')) {
+      if (window.innerWidth <= 600 && !event.target.closest('.language-dropdown')) {
         languageDropdown.style.display = 'none';
       }
     }
@@ -145,36 +146,48 @@ function formatDate(date) {
 function generateDatesForNext10Days() {
   const dates = [];
   const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  
+
   for (let i = 0; i < 10; i++) {
-    const currentDate = new Date(tomorrow);
-    currentDate.setDate(tomorrow.getDate() + i);
+    const currentDate = new Date(today);
+    currentDate.setDate(today.getDate() + i);
     const dateString = formatDate(currentDate);
-    
+
     if (!isWeekend(dateString)) {
       dates.push(dateString);
     }
   }
-  
+
   return dates;
 }
 
 async function fetchBookings() {
   try {
-    const response = await fetch(`${SUPABASE_CONFIG.url}?select=desk_id,date,status`, {
+    // Calculate date range: today to today + 10 days
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 10);
+
+    const startDateStr = formatDate(today);
+    const endDateStr = formatDate(endDate);
+
+    // Filter query: only get bookings within the next 10 days
+    const queryParams = new URLSearchParams({
+      select: 'desk_id,date,status',
+      date: `gte.${startDateStr}`,
+    });
+
+    const response = await fetch(`${SUPABASE_CONFIG.url}?${queryParams.toString()}&date=lte.${endDateStr}`, {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_CONFIG.apiKey,
         'Authorization': `Bearer ${SUPABASE_CONFIG.apiKey}`
       }
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching bookings:', error);
@@ -228,44 +241,41 @@ window.DeskAvailability = {
 function initAvailabilityButton() {
   const button = document.getElementById('check-availability-btn');
   const resultDiv = document.getElementById('availability-result');
-  
+
   if (!button || !resultDiv) return;
-  
+
+  const originalButtonHTML = button.innerHTML;
+
   button.addEventListener('click', async function() {
     const texts = getLocalizedTexts();
-    
-    resultDiv.className = 'availability-result loading';
-    resultDiv.textContent = texts.loading;
-    
+
+    // Disable button and show spinner
+    button.disabled = true;
+    button.innerHTML = `<span class="spinner"></span> ${texts.buttonLoading}`;
+
+    resultDiv.className = 'availability-result';
+    resultDiv.textContent = '';
+
     try {
-      const bookings = await fetchBookings();
       const availableDates = await getNextAvailableDates();
-      
-      console.log('Raw bookings data:', bookings);
-      console.log('Bookings array length:', bookings.length);
-      console.log('DESKS array:', DESKS);
-      console.log('Available dates calculated:', availableDates);
-      
-      // Test calculation for first date
-      if (availableDates.length > 0) {
-        const testDate = availableDates[0].date;
-        const testCount = calculateAvailableDesks(bookings, testDate);
-        console.log(`Test calculation for ${testDate}: ${testCount} available desks`);
-      }
-      
+
       if (availableDates.length === 0) {
         resultDiv.className = 'availability-result show';
         resultDiv.innerHTML = `<p>${texts.error}</p>`;
         return;
       }
-      
+
       resultDiv.className = 'availability-result show';
       resultDiv.innerHTML = generateAvailabilityHTML(availableDates);
-      
+
     } catch (error) {
       console.error('Availability check error:', error);
       resultDiv.className = 'availability-result show';
       resultDiv.innerHTML = `<p>${texts.error}</p>`;
+    } finally {
+      // Restore button
+      button.disabled = false;
+      button.innerHTML = originalButtonHTML;
     }
   });
 }
@@ -279,6 +289,7 @@ function getLocalizedTexts() {
       desks: 'столов',
       noAvailability: 'Нет доступных столов в ближайшие 10 дней. Пожалуйста, свяжитесь с нами напрямую для уточнения наличия.',
       loading: 'Проверяем наличие...',
+      buttonLoading: 'Проверяем...',
       error: 'Ошибка при проверке наличия. Попробуйте позже.'
     };
   } else if (currentPath.includes('/ua/')) {
@@ -287,6 +298,7 @@ function getLocalizedTexts() {
       desks: 'столів',
       noAvailability: 'Немає доступних столів у найближчі 10 днів. Будь ласка, зв\'яжіться з нами безпосередньо для уточнення наявності.',
       loading: 'Перевіряємо наявність...',
+      buttonLoading: 'Перевіряємо...',
       error: 'Помилка при перевірці наявності. Спробуйте пізніше.'
     };
   } else if (currentPath.includes('/bg/')) {
@@ -295,6 +307,7 @@ function getLocalizedTexts() {
       desks: 'бюра',
       noAvailability: 'Няма налични бюра в следващите 10 дни. Моля, свържете се с нас директно за наличност.',
       loading: 'Проверяваме наличността...',
+      buttonLoading: 'Проверяваме...',
       error: 'Грешка при проверка на наличността. Опитайте отново по-късно.'
     };
   } else {
@@ -303,6 +316,7 @@ function getLocalizedTexts() {
       desks: 'desks',
       noAvailability: 'No desks available in the next 10 days. Please contact us directly for availability.',
       loading: 'Checking availability...',
+      buttonLoading: 'Checking...',
       error: 'Error checking availability. Please try again later.'
     };
   }

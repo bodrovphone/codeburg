@@ -197,13 +197,13 @@ ul {
   position: absolute;
   top: 100%;
   right: 0;
+  min-width: 160px;
   background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   display: none;
   flex-direction: column;
-  min-width: 120px;
   overflow: hidden;
   /* Fix hover gap */
   padding-top: 0.5rem;
@@ -598,10 +598,31 @@ ul {
   box-shadow: var(--shadow-lg);
 }
 
-.availability-btn:hover {
+.availability-btn:hover:not(:disabled) {
   background: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: var(--shadow-xl);
+}
+
+.availability-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.availability-btn .spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .availability-result {
