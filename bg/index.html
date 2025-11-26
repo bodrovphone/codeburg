@@ -17,7 +17,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Space+Grotesk:wght@300;400;500&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <meta name="description"
     content="Присъединете се към CodeBurg - споделено работно пространство и модерен офис за разработчици в Бургас. 24/7 достъп, ергономични работни места, безплатно кафе в центъра на града близо до морето.">
@@ -69,7 +69,7 @@
       "Зона за отдих",
       "Общност разработчици"
     ],
-    "priceRange": "15-200 лв.",
+    "priceRange": "15-225 лв.",
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Коуъркинг планове",
@@ -84,14 +84,14 @@
         {
           "@type": "Offer",
           "name": "Седмичен абонамент",
-          "price": "60",
+          "price": "70",
           "priceCurrency": "BGN",
           "description": "Перфектно за седмични проекти"
         },
         {
           "@type": "Offer",
           "name": "Месечен абонамент",
-          "price": "200",
+          "price": "225",
           "priceCurrency": "BGN",
           "description": "Най-изгодна стойност за редовни членове"
         }
@@ -114,75 +114,78 @@
 </head>
 
 <body>
-  <div id="container--main">
-    <nav class="main-nav">
-      <div class="nav-content">
-        <div class="section-links">
-          <a href="#gallery">Галерия</a>
-          <a href="#pricing">Цени</a>
-          <a href="#faq">Въпроси</a>
-          <a href="#contacts">Контакти</a>
-        </div>
+  <!-- Navigation -->
+  <nav class="main-nav">
+    <div class="nav-content">
+      <a href="#" class="nav-logo">
+        <img src="../assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
+        Code<span>B</span>urg
+      </a>
+      
+      <div class="section-links">
+        <a href="#gallery">Галерия</a>
+        <a href="#pricing">Цени</a>
+        <a href="#faq">Въпроси</a>
+        <a href="#contacts">Контакти</a>
+      </div>
 
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-          <button class="language-button">
-            <span class="current-lang">🇧🇬</span>
-            <span class="arrow">▼</span>
-          </button>
-          <div class="language-dropdown">
-            <a href="/">🇬🇧</a>
-            <a href="/bg/" class="active">🇧🇬</a>
-            <a href="/ua/">🇺🇦</a>
-            <a href="/ru/">ru</a>
-          </div>
+      <!-- Language Switcher -->
+      <div class="language-switcher">
+        <button class="language-button">
+          <span class="current-lang">🇧🇬</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="language-dropdown">
+          <a href="/">🇬🇧 English</a>
+          <a href="/bg/" class="active">🇧🇬 Български</a>
+          <a href="/ua/">🇺🇦 Українська</a>
+          <a href="/ru/">🇷🇺 Русский</a>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-   
-
-    <section id="contacts" class="section--page">
-
-        <div class="hero-content">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" webkit-playsinline defaultmuted>
-            <source src="../assets/hero_video.mp4" type="video/mp4">
-          </video>
-          <div class="hero-overlay"></div>
-          <div class="hero-content-inner">
-            <img src="../assets/images/codeburg_logo.png" alt="CodeBurg Коуъркинг Лого" class="hero-logo" width="200"
-              height="200">
-            <div class="hero-text">
-              <h1 id="username">Code<span style="color: #20b2aa;">B</span>urg</h1>
-              <p>Споделено работно пространство в сърцето на Бургас.</p>
+  <!-- Hero Section -->
+  <section id="contacts" class="hero-section">
+    <video class="hero-video" autoplay muted loop playsinline preload="auto" webkit-playsinline defaultmuted>
+      <source src="../assets/hero_video.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content">
+      <img src="../assets/images/codeburg_logo.png" alt="CodeBurg Коуъркинг Лого" class="hero-logo">
+      <h1 class="hero-title">Code<span>B</span>urg</h1>
+      <h2 class="hero-subtitle">Споделено работно пространство в сърцето на Бургас.</h2>
       
-            </div>
-          </div>
-        </div>
-      
-      <div id="social--list">
-        <a href="tel:+359884489289" target="_blank">
+      <div id="social--list" class="hero-social">
+        <a href="tel:+359884489289" class="social-btn">
           <i class="fas fa-phone-volume"></i> Обади
         </a>
-        <a href="https://wa.me/359884489289" target="_blank">
+        <a href="https://wa.me/359884489289" class="social-btn" target="_blank">
           <i class="fab fa-whatsapp"></i> WhatsApp
         </a>
-        <a href="https://t.me/codeburg" target="_blank">
+        <a href="https://t.me/codeburg" class="social-btn" target="_blank">
           <i class="fab fa-telegram-plane"></i> Telegram
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" target="_blank">
+        <a href="https://www.instagram.com/coworking_burgas" class="social-btn" target="_blank">
           <i class="fab fa-instagram"></i> Instagram
         </a>
       </div>
+    </div>
+  </section>
 
-      <!-- Interactive Map -->
-      <div class="map-container">
-        <h3><i class="fas fa-map-marked-alt"></i> Нашето местоположение</h3>
+  <div class="container">
+    <!-- Map Section -->
+    <section class="section">
+      <div class="section-title">
+        <h2>Нашето местоположение</h2>
+        <p>В сърцето на Бургас, на крачки от морето и градския парк.</p>
+      </div>
+      
+      <div class="map-container" style="margin-top: 0;">
         <div class="map-wrapper">
           <iframe 
             src="https://maps.google.com/maps?q=CodeBurg%20Burgas%20Bulgaria&t=&z=15&ie=UTF8&iwloc=&output=embed&hl=bg"
-            width="600" 
-            height="400" 
             style="border:0;" 
             allowfullscreen="" 
             loading="lazy" 
@@ -191,145 +194,145 @@
         </div>
         <p class="map-caption">
           <i class="fas fa-map-pin"></i> 
-          Коуъркинг пространство CodeBurg<br>
-          ул. Пейо К. Яворов 1, Бургас 8000, България
+          Коуъркинг пространство CodeBurg, ул. Пейо К. Яворов 1, Бургас 8000, България
         </p>
       </div>
     </section>
 
-
-
-    <!-- image gallery with placeholder images -->
-    <section id="gallery" class="section--page">
-      <h2>Галерия</h2>
-      <div class="gallery">
+    <!-- Gallery Section -->
+    <section id="gallery" class="section">
+      <div class="section-title">
+        <h2>Галерия</h2>
+        <p>Разгледайте нашето уютно работно пространство.</p>
+      </div>
+      
+      <div class="gallery-grid">
         <div class="gallery-item">
-
-          <img src="../assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Workspace View 3"
-            width="400" height="300">
-
-
+          <img src="../assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Workspace View 3">
         </div>
         <div class="gallery-item">
-
-          <img src="../assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6"
-            width="400" height="300">
-
-
-
-
-
-        </div>
-        <!-- First visible images could use eager loading -->
-        <div class="gallery-item">
-          <img src="../assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 1"
-            width="400" height="300">
-
+          <img src="../assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
         </div>
         <div class="gallery-item">
-          <img src="../assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 4"
-            width="400" height="300">
+          <img src="../assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 1">
         </div>
         <div class="gallery-item">
-
-
-          <img src="../assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6"
-            width="400" height="300">
-
-
+          <img src="../assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 4">
         </div>
         <div class="gallery-item">
-          <img src="../assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 5"
-            width="400" height="300">
+          <img src="../assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
+        </div>
+        <div class="gallery-item">
+          <img src="../assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 5">
         </div>
       </div>
     </section>
 
-    <section class="section--page">
-      <h2>Защо CodeBurg?</h2>
-      <ul id="qualifications--list">
-        <li>
-          <div><i class="fas fa-location-dot"></i> Отлично местоположение в Бургас:</div>
-          <span>В сърцето на Бургас, на крачки от морето и градския парк. На 5 минути от Черноморските плажове и Морската градина.</span>
-        </li>
+    <!-- Features Section -->
+    <section class="section">
+      <div class="section-title">
+        <h2>Защо CodeBurg?</h2>
+        <p>Всичко необходимо, за да сте продуктивни и да се чувствате комфортно.</p>
+      </div>
+      
+      <div id="qualifications--list" class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-location-dot"></i></div>
+          <h3>Отлично местоположение</h3>
+          <p>В сърцето на Бургас, на крачки от морето и градския парк. На 5 минути от Черноморските плажове и Морската градина.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-desktop"></i> Премиум работно пространство:</div>
-          <span>Регулируеми бюра, ергономични столове и супер бърз интернет с налични 32" монитори.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-desktop"></i></div>
+          <h3>Премиум пространство</h3>
+          <p>Регулируеми бюра, ергономични столове и супер бърз интернет с налични 32" монитори.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-key"></i> 24/7 достъп:</div>
-          <span>Вашето пространство, вашето разписание - предоставен личен ключ за максимална гъвкавост.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-key"></i></div>
+          <h3>24/7 достъп</h3>
+          <p>Вашето пространство, вашето разписание - предоставен личен ключ за максимална гъвкавост.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-mug-hot"></i> Безплатни напитки:</div>
-          <span>
-            <ul class="nested-list">
-              <li>☕️ Три вида кафе</li>
-              <li>🫖 Селекция от чайове</li>
-              <li>🍎 Свежи плодове всеки ден</li>
-              <li>🍪 Разнообразни закуски</li>
-            </ul>
-          </span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-mug-hot"></i></div>
+          <h3>Безплатни напитки</h3>
+          <ul class="nested-list">
+            <li><i class="fas fa-coffee"></i> Три вида кафе</li>
+            <li><i class="fas fa-leaf"></i> Селекция от чайове</li>
+            <li><i class="fas fa-apple-alt"></i> Свежи плодове всеки ден</li>
+            <li><i class="fas fa-cookie"></i> Разнообразни закуски</li>
+          </ul>
+        </div>
 
-        <li>
-          <div><i class="fas fa-couch"></i> Зона за отдих:</div>
-          <span>Релаксираща лаундж зона с удобни места и приятна музика.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-couch"></i></div>
+          <h3>Зона за отдих</h3>
+          <p>Релаксираща лаундж зона с удобни места и приятна музика.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-users"></i> Общност от разработчици:</div>
-          <span>Свържете се с колеги технологични ентусиасти, които винаги са готови да сътрудничат и споделят знания.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-users"></i></div>
+          <h3>Общност</h3>
+          <p>Свържете се с колеги технологични ентусиасти, които винаги са готови да сътрудничат и споделят знания.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-hand-holding-dollar"></i> Достъпни цени:</div>
-          <span>Конкурентни цени с гъвкави планове според вашите нужди.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+          <h3>Достъпни цени</h3>
+          <p>Конкурентни цени с гъвкави планове според вашите нужди.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-map-marker-alt"></i> Перфектни локационни предимства:</div>
-          <span>Близо до ресторанти, обществен транспорт, бизнес района и летище Бургас - идеално за дигитални номади.</span>
-        </li>
-      </ul>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Удобство</h3>
+          <p>Близо до ресторанти, обществен транспорт, бизнес района и летище Бургас - идеално за дигитални номади.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Оптимизирана FAQ секция -->
-    <section id="faq" class="section--page">
-      <h2>Често задавани въпроси</h2>
-      
-      
-      <div class="faq-item">
-        <h3>Какво е включено в дневния абонамент?</h3>
-        <p>Нашият дневен абонамент за 15 BGN (≈7.67 EUR) включва пълен достъп до работното пространство, неограничено кафе/чай, високоскоростен интернет (1ГБ+), 32" 4K монитор, клавиатура и мишка (при наличност), регулируеми маси, удобни столове, чиста вода, седмични снакове, разговори с хора от различни страни, много растения и използване на всички общи зони и съоръжения.</p>
+    <!-- FAQ Section -->
+    <section id="faq" class="section">
+      <div class="section-title">
+        <h2>Често задавани въпроси</h2>
+        <p>Чести въпроси за нашето пространство.</p>
       </div>
       
-      <div class="faq-item">
-        <h3>Има ли налично паркиране?</h3>
-        <p>Да, има няколко възможности за паркиране наблизо, включително уличен паркинг и платени паркинги на пешеходно разстояние.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>Какви са работните часове?</h3>
-        <p>Месечните членове получават лични ключове за достъп 24/7. Притежателите на дневни и седмични абонаменти могат да работят от 9:30 до ~18:00 ч. (времето може да се коригира при нужда).</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>Как да стигна до CodeBurg?</h3>
-        <p>Намираме се в центъра на Бургас. Можете да използвате градските автобуси (мрежа БургасБус с 32 маршрута) - използвайте мобилното приложение "Transport Burgas" за разписания в реално време. За любителите на колоезденето има хубава велосипедна алея от SeaPark, която води към нашия район. Проверете нашия <a href="#contacts">раздел местоположение</a> по-долу за точния адрес и интерактивна карта.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>Мога ли да приемам обаждания и да провеждам срещи докато работя тук?</h3>
-        <p>Абсолютно! Всички носим слушалки и напълно разбираме нуждата от срещи. За деликатни разговори като преговори за заплата или интервюта, можете да резервирате и заключите стаята за почивка, която е оборудвана с маса и интернет, до 1 час дневно при нужда.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>Как да се свържа с вас?</h3>
-        <p>Вижте нашия <a href="#contacts">раздел контакти</a> по-горе за обща информация. Можете също да се свържете с мен лично:<br> <a href="https://t.me/oleksandr_bodrov" target="_blank"><i class="fab fa-telegram-plane"></i> моя Telegram</a>, <a href="viber://chat?number=+359884489289"><i class="fab fa-viber"></i> моя Viber</a>, или <a href="https://www.linkedin.com/in/oleksandr-bodrov-1b9566148/" target="_blank"><i class="fab fa-linkedin"></i> моя LinkedIn</a>. Ще се радвам да ви посрещна като гост и се надявам да направя престоя ви в CodeBurg максимално продуктивен и приятен!</p>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Какво е включено в дневния абонамент?</h3>
+          <p>Нашият дневен абонамент за 15 BGN (≈7.67 EUR) включва пълен достъп до работното пространство, неограничено кафе/чай, високоскоростен интернет (1ГБ+), 32" 4K монитор, клавиатура и мишка (при наличност), регулируеми маси, удобни столове, чиста вода, седмични снакове, разговори с хора от различни страни, много растения и използване на всички общи зони и съоръжения.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Има ли налично паркиране?</h3>
+          <p>Да, има няколко възможности за паркиране наблизо, включително уличен паркинг и платени паркинги на пешеходно разстояние.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Какви са работните часове?</h3>
+          <p>Месечните членове получават лични ключове за достъп 24/7. Притежателите на дневни и седмични абонаменти могат да работят от 9:30 до ~18:00 ч. (времето може да се коригира при нужда).</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Как да стигна до CodeBurg?</h3>
+          <p>Намираме се в центъра на Бургас. Можете да използвате градските автобуси (мрежа БургасБус с 32 маршрута) - използвайте мобилното приложение "Transport Burgas" за разписания в реално време. За любителите на колоезденето има хубава велосипедна алея от SeaPark, която води към нашия район.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Мога ли да приемам обаждания и да провеждам срещи?</h3>
+          <p>Абсолютно! Всички носим слушалки и напълно разбираме нуждата от срещи. За деликатни разговори като преговори за заплата или интервюта, можете да резервирате и заключите стаята за почивка, която е оборудвана с маса и интернет, до 1 час дневно при нужда.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Как да се свържа с вас?</h3>
+          <p>Вижте нашия <a href="#contacts">раздел контакти</a> по-горе за обща информация. Можете също да се свържете с мен лично: <a href="https://t.me/oleksandr_bodrov" target="_blank">Telegram</a>, <a href="viber://chat?number=+359884489289">Viber</a>, или <a href="https://www.linkedin.com/in/oleksandr-bodrov-1b9566148/" target="_blank">LinkedIn</a>.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Това споделено работно пространство ли е или традиционен офис под наем?</h3>
+          <p>CodeBurg е модерно споделено работно пространство, което комбинира гъвкавостта на коуъркинг офиса с удобствата на традиционен офис. Получавате професионална работна среда без дългосрочните ангажименти на наемане на цял офис.</p>
+        </div>
       </div>
 
       <!-- Desk Availability -->
@@ -339,71 +342,61 @@
         </button>
         <div id="availability-result" class="availability-result"></div>
       </div>
-      
-      <div class="faq-item">
-        <h3>Това споделено работно пространство ли е или традиционен офис под наем?</h3>
-        <p>CodeBurg е модерно споделено работно пространство, което комбинира гъвкавостта на коуъркинг офиса с удобствата на традиционен офис. Получавате професионална работна среда без дългосрочните ангажименти на наемане на цял офис.</p>
-      </div>
     </section>
 
-    <section id="pricing" class="section--page">
-      <h2>Цени и планове</h2>
-      <div class="pricing-container">
-        <div class="price-card">
-          <div class="price-header">
-            <i class="fas fa-sun"></i>
-            <h3>Дневен абонамент</h3>
-            <div class="price">15 BGN<span>/ден</span></div>
-            <div class="price-eur">≈7.67 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Идеално за случайни посещения</p>
-          </div>
+    <!-- Pricing Section -->
+    <section id="pricing" class="section">
+      <div class="section-title">
+        <h2>Цени и планове</h2>
+        <p>Прости, прозрачни цени за всеки.</p>
+      </div>
+      
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-icon"><i class="fas fa-sun"></i></div>
+          <h3 class="pricing-title">Дневен абонамент</h3>
+          <div class="pricing-price">15 BGN<span>/ден</span></div>
+          <div class="pricing-eur">≈7.67 EUR</div>
+          <p class="pricing-desc">Идеално за случайни посещения</p>
         </div>
 
-        <div class="price-card">
-          <div class="price-header">
-            <i class="fas fa-star"></i>
-            <h3>Седмичен абонамент</h3>
-            <div class="price">60 BGN<span>/седмица</span></div>
-            <div class="price-eur">≈30.68 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Перфектно за седмични проекти</p>
-          </div>
+        <div class="pricing-card">
+          <div class="pricing-icon"><i class="fas fa-star"></i></div>
+          <h3 class="pricing-title">Седмичен абонамент</h3>
+          <div class="pricing-price">70 BGN<span>/седмица</span></div>
+          <div class="pricing-eur">≈35.79 EUR</div>
+          <p class="pricing-desc">Перфектно за седмични проекти</p>
         </div>
 
-        <div class="price-card featured">
-          <div class="price-header">
-            <i class="fas fa-rocket"></i>
-            <h3>Месечен абонамент</h3>
-            <div class="price">200 BGN<span>/месец</span></div>
-            <div class="price-eur">≈102.28 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Най-добра стойност за редовни членове</p>
-          </div>
+        <div class="pricing-card featured">
+          <div class="pricing-icon"><i class="fas fa-rocket"></i></div>
+          <h3 class="pricing-title">Месечен абонамент</h3>
+          <div class="pricing-price">225 BGN<span>/месец</span></div>
+          <div class="pricing-eur">≈115.04 EUR</div>
+          <p class="pricing-desc">Най-добра стойност за редовни членове</p>
         </div>
       </div>
       
       <div class="pricing-disclaimer">
-        <p><i class="fas fa-info-circle"></i> <strong>Информация за цените в евро:</strong> Цените в евро са показани като приблизителни конверсии, използвайки фиксирания курс 1 EUR = 1.95583 BGN, съобразно българското законодателство за прехода към еврозоната. България ще приеме официално еврото на 1 януари 2026 г.</p>
+        <i class="fas fa-info-circle"></i>
+        <p><strong>Информация за цените в евро:</strong> Цените в евро са показани като приблизителни конверсии, използвайки фиксирания курс 1 EUR = 1.95583 BGN, съобразно българското законодателство за прехода към еврозоната. България ще приеме официално еврото на 1 януари 2026 г.</p>
       </div>
-
     </section>
 
-    <section id="afterwordings" class="section--page">
-      <h2>
-        Заключение
-      </h2>
-      <p>
-        Ще се радваме да ви видим в CodeBurg! Тъй като се стремим да изградим общност от разработчици, които работят и
-        учат заедно, ще се радваме да ви видим в нашето пространство. Имаме големи планове за бъдещи събития и
-        работилници. Станете наш член днес и ще се видим скоро!
-      </p>
+    <!-- Afterwordings Section -->
+    <section id="afterwordings" class="section">
+      <div class="section-title">
+        <h2>Заключение</h2>
+        <p>
+          Ще се радваме да ви видим в CodeBurg! Тъй като се стремим да изградим общност от разработчици, които работят и
+          учат заедно, ще се радваме да ви видим в нашето пространство. Имаме големи планове за бъдещи събития и
+          работилници. Станете наш член днес и ще се видим скоро!
+        </p>
+      </div>
     </section>
   </div>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-logo">
@@ -431,7 +424,8 @@
       </div>
     </div>
   </footer>
+
+  <script src="../js/main.js"></script>
 </body>
-<script src="../js/main.js"></script>
 
 </html>

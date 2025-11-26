@@ -17,7 +17,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Space+Grotesk:wght@300;400;500&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <meta name="description"
     content="Join CodeBurg, Burgas's cozy tech coworking space for developers. 24/7 access, ergonomic workstations, free coffee, meeting rooms, and vibrant tech community. Located in city center near the sea.">
@@ -73,7 +73,7 @@
       "Private Meeting Room",
       "Developer Community"
     ],
-    "priceRange": "15-200 BGN (7.67-102.28 EUR)",
+    "priceRange": "15-225 BGN (7.67-115.04 EUR)",
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Coworking Plans",
@@ -88,14 +88,14 @@
         {
           "@type": "Offer",
           "name": "Weekly Pass",
-          "price": "60",
+          "price": "70",
           "priceCurrency": "BGN",
           "description": "Perfect for weekly projects"
         },
         {
           "@type": "Offer",
           "name": "Monthly Pass",
-          "price": "200",
+          "price": "225",
           "priceCurrency": "BGN",
           "description": "Best value for regular coworkers"
         }
@@ -116,73 +116,78 @@
 </head>
 
 <body>
-  <div id="container--main">
-    <nav class="main-nav">
-      <div class="nav-content">
-        <div class="section-links">
-          <a href="#gallery">Gallery</a>
-          <a href="#pricing">Price</a>
-          <a href="#faq">FAQ</a>
-          <a href="#contacts">Contact</a>
-        </div>
-
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-          <button class="language-button">
-            <span class="current-lang">🇬🇧</span>
-            <span class="arrow">▼</span>
-          </button>
-          <div class="language-dropdown">
-            <a href="/" class="active">🇬🇧</a>
-            <a href="/bg/">🇧🇬</a>
-            <a href="/ua/">🇺🇦</a>
-            <a href="/ru/">ru</a>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <section id="contacts" class="section--page">
-
-      <div class="hero-content">
-  <video class="hero-video" autoplay muted loop playsinline preload="auto" webkit-playsinline defaultmuted>
-          <source src="assets/hero_video.mp4" type="video/mp4">
-        </video>
-        <div class="hero-overlay"></div>
-        <div class="hero-content-inner">
-          <img src="assets/images/codeburg_logo.png" alt="CodeBurg Coworking Logo" class="hero-logo" width="200"
-            height="200">
-          <div class="hero-text">
-            <h1 id="username">Code<span style="color: #20b2aa;">B</span>urg</h1>
-            <h2 class="no-animation">Cozy Tech Coworking Space<br>Work, Connect, Grow</h2>
-           
-          </div>
-        </div>
-      </div>
+  <!-- Navigation -->
+  <nav class="main-nav">
+    <div class="nav-content">
+      <a href="#" class="nav-logo">
+        <img src="assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
+        Code<span>B</span>urg
+      </a>
       
-      <div id="social--list">
-        <a href="tel:+359884489289" target="_blank">
+      <div class="section-links">
+        <a href="#gallery">Gallery</a>
+        <a href="#pricing">Price</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contacts">Contact</a>
+      </div>
+
+      <!-- Language Switcher -->
+      <div class="language-switcher">
+        <button class="language-button">
+          <span class="current-lang">🇬🇧</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="language-dropdown">
+          <a href="/" class="active">🇬🇧 English</a>
+          <a href="/bg/">🇧🇬 Български</a>
+          <a href="/ua/">🇺🇦 Українська</a>
+          <a href="/ru/">🇷🇺 Русский</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="contacts" class="hero-section">
+    <video class="hero-video" autoplay muted loop playsinline preload="auto" webkit-playsinline defaultmuted>
+      <source src="assets/hero_video.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content">
+      <img src="assets/images/codeburg_logo.png" alt="CodeBurg Coworking Logo" class="hero-logo">
+      <h1 class="hero-title">Code<span>B</span>urg</h1>
+      <h2 class="hero-subtitle">Cozy Tech Coworking Space<br>Work, Connect, Grow</h2>
+      
+      <div id="social--list" class="hero-social">
+        <a href="tel:+359884489289" class="social-btn">
           <i class="fas fa-phone-volume"></i> Call Us
         </a>
-        <a href="https://wa.me/359884489289" target="_blank">
+        <a href="https://wa.me/359884489289" class="social-btn" target="_blank">
           <i class="fab fa-whatsapp"></i> WhatsApp
         </a>
-        <a href="https://t.me/codeburg" target="_blank">
+        <a href="https://t.me/codeburg" class="social-btn" target="_blank">
           <i class="fab fa-telegram-plane"></i> Telegram
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" target="_blank">
+        <a href="https://www.instagram.com/coworking_burgas" class="social-btn" target="_blank">
           <i class="fab fa-instagram"></i> Instagram
         </a>
       </div>
+    </div>
+  </section>
 
-      <!-- Interactive Map -->
-      <div class="map-container">
-        <h3><i class="fas fa-map-marked-alt"></i> Our Location</h3>
+  <div class="container">
+    <!-- Map Section -->
+    <section class="section">
+      <div class="section-title">
+        <h2>Our Location</h2>
+        <p>In the heart of Burgas, steps away from the sea and city park.</p>
+      </div>
+      
+      <div class="map-container" style="margin-top: 0;">
         <div class="map-wrapper">
           <iframe 
             src="https://maps.google.com/maps?q=CodeBurg%20Burgas%20Bulgaria&t=&z=15&ie=UTF8&iwloc=&output=embed"
-            width="600" 
-            height="400" 
             style="border:0;" 
             allowfullscreen="" 
             loading="lazy" 
@@ -191,145 +196,140 @@
         </div>
         <p class="map-caption">
           <i class="fas fa-map-pin"></i> 
-          CodeBurg Coworking Space<br>
-          Peyo K. Yavorov 1, Burgas 8000, Bulgaria
+          CodeBurg Coworking Space, Peyo K. Yavorov 1, Burgas 8000, Bulgaria
         </p>
       </div>
     </section>
 
-
-    <!-- image gallery with placeholder images -->
-    <section id="gallery" class="section--page">
-      <h2>Gallery</h2>
-      <div class="gallery">
+    <!-- Gallery Section -->
+    <section id="gallery" class="section">
+      <div class="section-title">
+        <h2>Gallery</h2>
+        <p>Take a look inside our cozy workspace.</p>
+      </div>
+      
+      <div class="gallery-grid">
         <div class="gallery-item">
-
-
-          <img src="assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Workspace View 3"
-            width="400" height="300">
-
-
+          <img src="assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Workspace View 3">
         </div>
         <div class="gallery-item">
-
-          <img src="assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6" width="400"
-            height="300">
-
-
-
-
-
-        </div>
-        <!-- First visible images could use eager loading -->
-        <div class="gallery-item">
-          <img src="assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 1"
-            width="400" height="300">
-
+          <img src="assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
         </div>
         <div class="gallery-item">
-          <img src="assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 4"
-            width="400" height="300">
+          <img src="assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 1">
         </div>
         <div class="gallery-item">
-
-
-          <img src="assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6"
-            width="400" height="300">
-
+          <img src="assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 4">
         </div>
         <div class="gallery-item">
-          <img src="assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 5"
-            width="400" height="300">
+          <img src="assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
+        </div>
+        <div class="gallery-item">
+          <img src="assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 5">
         </div>
       </div>
     </section>
 
-    <section class="section--page">
-      <h2>Why CodeBurg?</h2>
-      <ul id="qualifications--list">
-        <li>
-          <div><i class="fas fa-location-dot"></i> Prime Burgas Location:</div>
-          <span>In the heart of Burgas, steps away from the sea and city park. 5 minutes from Black Sea beaches and Sea Garden (Morska Gradina).</span>
-        </li>
+    <!-- Features Section -->
+    <section class="section">
+      <div class="section-title">
+        <h2>Why CodeBurg?</h2>
+        <p>Everything you need to be productive and comfortable.</p>
+      </div>
+      
+      <div id="qualifications--list" class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-location-dot"></i></div>
+          <h3>Prime Location</h3>
+          <p>In the heart of Burgas, steps away from the sea and city park. 5 minutes from Black Sea beaches and Sea Garden.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-desktop"></i> Premium Workspace:</div>
-          <span>Height-adjustable tables, ergonomic chairs, and blazing-fast internet with 32" monitors available.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-desktop"></i></div>
+          <h3>Premium Workspace</h3>
+          <p>Height-adjustable tables, ergonomic chairs, and blazing-fast internet with 32" monitors available.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-key"></i> 24/7 Access:</div>
-          <span>Your space, your schedule - personal key provided for ultimate flexibility.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-key"></i></div>
+          <h3>24/7 Access</h3>
+          <p>Your space, your schedule - personal key provided for ultimate flexibility.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-mug-hot"></i> Complimentary Refreshments:</div>
-          <span>
-            <ul class="nested-list">
-              <li>☕️ Three coffee varieties</li>
-              <li>🫖 Selection of teas</li>
-              <li>🍎 Fresh fruits daily</li>
-              <li>🍪 Assorted snacks</li>
-            </ul>
-          </span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-mug-hot"></i></div>
+          <h3>Free Refreshments</h3>
+          <ul class="nested-list">
+            <li><i class="fas fa-coffee"></i> Three coffee varieties</li>
+            <li><i class="fas fa-leaf"></i> Selection of teas</li>
+            <li><i class="fas fa-apple-alt"></i> Fresh fruits daily</li>
+            <li><i class="fas fa-cookie"></i> Assorted snacks</li>
+          </ul>
+        </div>
 
-        <li>
-          <div><i class="fas fa-couch"></i> Comfort Zone:</div>
-          <span>Relaxing lounge area with comfortable seating and ambient music.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-couch"></i></div>
+          <h3>Comfort Zone</h3>
+          <p>Relaxing lounge area with comfortable seating and ambient music.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-users"></i> Developer Community:</div>
-          <span>Connect with fellow tech enthusiasts who are always ready to collaborate and share knowledge.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-users"></i></div>
+          <h3>Community</h3>
+          <p>Connect with fellow tech enthusiasts who are always ready to collaborate and share knowledge.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-hand-holding-dollar"></i> Affordable Rates:</div>
-          <span>Competitive pricing with flexible plans to suit your needs.</span>
-        </li>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+          <h3>Affordable Rates</h3>
+          <p>Competitive pricing with flexible plans to suit your needs.</p>
+        </div>
 
-        <li>
-          <div><i class="fas fa-map-marker-alt"></i> Perfect Location Benefits:</div>
-          <span>Close to restaurants, public transport, business district, and Burgas Airport - ideal for digital nomads.</span>
-        </li>
-      </ul>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Convenience</h3>
+          <p>Close to restaurants, public transport, business district, and Burgas Airport - ideal for digital nomads.</p>
+        </div>
+      </div>
     </section>
 
-
-    <!-- Streamlined FAQ Section -->
-    <section id="faq" class="section--page">
-      <h2>Frequently Asked Questions</h2>
-      
-      
-      <div class="faq-item">
-        <h3>What's included in the daily pass?</h3>
-        <p>Our 15 BGN (≈7.67 EUR) daily pass includes full workspace access, unlimited coffee/tea, high-speed internet (1GB+), 32" 4K monitor, keyboard & mouse (if available), height adjustable tables, comfortable chairs, clean water, weekly snacks, small talks with people from different countries, plenty of plants, and use of all common areas and facilities.</p>
+    <!-- FAQ Section -->
+    <section id="faq" class="section">
+      <div class="section-title">
+        <h2>Frequently Asked Questions</h2>
+        <p>Common questions about our space.</p>
       </div>
       
-      <div class="faq-item">
-        <h3>Is there parking available?</h3>
-        <p>Yes, there are several parking options nearby including street parking and paid parking lots within walking distance.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>What are the working hours?</h3>
-        <p>Monthly members receive personal keys for 24/7 access. Daily and weekly pass holders can access the space from 9:30 AM to ~6:00 PM (adjustable if needed).</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>How do I get to CodeBurg?</h3>
-        <p>We're located in Burgas city center. You can take city buses (БургасБус network with 32 routes) - use the "Transport Burgas" mobile app for real-time schedules. For cycling enthusiasts, there's a nice bicycle track from SeaPark that leads to our area. Check our <a href="#contacts">location section</a> below for the exact address and interactive map.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>Can I take calls and have meetings while working here?</h3>
-        <p>Absolutely! We all wear headphones and fully understand the need for meetings. For sensitive conversations like salary negotiations or interviews, you can reserve and lock the chill room, which is equipped with a table and internet, for up to 1 hour during the day if needed.</p>
-      </div>
-      
-      <div class="faq-item">
-        <h3>How do I get in contact?</h3>
-        <p>Check our <a href="#contacts">contacts section</a> above for general information. You can also reach me personally:<br> <a href="https://t.me/oleksandr_bodrov" target="_blank"><i class="fab fa-telegram-plane"></i> my Telegram</a>, <a href="viber://chat?number=+359884489289"><i class="fab fa-viber"></i> my Viber</a>, or <a href="https://www.linkedin.com/in/oleksandr-bodrov-1b9566148/" target="_blank"><i class="fab fa-linkedin"></i> my LinkedIn</a>. I'll be happy to welcome you as my guest and hope I can make your stay at CodeBurg as productive as pleasant!</p>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>What's included in the daily pass?</h3>
+          <p>Our 15 BGN (≈7.67 EUR) daily pass includes full workspace access, unlimited coffee/tea, high-speed internet (1GB+), 32" 4K monitor, keyboard & mouse (if available), height adjustable tables, comfortable chairs, clean water, weekly snacks, small talks with people from different countries, plenty of plants, and use of all common areas and facilities.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Is there parking available?</h3>
+          <p>Yes, there are several parking options nearby including street parking and paid parking lots within walking distance.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>What are the working hours?</h3>
+          <p>Monthly members receive personal keys for 24/7 access. Daily and weekly pass holders can access the space from 9:30 AM to ~6:00 PM (adjustable if needed).</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>How do I get to CodeBurg?</h3>
+          <p>We're located in Burgas city center. You can take city buses (БургасБус network with 32 routes) - use the "Transport Burgas" mobile app for real-time schedules. For cycling enthusiasts, there's a nice bicycle track from SeaPark that leads to our area.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>Can I take calls and have meetings?</h3>
+          <p>Absolutely! We all wear headphones and fully understand the need for meetings. For sensitive conversations like salary negotiations or interviews, you can reserve and lock the chill room, which is equipped with a table and internet, for up to 1 hour during the day if needed.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h3>How do I get in contact?</h3>
+          <p>Check our <a href="#contacts">contacts section</a> above for general information. You can also reach me personally: <a href="https://t.me/oleksandr_bodrov" target="_blank">Telegram</a>, <a href="viber://chat?number=+359884489289">Viber</a>, or <a href="https://www.linkedin.com/in/oleksandr-bodrov-1b9566148/" target="_blank">LinkedIn</a>.</p>
+        </div>
       </div>
 
       <!-- Desk Availability -->
@@ -339,67 +339,61 @@
         </button>
         <div id="availability-result" class="availability-result"></div>
       </div>
-
     </section>
 
-    <section id="pricing" class="section--page">
-      <h2>Pricing and plans</h2>
-      <div class="pricing-container">
-        <div class="price-card">
-          <div class="price-header">
-            <i class="fas fa-sun"></i>
-            <h3>Day Pass</h3>
-            <div class="price">15 BGN<span>/day</span></div>
-            <div class="price-eur">≈7.67 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Perfect for occasional visits</p>
-          </div>
+    <!-- Pricing Section -->
+    <section id="pricing" class="section">
+      <div class="section-title">
+        <h2>Pricing and Plans</h2>
+        <p>Simple, transparent pricing for everyone.</p>
+      </div>
+      
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-icon"><i class="fas fa-sun"></i></div>
+          <h3 class="pricing-title">Day Pass</h3>
+          <div class="pricing-price">15 BGN<span>/day</span></div>
+          <div class="pricing-eur">≈7.67 EUR</div>
+          <p class="pricing-desc">Perfect for occasional visits</p>
         </div>
 
-        <div class="price-card">
-          <div class="price-header">
-            <i class="fas fa-star"></i>
-            <h3>Week</h3>
-            <div class="price">60 BGN<span>/week</span></div>
-            <div class="price-eur">≈30.68 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Perfect for weekly projects</p>
-          </div>
+        <div class="pricing-card">
+          <div class="pricing-icon"><i class="fas fa-star"></i></div>
+          <h3 class="pricing-title">Week</h3>
+          <div class="pricing-price">70 BGN<span>/week</span></div>
+          <div class="pricing-eur">≈35.79 EUR</div>
+          <p class="pricing-desc">Perfect for weekly projects</p>
         </div>
 
-        <div class="price-card featured">
-          <div class="price-header">
-            <i class="fas fa-rocket"></i>
-            <h3>Full Month</h3>
-            <div class="price">200 BGN<span>/month</span></div>
-            <div class="price-eur">≈102.28 EUR</div>
-          </div>
-          <div class="price-features">
-            <p>Best value for regular members</p>
-          </div>
+        <div class="pricing-card featured">
+          <div class="pricing-icon"><i class="fas fa-rocket"></i></div>
+          <h3 class="pricing-title">Full Month</h3>
+          <div class="pricing-price">225 BGN<span>/month</span></div>
+          <div class="pricing-eur">≈115.04 EUR</div>
+          <p class="pricing-desc">Best value for regular members</p>
         </div>
       </div>
       
       <div class="pricing-disclaimer">
-        <p><i class="fas fa-info-circle"></i> <strong>EUR Pricing Notice:</strong> Prices shown in EUR are approximate conversions using the fixed rate of 1 EUR = 1.95583 BGN, as required by Bulgarian eurozone transition legislation. Bulgaria will officially adopt the euro on January 1, 2026.</p>
+        <i class="fas fa-info-circle"></i>
+        <p><strong>EUR Pricing Notice:</strong> Prices shown in EUR are approximate conversions using the fixed rate of 1 EUR = 1.95583 BGN, as required by Bulgarian eurozone transition legislation. Bulgaria will officially adopt the euro on January 1, 2026.</p>
       </div>
-
     </section>
 
-    <section id="afterwordings" class="section--page">
-      <h2>
-        Afterwordings
-      </h2>
-      <p>
-        We'll be happy to see you in CodeBurg! As we try to build a community of developers who work and study together,
-        we'll be happy to see you in our space. We have big plans for the future events and workshops. Become our member
-        today, and we'll see you soon!
-      </p>
+    <!-- Afterwordings Section -->
+    <section id="afterwordings" class="section">
+      <div class="section-title">
+        <h2>Afterwordings</h2>
+        <p>
+          We'll be happy to see you in CodeBurg! As we try to build a community of developers who work and study together,
+          we'll be happy to see you in our space. We have big plans for the future events and workshops. Become our member
+          today, and we'll see you soon!
+        </p>
+      </div>
     </section>
   </div>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-logo">
@@ -427,7 +421,8 @@
       </div>
     </div>
   </footer>
+
+  <script src="./js/main.js"></script>
 </body>
-<script src="./js/main.js"></script>
 
 </html>
