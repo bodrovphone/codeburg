@@ -509,17 +509,6 @@ ul {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.pricing-eur {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: -1rem;
-  margin-bottom: 2rem;
-}
-
-.pricing-card.featured .pricing-eur {
-  color: rgba(255, 255, 255, 0.6);
-}
-
 .pricing-desc {
   color: var(--text-muted);
   margin-bottom: 2rem;
