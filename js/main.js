@@ -174,6 +174,7 @@ async function fetchBookings() {
     const queryParams = new URLSearchParams({
       select: 'desk_id,date,status',
       date: `gte.${startDateStr}`,
+      organization_id: 'eq.f2820c35-d9e0-4028-89c8-3a96d0117e05',
     });
 
     const response = await fetch(`${SUPABASE_CONFIG.url}?${queryParams.toString()}&date=lte.${endDateStr}`, {
@@ -238,6 +239,88 @@ window.DeskAvailability = {
   DESKS
 };
 
+function isBotOrNoStorage() {
+  // Check if sessionStorage exists (bots/crawlers typically lack it)
+  try {
+    sessionStorage.setItem('__bot_check', '1');
+    sessionStorage.removeItem('__bot_check');
+  } catch (e) {
+    return true;
+  }
+  return false;
+}
+
+function getCachedAvailability() {
+  try {
+    const cached = sessionStorage.getItem('desk_availability');
+    if (!cached) return null;
+    const data = JSON.parse(cached);
+    // Cache valid for 15 minutes
+    if (Date.now() - data.timestamp > 15 * 60 * 1000) {
+      sessionStorage.removeItem('desk_availability');
+      return null;
+    }
+    return data.result;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setCachedAvailability(result) {
+  try {
+    sessionStorage.setItem('desk_availability', JSON.stringify({
+      result: result,
+      timestamp: Date.now()
+    }));
+  } catch (e) {
+    // Ignore storage errors
+  }
+}
+
+async function initHeroAvailability() {
+  const container = document.getElementById('hero-availability');
+  if (!container) return;
+
+  const texts = getLocalizedTexts();
+
+  // Bot/crawler prevention
+  if (isBotOrNoStorage()) {
+    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
+    container.classList.add('loaded');
+    return;
+  }
+
+  // Check cache first
+  const cached = getCachedAvailability();
+  if (cached) {
+    renderHeroAvailability(container, cached, texts);
+    return;
+  }
+
+  // Fetch fresh data
+  try {
+    const availableDates = await getNextAvailableDates();
+    setCachedAvailability(availableDates);
+    renderHeroAvailability(container, availableDates, texts);
+  } catch (error) {
+    console.error('Hero availability error:', error);
+    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
+    container.classList.add('loaded');
+  }
+}
+
+function renderHeroAvailability(container, availableDates, texts) {
+  const nextWithDesks = availableDates.find(d => d.availableDesks > 0);
+
+  if (nextWithDesks) {
+    const dateStr = formatShortDate(nextWithDesks.date);
+    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroNext} <strong>${dateStr}</strong></span>`;
+  } else {
+    container.innerHTML = `<i class="fas fa-calendar-times"></i> <span class="hero-availability-text">${texts.heroNone}</span>`;
+  }
+  container.classList.add('loaded');
+}
+
 function initAvailabilityButton() {
   const button = document.getElementById('check-availability-btn');
   const resultDiv = document.getElementById('availability-result');
@@ -249,7 +332,6 @@ function initAvailabilityButton() {
   button.addEventListener('click', async function() {
     const texts = getLocalizedTexts();
 
-    // Disable button and show spinner
     button.disabled = true;
     button.innerHTML = `<span class="spinner"></span> ${texts.buttonLoading}`;
 
@@ -273,7 +355,6 @@ function initAvailabilityButton() {
       resultDiv.className = 'availability-result show';
       resultDiv.innerHTML = `<p>${texts.error}</p>`;
     } finally {
-      // Restore button
       button.disabled = false;
       button.innerHTML = originalButtonHTML;
     }
@@ -290,7 +371,10 @@ function getLocalizedTexts() {
       noAvailability: 'Нет доступных столов в ближайшие 10 дней. Пожалуйста, свяжитесь с нами напрямую для уточнения наличия.',
       loading: 'Проверяем наличие...',
       buttonLoading: 'Проверяем...',
-      error: 'Ошибка при проверке наличия. Попробуйте позже.'
+      error: 'Ошибка при проверке наличия. Попробуйте позже.',
+      heroNext: 'Ближайшее свободное место:',
+      heroNone: 'Нет свободных мест на ближайшие дни',
+      heroFallback: 'Свяжитесь с нами для проверки наличия мест'
     };
   } else if (currentPath.includes('/ua/')) {
     return {
@@ -299,7 +383,10 @@ function getLocalizedTexts() {
       noAvailability: 'Немає доступних столів у найближчі 10 днів. Будь ласка, зв\'яжіться з нами безпосередньо для уточнення наявності.',
       loading: 'Перевіряємо наявність...',
       buttonLoading: 'Перевіряємо...',
-      error: 'Помилка при перевірці наявності. Спробуйте пізніше.'
+      error: 'Помилка при перевірці наявності. Спробуйте пізніше.',
+      heroNext: 'Найближче вільне місце:',
+      heroNone: 'Немає вільних місць на найближчі дні',
+      heroFallback: 'Зв\'яжіться з нами для перевірки наявності місць'
     };
   } else if (currentPath.includes('/bg/')) {
     return {
@@ -308,7 +395,10 @@ function getLocalizedTexts() {
       noAvailability: 'Няма налични бюра в следващите 10 дни. Моля, свържете се с нас директно за наличност.',
       loading: 'Проверяваме наличността...',
       buttonLoading: 'Проверяваме...',
-      error: 'Грешка при проверка на наличността. Опитайте отново по-късно.'
+      error: 'Грешка при проверка на наличността. Опитайте отново по-късно.',
+      heroNext: 'Следващото свободно място:',
+      heroNone: 'Няма свободни места за следващите дни',
+      heroFallback: 'Свържете се с нас за проверка на наличността'
     };
   } else {
     return {
@@ -317,7 +407,10 @@ function getLocalizedTexts() {
       noAvailability: 'No desks available in the next 10 days. Please contact us directly for availability.',
       loading: 'Checking availability...',
       buttonLoading: 'Checking...',
-      error: 'Error checking availability. Please try again later.'
+      error: 'Error checking availability. Please try again later.',
+      heroNext: 'Next available desk:',
+      heroNone: 'No desks available for the coming days',
+      heroFallback: 'Contact us to check desk availability'
     };
   }
 }
@@ -361,6 +454,25 @@ function formatDisplayDate(dateString) {
     year: 'numeric', 
     month: 'long', 
     day: 'numeric' 
+  });
+}
+
+function formatShortDate(dateString) {
+  const date = new Date(dateString + 'T00:00:00');
+  const currentPath = window.location.pathname;
+
+  let locale = 'en-US';
+  if (currentPath.includes('/ru/')) {
+    locale = 'ru-RU';
+  } else if (currentPath.includes('/ua/')) {
+    locale = 'uk-UA';
+  } else if (currentPath.includes('/bg/')) {
+    locale = 'bg-BG';
+  }
+
+  return date.toLocaleDateString(locale, {
+    month: 'long',
+    day: 'numeric'
   });
 }
 
@@ -452,6 +564,7 @@ function addPlayButton(video) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initHeroAvailability();
   initAvailabilityButton();
   ensureVideoAutoplay();
   

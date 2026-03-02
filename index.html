@@ -121,7 +121,7 @@
     <div class="nav-content">
       <a href="#" class="nav-logo">
         <img src="assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
-        Code<span>B</span>urg
+        <span class="nav-logo-text">Code<span>B</span>urg</span>
       </a>
       
       <div class="section-links">
@@ -159,26 +159,31 @@
       <h1 class="hero-title">Code<span>B</span>urg</h1>
       <h2 class="hero-subtitle">Cozy Tech Coworking Space<br>Work, Connect, Grow</h2>
       
-      <div id="social--list" class="hero-social">
-        <a href="tel:+359884489289" class="social-btn">
-          <i class="fas fa-phone-volume"></i> Call Us
+      <div class="hero-nav">
+        <a href="#location" class="hero-nav-btn">
+          <i class="fas fa-map-marker-alt"></i> <span class="btn-label">L<em>o</em>cate Us</span>
         </a>
-        <a href="https://wa.me/359884489289" class="social-btn" target="_blank">
-          <i class="fab fa-whatsapp"></i> WhatsApp
+        <a href="#contact" class="hero-nav-btn">
+          <i class="fas fa-envelope"></i> <span class="btn-label">Cont<em>a</em>ct Us</span>
         </a>
-        <a href="https://t.me/codeburg" class="social-btn" target="_blank">
-          <i class="fab fa-telegram-plane"></i> Telegram
+        <a href="#pricing" class="hero-nav-btn">
+          <i class="fas fa-tag"></i> <span class="btn-label">Pric<em>e</em>s</span>
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" class="social-btn" target="_blank">
-          <i class="fab fa-instagram"></i> Instagram
+        <a href="#faq" class="hero-nav-btn">
+          <i class="fas fa-question-circle"></i> <span class="btn-label">Questions & A<em>n</em>swers</span>
         </a>
+      </div>
+
+      <div id="hero-availability" class="hero-availability">
+        <span class="hero-availability-spinner"></span>
+        <span class="hero-availability-text">Checking availability...</span>
       </div>
     </div>
   </section>
 
   <div class="container">
     <!-- Map Section -->
-    <section class="section">
+    <section id="location" class="section">
       <div class="section-title">
         <h2>Our Location</h2>
         <p>In the heart of Burgas, steps away from the sea and city park.</p>
@@ -369,6 +374,31 @@
           <div class="pricing-price">115€<span>/month</span></div>
           <p class="pricing-desc">Best value for regular members</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="section">
+      <div class="section-title">
+        <h2>Contact Us</h2>
+        <p>Reach out to us through any of these channels.</p>
+      </div>
+      <div class="contact-links">
+        <a href="tel:+359884489289" class="contact-btn">
+          <i class="fas fa-phone-volume"></i> Call Us
+        </a>
+        <a href="https://wa.me/359884489289" class="contact-btn" target="_blank">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        <a href="https://t.me/codeburg" class="contact-btn" target="_blank">
+          <i class="fab fa-telegram-plane"></i> Telegram
+        </a>
+        <a href="viber://chat?number=+359884489289" class="contact-btn">
+          <i class="fab fa-viber"></i> Viber
+        </a>
+        <a href="https://www.instagram.com/coworking_burgas" class="contact-btn" target="_blank">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
       </div>
     </section>
 

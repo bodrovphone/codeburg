@@ -120,7 +120,7 @@
     <div class="nav-content">
       <a href="#" class="nav-logo">
         <img src="../assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
-        Code<span>B</span>urg
+        <span class="nav-logo-text">Code<span>B</span>urg</span>
       </a>
       
       <div class="section-links">
@@ -158,26 +158,31 @@
       <h1 class="hero-title">Code<span>B</span>urg</h1>
       <h2 class="hero-subtitle">Не просто коворкінг – <br> думай, створюй, рухайся вперед. Разом.</h2>
       
-      <div id="social--list" class="hero-social">
-        <a href="tel:+359884489289" class="social-btn">
-          <i class="fas fa-phone-volume"></i> Дзвінок
+      <div class="hero-nav">
+        <a href="#location" class="hero-nav-btn">
+          <i class="fas fa-map-marker-alt"></i> <span class="btn-label">Д<em>е</em> ми</span>
         </a>
-        <a href="https://wa.me/359884489289" class="social-btn" target="_blank">
-          <i class="fab fa-whatsapp"></i> WhatsApp
+        <a href="#contact" class="hero-nav-btn">
+          <i class="fas fa-envelope"></i> <span class="btn-label">Зв'я<em>з</em>атися</span>
         </a>
-        <a href="https://t.me/codeburg" class="social-btn" target="_blank">
-          <i class="fab fa-telegram-plane"></i> Telegram
+        <a href="#pricing" class="hero-nav-btn">
+          <i class="fas fa-tag"></i> <span class="btn-label">Ці<em>н</em>и</span>
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" class="social-btn" target="_blank">
-          <i class="fab fa-instagram"></i> Instagram
+        <a href="#faq" class="hero-nav-btn">
+          <i class="fas fa-question-circle"></i> <span class="btn-label">Питання та від<em>п</em>овіді</span>
         </a>
+      </div>
+
+      <div id="hero-availability" class="hero-availability">
+        <span class="hero-availability-spinner"></span>
+        <span class="hero-availability-text">Перевіряємо наявність...</span>
       </div>
     </div>
   </section>
 
   <div class="container">
     <!-- Map Section -->
-    <section class="section">
+    <section id="location" class="section">
       <div class="section-title">
         <h2>Наше розташування</h2>
         <p>В серці Бургаса, за кілька кроків від моря та міського парку.</p>
@@ -368,6 +373,31 @@
           <div class="pricing-price">115€<span>/місяць</span></div>
           <p class="pricing-desc">Найкраща ціна для постійних учасників</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="section">
+      <div class="section-title">
+        <h2>Зв'яжіться з нами</h2>
+        <p>Зв'яжіться з нами через будь-який з цих каналів.</p>
+      </div>
+      <div class="contact-links">
+        <a href="tel:+359884489289" class="contact-btn">
+          <i class="fas fa-phone-volume"></i> Дзвінок
+        </a>
+        <a href="https://wa.me/359884489289" class="contact-btn" target="_blank">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        <a href="https://t.me/codeburg" class="contact-btn" target="_blank">
+          <i class="fab fa-telegram-plane"></i> Telegram
+        </a>
+        <a href="viber://chat?number=+359884489289" class="contact-btn">
+          <i class="fab fa-viber"></i> Viber
+        </a>
+        <a href="https://www.instagram.com/coworking_burgas" class="contact-btn" target="_blank">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
       </div>
     </section>
 
