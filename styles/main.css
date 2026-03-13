@@ -410,9 +410,12 @@ ul {
   padding: 1rem 2rem;
   background: var(--primary);
   color: white;
+  border: none;
   border-radius: 50px;
+  font-family: inherit;
   font-size: 1.125rem;
   font-weight: 600;
+  line-height: inherit;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-lg);
 }
@@ -726,8 +729,10 @@ ul {
   border: none;
   padding: 1rem 2rem;
   border-radius: 50px;
+  font-family: inherit;
   font-size: 1.125rem;
   font-weight: 600;
+  line-height: inherit;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
