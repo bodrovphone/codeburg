@@ -384,6 +384,46 @@ ul {
   color: white;
 }
 
+.hero-nav-btn.book-btn {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(13, 148, 136, 0.4);
+}
+
+.hero-nav-btn.book-btn:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: 0 0 30px rgba(13, 148, 136, 0.6);
+}
+
+.hero-nav-btn.book-btn em {
+  color: white;
+}
+
+.availability-book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background: var(--primary);
+  color: white;
+  border-radius: 50px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.availability-book-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+  color: white;
+}
+
 /* Hero Availability Badge */
 .hero-availability {
   display: inline-flex;
