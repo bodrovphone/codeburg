@@ -585,9 +585,9 @@ ul {
 /* Pricing */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  max-width: 1000px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -952,6 +952,7 @@ ul {
   }
   
   .pricing-grid {
+    grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 
