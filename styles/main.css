@@ -404,6 +404,24 @@ ul {
   color: white;
 }
 
+.hero-nav-btn.ai-bot-btn {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+}
+
+.hero-nav-btn.ai-bot-btn:hover {
+  background: #6d28d9;
+  border-color: #6d28d9;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+}
+
+.hero-nav-btn.ai-bot-btn em {
+  color: white;
+}
+
 .availability-book-btn {
   display: inline-flex;
   align-items: center;
@@ -1027,6 +1045,27 @@ ul {
 
 .footer-bottom i.fa-heart {
   color: var(--accent-error);
+}
+
+.footer-partner {
+  margin-top: 0.75rem;
+  opacity: 0.55;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.footer-partner-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-partner-logo {
+  height: 20px;
+  width: auto;
+  vertical-align: middle;
 }
 
 /* Responsive */
