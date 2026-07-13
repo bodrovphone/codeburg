@@ -116,22 +116,11 @@ ScrollReveal().reveal('.section--page:last-child', {
   viewFactor: 0.1,
 });
 
-// Desk Availability Calculation
-const DESKS = [
-  { id: 'room1-desk1', room: 1, number: 1 },
-  { id: 'room1-desk2', room: 1, number: 2 },
-  { id: 'room1-desk3', room: 1, number: 3 },
-  { id: 'room1-desk4', room: 1, number: 4 },
-  { id: 'room2-desk1', room: 2, number: 1 },
-  { id: 'room2-desk2', room: 2, number: 2 },
-  { id: 'room2-desk3', room: 2, number: 3 },
-  { id: 'room2-desk4', room: 2, number: 4 },
-];
-
-const SUPABASE_CONFIG = {
-  url: 'https://rvvunwqizlzlqrhmmera.supabase.co/rest/v1/desk_bookings',
-  apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dnVud3Fpemx6bHFyaG1tZXJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxNzg0NzQsImV4cCI6MjA3MDc1NDQ3NH0.ZzJxdSPJtRkcGTUMNHhig6G8nPVLdJsABr0VPq-wXLI'
-};
+// Desk availability via the OhMyDesk public API.
+// No keys and no direct database access — the desk list and booked days come
+// straight from the space's live data. (Migrated off the raw Supabase table +
+// anon key that used to live here.)
+const OHMYDESK_AVAILABILITY_URL = 'https://ohmydesk.app/api/v1/public/codeburg/availability';
 
 function isWeekend(dateString) {
   const date = new Date(dateString + 'T00:00:00');
@@ -160,72 +149,49 @@ function generateDatesForNext10Days() {
   return dates;
 }
 
-async function fetchBookings() {
+async function fetchAvailability() {
   try {
-    // Calculate date range: today to today + 10 days
-    const today = new Date();
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + 10);
-
-    const startDateStr = formatDate(today);
-    const endDateStr = formatDate(endDate);
-
-    // Filter query: only get bookings within the next 10 days
-    const queryParams = new URLSearchParams({
-      select: 'desk_id,date,status',
-      date: `gte.${startDateStr}`,
-      organization_id: 'eq.f2820c35-d9e0-4028-89c8-3a96d0117e05',
-    });
-
-    const response = await fetch(`${SUPABASE_CONFIG.url}?${queryParams.toString()}&date=lte.${endDateStr}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_CONFIG.apiKey,
-        'Authorization': `Bearer ${SUPABASE_CONFIG.apiKey}`
-      }
+    const response = await fetch(OHMYDESK_AVAILABILITY_URL, {
+      headers: { 'Accept': 'application/json' }
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const body = await response.json();
+    // { data: { org, rooms: [{ desks: [{ deskId }] }], bookedSlots: [{ deskId, date }], ... } }
+    return body.data;
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    return [];
+    console.error('Error fetching availability:', error);
+    return null;
   }
-}
-
-function calculateAvailableDesks(bookings, date) {
-  let availableCount = 0;
-  
-  DESKS.forEach(desk => {
-    const booking = bookings.find(b => b.desk_id === desk.id && b.date === date);
-    
-    // If no booking exists OR booking status is 'available', the desk is available
-    if (!booking || booking.status === 'available') {
-      availableCount++;
-    }
-  });
-  
-  return availableCount;
 }
 
 async function getNextAvailableDates() {
   try {
-    const bookings = await fetchBookings();
-    const dates = generateDatesForNext10Days();
-    const results = [];
-    
-    for (const date of dates) {
-      const availableDesks = calculateAvailableDesks(bookings, date);
-      results.push({
-        date: date,
-        availableDesks: availableDesks
-      });
+    const availability = await fetchAvailability();
+    if (!availability) return [];
+
+    // The real desk list, straight from the space (no hardcoded assumptions).
+    const deskIds = (availability.rooms || [])
+      .flatMap(room => (room.desks || []).map(desk => desk.deskId));
+    const totalDesks = deskIds.length;
+
+    // Booked desk ids grouped by date.
+    const bookedByDate = new Map();
+    for (const slot of (availability.bookedSlots || [])) {
+      if (!bookedByDate.has(slot.date)) bookedByDate.set(slot.date, new Set());
+      bookedByDate.get(slot.date).add(slot.deskId);
     }
-    
-    return results;
+
+    return generateDatesForNext10Days().map(date => {
+      const booked = bookedByDate.get(date);
+      const availableDesks = booked
+        ? deskIds.filter(id => !booked.has(id)).length
+        : totalDesks;
+      return { date, availableDesks };
+    });
   } catch (error) {
     console.error('Error calculating available dates:', error);
     return [];
@@ -234,9 +200,7 @@ async function getNextAvailableDates() {
 
 window.DeskAvailability = {
   getNextAvailableDates,
-  calculateAvailableDesks,
-  fetchBookings,
-  DESKS
+  fetchAvailability
 };
 
 function isBotOrNoStorage() {
