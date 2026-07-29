@@ -117,36 +117,67 @@ ScrollReveal().reveal('.section--page:last-child', {
 });
 
 // Desk availability via the OhMyDesk public API.
-// No keys and no direct database access — the desk list and booked days come
-// straight from the space's live data. (Migrated off the raw Supabase table +
-// anon key that used to live here.)
+// No keys and no direct database access — the desk list, booked days and the
+// space's own calendar rules (working days, closure dates, booking horizon)
+// come straight from the space's live data. (Migrated off the raw Supabase
+// table + anon key that used to live here.)
 const OHMYDESK_AVAILABILITY_URL = 'https://ohmydesk.app/api/v1/public/codeburg/availability';
 
-function isWeekend(dateString) {
-  const date = new Date(dateString + 'T00:00:00');
-  const dayOfWeek = date.getDay();
-  return dayOfWeek === 0 || dayOfWeek === 6;
-}
+// Fallbacks only — the real values come from the API's `org` block.
+const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // ISO weekdays: 1=Mon … 7=Sun
+const DEFAULT_MAX_DAYS_AHEAD = 14;
 
+// Local calendar date. Deliberately NOT toISOString(), which converts to UTC
+// and reports the wrong day for any visitor whose local date differs from
+// UTC's — e.g. Europe/Sofia between local midnight and 03:00.
 function formatDate(date) {
-  return date.toISOString().split('T')[0];
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return date.getFullYear() + '-' + month + '-' + day;
 }
 
-function generateDatesForNext10Days() {
+function closureDatesToSet(closureDates) {
+  const out = new Set();
+  for (const entry of closureDates || []) {
+    const date = entry && typeof entry.date === 'string' ? entry.date.trim() : '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) out.add(date);
+  }
+  return out;
+}
+
+// Mirrors isNonWorkingDay() in the OhMyDesk client, so this page and the hosted
+// booking page agree on which days a visitor can actually book. A closure date
+// carries no bookings (nobody can book a closed day), so without this check the
+// naive "free desks" math reads a vacation day as completely available.
+function isNonWorkingDay(dateString, workingDays, closedDates) {
+  if (closedDates && closedDates.has(dateString)) return true;
+  const jsDay = new Date(dateString + 'T00:00:00').getDay();
+  const isoDay = jsDay === 0 ? 7 : jsDay;
+  return !workingDays.includes(isoDay);
+}
+
+// Every day inside the space's booking horizon that a visitor could book.
+function generateBookableDates(org) {
+  const workingDays = Array.isArray(org && org.workingDays) && org.workingDays.length
+    ? org.workingDays
+    : DEFAULT_WORKING_DAYS;
+  const closedDates = closureDatesToSet(org && org.closureDates);
+  const horizon = (org && org.maxDaysAhead) || DEFAULT_MAX_DAYS_AHEAD;
+
   const dates = [];
   const today = new Date();
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < horizon; i++) {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() + i);
     const dateString = formatDate(currentDate);
 
-    if (!isWeekend(dateString)) {
+    if (!isNonWorkingDay(dateString, workingDays, closedDates)) {
       dates.push(dateString);
     }
   }
 
-  return dates;
+  return { dates: dates, horizon: horizon };
 }
 
 async function fetchAvailability() {
@@ -168,10 +199,18 @@ async function fetchAvailability() {
   }
 }
 
-async function getNextAvailableDates() {
+function unknownState() {
+  return { status: 'unknown', dates: [], totalDesks: 0, windowDays: DEFAULT_MAX_DAYS_AHEAD };
+}
+
+// Resolves to { status, dates, totalDesks, windowDays }, where status is:
+//   'available' — at least one bookable day still has a free desk
+//   'none'      — the space is genuinely full across the whole horizon
+//   'unknown'   — the API failed, so we must not claim either way
+async function getAvailabilityState() {
   try {
     const availability = await fetchAvailability();
-    if (!availability) return [];
+    if (!availability) return unknownState();
 
     // The real desk list, straight from the space (no hardcoded assumptions).
     const deskIds = (availability.rooms || [])
@@ -185,21 +224,34 @@ async function getNextAvailableDates() {
       bookedByDate.get(slot.date).add(slot.deskId);
     }
 
-    return generateDatesForNext10Days().map(date => {
+    const bookingWindow = generateBookableDates(availability.org || {});
+    const dates = bookingWindow.dates.map(date => {
       const booked = bookedByDate.get(date);
       const availableDesks = booked
         ? deskIds.filter(id => !booked.has(id)).length
         : totalDesks;
       return { date, availableDesks };
     });
+
+    return {
+      status: dates.some(d => d.availableDesks > 0) ? 'available' : 'none',
+      dates: dates,
+      totalDesks: totalDesks,
+      windowDays: bookingWindow.horizon,
+    };
   } catch (error) {
     console.error('Error calculating available dates:', error);
-    return [];
+    return unknownState();
   }
+}
+
+async function getNextAvailableDates() {
+  return (await getAvailabilityState()).dates;
 }
 
 window.DeskAvailability = {
   getNextAvailableDates,
+  getAvailabilityState,
   fetchAvailability
 };
 
@@ -224,6 +276,11 @@ function getCachedAvailability() {
       sessionStorage.removeItem('desk_availability');
       return null;
     }
+    // Ignore entries written before `result` became a state object.
+    if (!data.result || typeof data.result !== 'object' || Array.isArray(data.result)) {
+      sessionStorage.removeItem('desk_availability');
+      return null;
+    }
     return data.result;
   } catch (e) {
     return null;
@@ -241,46 +298,67 @@ function setCachedAvailability(result) {
   }
 }
 
-async function initHeroAvailability() {
-  const container = document.getElementById('hero-availability');
-  if (!container) return;
-
-  const texts = getLocalizedTexts();
-
-  // Bot/crawler prevention
-  if (isBotOrNoStorage()) {
-    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
-    container.classList.add('loaded');
-    return;
-  }
-
-  // Check cache first
-  const cached = getCachedAvailability();
-  if (cached) {
-    renderHeroAvailability(container, cached, texts);
-    return;
-  }
-
-  // Fetch fresh data
-  try {
-    const availableDates = await getNextAvailableDates();
-    setCachedAvailability(availableDates);
-    renderHeroAvailability(container, availableDates, texts);
-  } catch (error) {
-    console.error('Hero availability error:', error);
-    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
-    container.classList.add('loaded');
-  }
+// The booking CTAs point at the OhMyDesk booking page. They ship `hidden` in
+// the markup and are only ever revealed once we have a reason to: a visitor
+// should never see a booking link flash up and then vanish.
+//
+// 'unknown' (API unreachable) also reveals them — an outage is not the same as
+// being full, and must not silently remove the booking path.
+function applyBookingCtaVisibility(state) {
+  const show = state.status === 'available' || state.status === 'unknown';
+  const ctas = document.querySelectorAll('.book-btn, .availability-book-btn');
+  ctas.forEach(cta => { cta.hidden = !show; });
 }
 
-function renderHeroAvailability(container, availableDates, texts) {
-  const nextWithDesks = availableDates.find(d => d.availableDesks > 0);
+// When the space is full, say so in the availability section too — otherwise
+// hiding the booking button just leaves an unexplained gap.
+function renderSoldOutNotice(state, texts) {
+  const resultDiv = document.getElementById('availability-result');
+  if (!resultDiv || state.status !== 'none') return;
+  resultDiv.className = 'availability-result show';
+  resultDiv.innerHTML = generateAvailabilityHTML(state);
+}
 
-  if (nextWithDesks) {
+async function initAvailability() {
+  const container = document.getElementById('hero-availability');
+  const texts = getLocalizedTexts();
+
+  // Bot/crawler prevention: skip the API call entirely. The CTAs ship hidden,
+  // so reveal them explicitly here — otherwise crawlers and browsers without
+  // sessionStorage would never see the booking link at all.
+  if (isBotOrNoStorage()) {
+    if (container) {
+      container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
+      container.classList.add('loaded');
+    }
+    applyBookingCtaVisibility(unknownState());
+    return;
+  }
+
+  let state = getCachedAvailability();
+  if (!state) {
+    state = await getAvailabilityState();
+    // Never cache an outage — the next page view should retry.
+    if (state.status !== 'unknown') setCachedAvailability(state);
+  }
+
+  if (container) renderHeroAvailability(container, state, texts);
+  applyBookingCtaVisibility(state);
+  renderSoldOutNotice(state, texts);
+}
+
+function renderHeroAvailability(container, state, texts) {
+  const nextWithDesks = state.dates.find(d => d.availableDesks > 0);
+
+  if (state.status === 'unknown') {
+    // The API is unreachable. Don't tell visitors we're full when we don't know.
+    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
+  } else if (nextWithDesks) {
     const dateStr = formatShortDate(nextWithDesks.date);
     container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroNext} <strong>${dateStr}</strong></span>`;
   } else {
-    container.innerHTML = `<i class="fas fa-calendar-times"></i> <span class="hero-availability-text">${texts.heroNone}</span>`;
+    const text = fillDays(texts.heroNone, state.windowDays);
+    container.innerHTML = `<i class="fas fa-calendar-times"></i> <span class="hero-availability-text">${text}</span>`;
   }
   container.classList.add('loaded');
 }
@@ -303,16 +381,20 @@ function initAvailabilityButton() {
     resultDiv.textContent = '';
 
     try {
-      const availableDates = await getNextAvailableDates();
+      const state = await getAvailabilityState();
 
-      if (availableDates.length === 0) {
+      if (state.status === 'unknown') {
         resultDiv.className = 'availability-result show';
         resultDiv.innerHTML = `<p>${texts.error}</p>`;
         return;
       }
 
+      // A manual check is the freshest signal we have — refresh cache and CTAs.
+      setCachedAvailability(state);
+      applyBookingCtaVisibility(state);
+
       resultDiv.className = 'availability-result show';
-      resultDiv.innerHTML = generateAvailabilityHTML(availableDates);
+      resultDiv.innerHTML = generateAvailabilityHTML(state);
 
     } catch (error) {
       console.error('Availability check error:', error);
@@ -325,79 +407,87 @@ function initAvailabilityButton() {
   });
 }
 
+// Substitutes the real booking horizon into a message template.
+function fillDays(template, days) {
+  return template.replace('{days}', days);
+}
+
 function getLocalizedTexts() {
   const currentPath = window.location.pathname;
-  
+
   if (currentPath.includes('/ru/')) {
     return {
       title: 'Следующая доступная дата',
+      soldOutTitle: 'Все места заняты',
       desks: 'столов',
-      noAvailability: 'Нет доступных столов в ближайшие 10 дней. Пожалуйста, свяжитесь с нами напрямую для уточнения наличия.',
+      noAvailability: 'Нет свободных столов на ближайшие {days} дней. Свяжитесь с нами — сообщим, как только место освободится.',
       loading: 'Проверяем наличие...',
       buttonLoading: 'Проверяем...',
       error: 'Ошибка при проверке наличия. Попробуйте позже.',
       heroNext: 'Ближайшее свободное место:',
-      heroNone: 'Нет свободных мест на ближайшие дни',
+      heroNone: 'Мест нет на ближайшие {days} дней',
       heroFallback: 'Свяжитесь с нами для проверки наличия мест'
     };
   } else if (currentPath.includes('/ua/')) {
     return {
       title: 'Наступна доступна дата',
+      soldOutTitle: 'Усі місця зайняті',
       desks: 'столів',
-      noAvailability: 'Немає доступних столів у найближчі 10 днів. Будь ласка, зв\'яжіться з нами безпосередньо для уточнення наявності.',
+      noAvailability: 'Немає вільних столів на найближчі {days} днів. Зв\'яжіться з нами — повідомимо, щойно місце звільниться.',
       loading: 'Перевіряємо наявність...',
       buttonLoading: 'Перевіряємо...',
       error: 'Помилка при перевірці наявності. Спробуйте пізніше.',
       heroNext: 'Найближче вільне місце:',
-      heroNone: 'Немає вільних місць на найближчі дні',
+      heroNone: 'Місць немає на найближчі {days} днів',
       heroFallback: 'Зв\'яжіться з нами для перевірки наявності місць'
     };
   } else if (currentPath.includes('/bg/')) {
     return {
       title: 'Следваща налична дата',
+      soldOutTitle: 'Няма свободни места',
       desks: 'бюра',
-      noAvailability: 'Няма налични бюра в следващите 10 дни. Моля, свържете се с нас директно за наличност.',
+      noAvailability: 'Няма свободни бюра през следващите {days} дни. Свържете се с нас — ще ви уведомим веднага щом се освободи място.',
       loading: 'Проверяваме наличността...',
       buttonLoading: 'Проверяваме...',
       error: 'Грешка при проверка на наличността. Опитайте отново по-късно.',
       heroNext: 'Следващото свободно място:',
-      heroNone: 'Няма свободни места за следващите дни',
+      heroNone: 'Няма свободни места през следващите {days} дни',
       heroFallback: 'Свържете се с нас за проверка на наличността'
     };
   } else {
     return {
       title: 'Next Available Date',
+      soldOutTitle: 'Fully Booked',
       desks: 'desks',
-      noAvailability: 'No desks available in the next 10 days. Please contact us directly for availability.',
+      noAvailability: 'No desks available in the next {days} days. Get in touch — we\'ll let you know as soon as one frees up.',
       loading: 'Checking availability...',
       buttonLoading: 'Checking...',
       error: 'Error checking availability. Please try again later.',
       heroNext: 'Next available desk:',
-      heroNone: 'No desks available for the coming days',
+      heroNone: 'Fully booked for the next {days} days',
       heroFallback: 'Contact us to check desk availability'
     };
   }
 }
 
-function generateAvailabilityHTML(availableDates) {
+function generateAvailabilityHTML(state) {
   const texts = getLocalizedTexts();
-  let html = `<h4><i class="fas fa-calendar-alt"></i> ${texts.title}</h4>`;
-  
-  const nextWithDesks = availableDates.find(d => d.availableDesks > 0);
-  
+  const nextWithDesks = state.dates.find(d => d.availableDesks > 0);
+
   if (nextWithDesks) {
     const deskClass = nextWithDesks.availableDesks >= 5 ? 'full' : nextWithDesks.availableDesks >= 1 ? 'limited' : 'none';
-    html += `<div class="date-info">
+    // Total comes from the payload — adding a desk must not require a code change.
+    return `<h4><i class="fas fa-calendar-alt"></i> ${texts.title}</h4>
+    <div class="date-info">
       <span class="date">${formatDisplayDate(nextWithDesks.date)}</span>
-      <span class="desks-count ${deskClass}">${nextWithDesks.availableDesks} / 8 ${texts.desks}</span>
+      <span class="desks-count ${deskClass}">${nextWithDesks.availableDesks} / ${state.totalDesks} ${texts.desks}</span>
     </div>`;
-  } else {
-    html += `<p style="color: var(--secondaryTextColor);">
-      ${texts.noAvailability}
-    </p>`;
   }
-  
-  return html;
+
+  return `<h4><i class="fas fa-calendar-times"></i> ${texts.soldOutTitle}</h4>
+    <p style="color: var(--secondaryTextColor);">
+      ${fillDays(texts.noAvailability, state.windowDays)}
+    </p>`;
 }
 
 function formatDisplayDate(dateString) {
@@ -528,7 +618,7 @@ function addPlayButton(video) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initHeroAvailability();
+  initAvailability();
   initAvailabilityButton();
   ensureVideoAutoplay();
   

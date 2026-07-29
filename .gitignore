@@ -1,1 +1,7 @@
 .DS_Store
+
+# Local-only dev/test harness — never deployed, never committed.
+# Mocks the OhMyDesk availability API so the widget can be driven through
+# every state locally. See dev/mock-availability.js for scenarios.
+/dev/
+/scripts/

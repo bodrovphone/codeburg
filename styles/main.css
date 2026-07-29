@@ -858,6 +858,12 @@ ul {
   text-align: center;
 }
 
+/* Booking CTAs are hidden via the `hidden` attribute when the space is fully
+   booked. Needed because their own display rules would otherwise win. */
+[hidden] {
+  display: none !important;
+}
+
 .availability-btn {
   background: var(--primary);
   color: white;
