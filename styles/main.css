@@ -805,6 +805,45 @@ ul {
   color: var(--accent-warning);
 }
 
+.pricing-hours {
+  max-width: 720px;
+  margin: 1.25rem auto 0;
+  padding: 1rem 1.25rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+}
+
+.pricing-hours-main {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.pricing-hours-main i {
+  color: var(--primary);
+  width: 1em;
+  text-align: center;
+}
+
+.pricing-hours-main sup {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.pricing-hours-note {
+  margin: 0.5rem 0 0;
+  padding-left: 1.6em;
+  font-size: 0.825rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
 .pricing-disclaimer {
   margin-top: 3rem;
   padding: 1rem;
