@@ -1554,34 +1554,83 @@ ul {
 }
 
 .stay-slider-wrapper {
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
+  padding: 0.5rem 0;
 }
 
-.stay-slider {
+input[type="range"].stay-slider {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   width: 100%;
-  height: 14px;
+  height: 20px;
   border-radius: var(--radius-pill);
-  background: #e2e8f0;
-  border: 2.5px solid var(--ink);
+  background: #f1f5f9;
+  border: 3px solid var(--ink);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
   outline: none;
-  -webkit-appearance: none;
   cursor: pointer;
+  touch-action: pan-y;
+  position: relative;
 }
 
-.stay-slider::-webkit-slider-thumb {
+/* WebKit (Safari / Chrome / iOS) */
+input[type="range"].stay-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 28px;
-  height: 28px;
+  appearance: none;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--pop-mint);
-  border: 2.5px solid var(--ink);
+  background: var(--pop-yellow);
+  border: 3px solid var(--ink);
   box-shadow: 2px 2px 0px var(--ink);
-  cursor: pointer;
+  cursor: grab;
+  margin-top: -11px;
+  transition: transform 0.15s var(--spring-bounce), background-color 0.15s ease;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #fde047;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
+  background: #facc15;
+}
+
+/* Firefox */
+input[type="range"].stay-slider::-moz-range-track {
+  width: 100%;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: #f1f5f9;
+  border: 3px solid var(--ink);
+}
+
+input[type="range"].stay-slider::-moz-range-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--pop-yellow);
+  border: 3px solid var(--ink);
+  box-shadow: 2px 2px 0px var(--ink);
+  cursor: grab;
   transition: transform 0.15s var(--spring-bounce);
 }
 
-.stay-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
+input[type="range"].stay-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
 }
 
 .stay-recommendation-pill {
@@ -3158,6 +3207,29 @@ dialog.booking-dialog[open]::backdrop {
 
   .bottom-access-text {
     font-size: 0.82rem;
+  }
+
+  /* Calculator Slider Mobile Touch Sizing */
+  .stay-slider-wrapper {
+    margin: 1.5rem 0;
+    padding: 0.5rem 0;
+  }
+
+  input[type="range"].stay-slider {
+    height: 22px;
+  }
+
+  input[type="range"].stay-slider::-webkit-slider-thumb {
+    width: 44px;
+    height: 44px;
+    margin-top: -13px;
+    box-shadow: 3px 3px 0px var(--ink);
+  }
+
+  input[type="range"].stay-slider::-moz-range-thumb {
+    width: 44px;
+    height: 44px;
+    box-shadow: 3px 3px 0px var(--ink);
   }
 }
 
