@@ -91,7 +91,7 @@ body {
   min-height: 100vh;
 }
 
-/* Playful Comic Halftone Dots Background */
+/* Playful Comic Halftone Dots Background (GPU-composited) */
 body::before {
   content: '';
   position: fixed;
@@ -107,6 +107,8 @@ body::before {
   pointer-events: none;
   opacity: 0.65;
   z-index: -2;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Colorful Cartoon Scrollbar */
@@ -331,11 +333,12 @@ ul {
   border: 1.5px solid var(--ink);
   border-radius: 50%;
   animation: cartoonPulse 1.5s infinite ease-in-out;
+  will-change: transform;
 }
 
 @keyframes cartoonPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.35); background: var(--pop-yellow); }
+  50% { transform: scale(1.35); }
 }
 
 .section-links {
@@ -577,6 +580,7 @@ ul {
   box-shadow: 5px 5px 0px var(--ink);
   background: #ffffff;
   animation: cartoonFloat 5s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes cartoonFloat {
@@ -1090,15 +1094,18 @@ ul {
 
 .speed-bar-fill {
   height: 100%;
-  width: 95%;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0.95);
   background: linear-gradient(90deg, var(--pop-mint), var(--pop-cyan));
   border-radius: var(--radius-pill);
   animation: cartoonSpeed 2.5s infinite ease-in-out;
+  will-change: transform;
 }
 
 @keyframes cartoonSpeed {
-  0%, 100% { width: 93%; }
-  50% { width: 98%; }
+  0%, 100% { transform: scaleX(0.93); }
+  50% { transform: scaleX(0.98); }
 }
 
 .speed-meta {

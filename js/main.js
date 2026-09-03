@@ -47,30 +47,43 @@ function initNavigation() {
   const scrollProgress = document.getElementById('scroll-progress');
   const backToTop = document.getElementById('back-to-top');
 
-  // Navbar glass blur intensity on scroll + Scroll progress
+  // Throttled scroll handling with requestAnimationFrame
+  let scrollTicking = false;
+  let cachedDocHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+
+  window.addEventListener('resize', () => {
+    cachedDocHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  }, { passive: true });
+
   window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    
-    if (mainNav) {
-      if (scrollY > 40) {
-        mainNav.classList.add('scrolled');
-      } else {
-        mainNav.classList.remove('scrolled');
-      }
-    }
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        
+        if (mainNav) {
+          if (scrollY > 40) {
+            mainNav.classList.add('scrolled');
+          } else {
+            mainNav.classList.remove('scrolled');
+          }
+        }
 
-    if (scrollProgress && docHeight > 0) {
-      const progress = Math.min(100, Math.max(0, (scrollY / docHeight) * 100));
-      scrollProgress.style.width = `${progress}%`;
-    }
+        if (scrollProgress && cachedDocHeight > 0) {
+          const progress = Math.min(100, Math.max(0, (scrollY / cachedDocHeight) * 100));
+          scrollProgress.style.width = `${progress}%`;
+        }
 
-    if (backToTop) {
-      if (scrollY > 500) {
-        backToTop.classList.add('visible');
-      } else {
-        backToTop.classList.remove('visible');
-      }
+        if (backToTop) {
+          if (scrollY > 500) {
+            backToTop.classList.add('visible');
+          } else {
+            backToTop.classList.remove('visible');
+          }
+        }
+
+        scrollTicking = false;
+      });
+      scrollTicking = true;
     }
   }, { passive: true });
 
@@ -204,23 +217,74 @@ function initBurgasClock() {
   }
 
   updateClock();
-  setInterval(updateClock, 1000);
+  let clockInterval = setInterval(updateClock, 1000);
+
+  // Stop clock ticks when browser tab is inactive to preserve battery
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(clockInterval);
+    } else {
+      updateClock();
+      clearInterval(clockInterval);
+      clockInterval = setInterval(updateClock, 1000);
+    }
+  });
 }
 
 // ============================================================================
-// 4. Mouse Cursor Spotlight Effect (Cards & Buttons)
+// 4. Performance & Viewport Intersection Management
 // ============================================================================
-function initSpotlightGlow() {
-  const targets = document.querySelectorAll('.bento-card, .pricing-card, .faq-item, .contact-btn, .stay-calc-box');
-  
-  targets.forEach(card => {
-    card.addEventListener('pointermove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
+function initPerformanceOptimizations() {
+  // 1. Pause background hero video and floating logo when scrolled out of view
+  const heroSection = document.getElementById('hero');
+  const heroVideo = document.querySelector('.hero-video');
+  const heroLogo = document.querySelector('.hero-logo');
+
+  if (heroSection && 'IntersectionObserver' in window) {
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const inView = entry.isIntersecting;
+        if (heroVideo) {
+          if (inView) {
+            if (heroVideo.paused) heroVideo.play().catch(() => {});
+          } else {
+            if (!heroVideo.paused) heroVideo.pause();
+          }
+        }
+        if (heroLogo) {
+          heroLogo.style.animationPlayState = inView ? 'running' : 'paused';
+        }
+      });
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(heroSection);
+  }
+
+  // 2. Pause live bandwidth animation when widget is not visible
+  const speedFill = document.querySelector('.speed-bar-fill');
+  if (speedFill && 'IntersectionObserver' in window) {
+    const speedObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        speedFill.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+      });
+    }, { threshold: 0.1 });
+
+    speedObserver.observe(speedFill);
+  }
+
+  // 3. Pause video when switching tabs
+  document.addEventListener('visibilitychange', () => {
+    if (heroVideo) {
+      if (document.hidden) {
+        if (!heroVideo.paused) heroVideo.pause();
+      } else {
+        const rect = heroVideo.getBoundingClientRect();
+        const inView = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (inView && heroVideo.paused) {
+          heroVideo.play().catch(() => {});
+        }
+      }
+    }
   });
 }
 
@@ -1057,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initLanguageSwitcher();
   initBurgasClock();
-  initSpotlightGlow();
+  initPerformanceOptimizations();
   initDeskWidget();
   initStayCalculator();
   initGalleryLightbox();
@@ -1068,8 +1132,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initAvailabilityButton();
   initBookingDialog();
   ensureVideoAutoplay();
-  
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) ensureVideoAutoplay();
-  });
 });
