@@ -235,25 +235,14 @@ function initBurgasClock() {
 // 4. Performance & Viewport Intersection Management
 // ============================================================================
 function initPerformanceOptimizations() {
-  // 1. Pause background hero video and floating logo when scrolled out of view
+  // 1. Pause floating logo animation when scrolled out of view
   const heroSection = document.getElementById('hero');
-  const heroVideo = document.querySelector('.hero-video');
   const heroLogo = document.querySelector('.hero-logo');
 
-  if (heroSection && 'IntersectionObserver' in window) {
+  if (heroSection && 'IntersectionObserver' in window && heroLogo) {
     const heroObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        const inView = entry.isIntersecting;
-        if (heroVideo) {
-          if (inView) {
-            if (heroVideo.paused) heroVideo.play().catch(() => {});
-          } else {
-            if (!heroVideo.paused) heroVideo.pause();
-          }
-        }
-        if (heroLogo) {
-          heroLogo.style.animationPlayState = inView ? 'running' : 'paused';
-        }
+        heroLogo.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
       });
     }, { threshold: 0.05 });
 
@@ -271,21 +260,6 @@ function initPerformanceOptimizations() {
 
     speedObserver.observe(speedFill);
   }
-
-  // 3. Pause video when switching tabs
-  document.addEventListener('visibilitychange', () => {
-    if (heroVideo) {
-      if (document.hidden) {
-        if (!heroVideo.paused) heroVideo.pause();
-      } else {
-        const rect = heroVideo.getBoundingClientRect();
-        const inView = rect.bottom > 0 && rect.top < window.innerHeight;
-        if (inView && heroVideo.paused) {
-          heroVideo.play().catch(() => {});
-        }
-      }
-    }
-  });
 }
 
 // ============================================================================
@@ -963,69 +937,6 @@ function formatShortDate(dateString) {
 
 // ============================================================================
 // 12. Video Autoplay Reliability
-// ============================================================================
-function ensureVideoAutoplay() {
-  const video = document.querySelector('.hero-video');
-  if (!video) return;
-
-  const existingButton = document.querySelector('.video-play-button');
-  if (existingButton) existingButton.remove();
-
-  video.setAttribute('autoplay', '');
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.muted = true;
-  video.defaultMuted = true;
-
-  const attemptPlay = () => {
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          const button = document.querySelector('.video-play-button');
-          if (button) button.remove();
-        })
-        .catch(() => {
-          if (video.paused) addPlayButton(video);
-        });
-    }
-  };
-
-  attemptPlay();
-
-  const handleFirstTouch = () => {
-    if (video.paused) {
-      video.play().then(() => {
-        const button = document.querySelector('.video-play-button');
-        if (button) button.remove();
-      }).catch(console.error);
-    }
-  };
-
-  document.addEventListener('touchstart', handleFirstTouch, { once: true });
-  document.addEventListener('click', handleFirstTouch, { once: true });
-}
-
-function addPlayButton(video) {
-  const heroContent = document.querySelector('.hero-content');
-  if (!heroContent || document.querySelector('.video-play-button')) return;
-
-  const playButton = document.createElement('button');
-  playButton.className = 'video-play-button';
-  playButton.innerHTML = '<i class="fas fa-play"></i>';
-  playButton.setAttribute('aria-label', 'Play video background');
-  
-  playButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    video.muted = true;
-    video.play().then(() => {
-      playButton.remove();
-    }).catch(console.error);
-  });
-  
-  heroContent.appendChild(playButton);
-}
 
 // ============================================================================
 // 12b. Custom On-Site Booking Dialog (OhMyDesk Embed)
@@ -1131,5 +1042,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initAvailability();
   initAvailabilityButton();
   initBookingDialog();
-  ensureVideoAutoplay();
 });
