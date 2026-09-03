@@ -3017,23 +3017,67 @@ dialog.booking-dialog[open]::backdrop {
 
   .hero-cta-cluster {
     width: 100%;
-    max-width: 360px;
+    max-width: 350px;
+    gap: 0.65rem;
   }
 
   .hero-cta-row {
     width: 100%;
+    gap: 0.65rem;
+  }
+
+  .hero-cta-row.row-primary,
+  .hero-cta-row.row-secondary {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.65rem;
+  }
+
+  .hero-availability {
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  .hero-nav-btn {
+    white-space: nowrap;
   }
 
   .hero-nav-btn:not(.icon-only) {
-    flex: 1;
-    min-width: 130px;
+    width: 100%;
     justify-content: center;
+    padding: 0.75rem 1.25rem;
+    box-sizing: border-box;
   }
 
   .hero-nav-btn.ai-bot-btn.icon-only {
     width: 48px;
     height: 48px;
+    margin: 0 auto;
     flex-shrink: 0;
+  }
+
+  /* Bento Clock Widget: Stack cleanly on mobile to prevent RFID chip overflow */
+  .bento-clock-widget {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.15rem;
+  }
+
+  .bento-live-time {
+    font-size: 1.35rem;
+  }
+
+  .bento-rfid-chip {
+    width: 100%;
+    justify-content: center;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .perks-ticker {
