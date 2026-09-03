@@ -2925,14 +2925,7 @@ dialog.booking-dialog[open]::backdrop {
   }
 
   .nav-status-badge {
-    display: inline-flex;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.72rem;
-    gap: 0.35rem;
-  }
-
-  .nav-status-badge span:last-child {
-    display: none;
+    display: none !important;
   }
 
   .hero-title {
