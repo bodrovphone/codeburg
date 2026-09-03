@@ -994,6 +994,7 @@ function initBookingDialog() {
       dialog.setAttribute('open', '');
     }
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   }
 
   function closeBookingDialog() {
@@ -1003,6 +1004,7 @@ function initBookingDialog() {
       dialog.removeAttribute('open');
     }
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
 
   // Intercept all booking triggers (buttons, links, pricing plan CTAs)
