@@ -1,135 +1,533 @@
-// Language-based redirection (only on English version)
+/**
+ * CODEBURG - MAIN JAVASCRIPT
+ * High-Tech Interactive Coworking Experience
+ * Incorporates OhMyDesk Live Booking API, Ambient Audio, Lightbox,
+ * Real-time Burgas Clock, Bento Widgets & Micro-Interactions.
+ */
+
+// ============================================================================
+// 1. Language-based redirection (only on English root)
+// ============================================================================
 try {
-  // Check if we're on the English version
   if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-    // Check if browser language API is available
     if (typeof navigator !== 'undefined' && navigator.language) {
       const userLang = navigator.language;
-
-      // Safely extract language prefix
       const langPrefix = userLang.split('-')[0].toLowerCase();
       
-      // Check if sessionStorage is available
       if (typeof sessionStorage !== 'undefined') {
         try {
-          // Only redirect for supported languages and if not already redirected
           if (!sessionStorage.getItem('redirected')) {
             sessionStorage.setItem('redirected', 'true');
-            
             const supportedLangs = {
               'bg': '/bg/',
               'ru': '/ru/',
-              'uk': '/ua/' // Ukrainian language code is 'uk'
+              'uk': '/ua/'
             };
-
-            // Safe type check for langPrefix
             if (typeof langPrefix === 'string' && supportedLangs[langPrefix]) {
               window.location.href = supportedLangs[langPrefix];
             }
           }
         } catch (storageError) {
-          // Handle potential QuotaExceededError or SecurityError
           console.warn('Session storage access error:', storageError);
         }
       }
     }
   }
 } catch (error) {
-  // Catch any unexpected errors without breaking the app
   console.warn('Language detection error:', error);
 }
 
-// Type-safe DOM element selection
-const languageButton = document.querySelector('.language-button');
-const languageDropdown = document.querySelector('.language-dropdown');
+// ============================================================================
+// 2. Navigation & Mobile Menu Behavior
+// ============================================================================
+function initNavigation() {
+  const mainNav = document.querySelector('.main-nav');
+  const mobileToggle = document.querySelector('.mobile-nav-toggle');
+  const sectionLinks = document.querySelector('.section-links');
+  const scrollProgress = document.getElementById('scroll-progress');
+  const backToTop = document.getElementById('back-to-top');
 
-if (languageButton instanceof HTMLElement && languageDropdown instanceof HTMLElement) {
-  languageButton.addEventListener('click', function(event) {
-    // Only handle dropdown on mobile screens
-    if (window.innerWidth <= 600) {
-      event.stopPropagation();
-      languageDropdown.style.display =
-        languageDropdown.style.display === 'flex' ? 'none' : 'flex';
-    }
-  });
-
-  // Close dropdown when clicking outside (only on mobile)
-  document.addEventListener('click', function(event) {
-    if (event.target instanceof HTMLElement) {
-      if (window.innerWidth <= 600 && !event.target.closest('.language-dropdown')) {
-        languageDropdown.style.display = 'none';
+  // Navbar glass blur intensity on scroll + Scroll progress
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    
+    if (mainNav) {
+      if (scrollY > 40) {
+        mainNav.classList.add('scrolled');
+      } else {
+        mainNav.classList.remove('scrolled');
       }
     }
+
+    if (scrollProgress && docHeight > 0) {
+      const progress = Math.min(100, Math.max(0, (scrollY / docHeight) * 100));
+      scrollProgress.style.width = `${progress}%`;
+    }
+
+    if (backToTop) {
+      if (scrollY > 500) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    }
+  }, { passive: true });
+
+  // Mobile menu toggle
+  if (mobileToggle && sectionLinks) {
+    mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sectionLinks.classList.toggle('mobile-open');
+      const isOpen = sectionLinks.classList.contains('mobile-open');
+      mobileToggle.innerHTML = isOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+    });
+
+    // Close when clicking link
+    sectionLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        sectionLinks.classList.remove('mobile-open');
+        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!sectionLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
+        sectionLinks.classList.remove('mobile-open');
+        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      }
+    });
+  }
+
+  // Back to top
+  if (backToTop) {
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+}
+
+// ============================================================================
+// 2b. Language Switcher (Click Toggle, Outside Click Dismissal, Session Preservation)
+// ============================================================================
+function initLanguageSwitcher() {
+  const switchers = document.querySelectorAll('.language-switcher');
+  if (!switchers.length) return;
+
+  switchers.forEach(switcher => {
+    const btn = switcher.querySelector('.language-button');
+    const dropdown = switcher.querySelector('.language-dropdown');
+    if (!btn || !dropdown) return;
+
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-haspopup', 'true');
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = switcher.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Save manual choice in sessionStorage when clicking a language link
+    const langLinks = dropdown.querySelectorAll('a');
+    langLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('redirected', 'true');
+          }
+        } catch (e) {
+          // ignore
+        }
+      });
+    });
   });
 
-  // Reset display style when screen size changes
-  window.addEventListener('resize', function() {
-    languageDropdown.style.display = window.innerWidth > 600 ? 'flex' : 'none';
+  // Close when clicking anywhere outside
+  document.addEventListener('click', (e) => {
+    switchers.forEach(switcher => {
+      if (switcher.classList.contains('is-open') && !switcher.contains(e.target)) {
+        switcher.classList.remove('is-open');
+        const btn = switcher.querySelector('.language-button');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      switchers.forEach(switcher => {
+        if (switcher.classList.contains('is-open')) {
+          switcher.classList.remove('is-open');
+          const btn = switcher.querySelector('.language-button');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
   });
 }
 
-ScrollReveal().reveal('#qualifications--list > li:nth-child(odd)', {
-  delay: 400,
-  distance: '50px',
-  origin: 'right',
-  viewFactor: 0.3,
-});
+// ============================================================================
+// 3. Real-Time Burgas Clock (EET / EEST)
+// ============================================================================
+function initBurgasClock() {
+  const clockElements = document.querySelectorAll('.bento-live-time-val, #nav-clock-val');
+  if (!clockElements.length) return;
 
-ScrollReveal().reveal('#qualifications--list > li:nth-child(even)', {
-  delay: 600,
-  distance: '50px',
-  origin: 'right',
-  viewFactor: 0.3,
-});
-
-ScrollReveal().reveal(
-  '#wrapper--stack__items > .card--techstack:nth-child(odd)',
-  {
-    delay: 400,
-    distance: '100px',
-    origin: 'bottom',
-    viewFactor: 0.3,
+  function updateClock() {
+    try {
+      const now = new Date();
+      // Format to Europe/Sofia local time
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        timeZone: 'Europe/Sofia',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      clockElements.forEach(el => {
+        el.textContent = timeStr;
+      });
+    } catch (e) {
+      // Fallback
+      const d = new Date();
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      const s = String(d.getSeconds()).padStart(2, '0');
+      clockElements.forEach(el => {
+        el.textContent = `${h}:${m}:${s}`;
+      });
+    }
   }
-);
 
-ScrollReveal().reveal(
-  '#wrapper--stack__items > .card--techstack:nth-child(even)',
-  {
-    delay: 100,
-    distance: '100px',
-    origin: 'bottom',
-    viewFactor: 0.3,
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+// ============================================================================
+// 4. Mouse Cursor Spotlight Effect (Cards & Buttons)
+// ============================================================================
+function initSpotlightGlow() {
+  const targets = document.querySelectorAll('.bento-card, .pricing-card, .faq-item, .contact-btn, .stay-calc-box');
+  
+  targets.forEach(card => {
+    card.addEventListener('pointermove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+  });
+}
+
+// ============================================================================
+// 5. Interactive Sit / Stand Desk Height Widget
+// ============================================================================
+function initDeskWidget() {
+  const deskButtons = document.querySelectorAll('.desk-toggle-btn');
+  const deskVisual = document.querySelector('.desk-mini-visual');
+  const heightText = document.querySelector('.desk-height-text');
+
+  if (!deskButtons.length || !deskVisual) return;
+
+  deskButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      deskButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.dataset.mode;
+      
+      if (mode === 'stand') {
+        deskVisual.classList.add('stand');
+        if (heightText) heightText.textContent = '108 cm (Standing)';
+      } else {
+        deskVisual.classList.remove('stand');
+        if (heightText) heightText.textContent = '73 cm (Sitting)';
+      }
+    });
+  });
+}
+
+// ============================================================================
+// 6. Interactive Stay Duration Calculator
+// ============================================================================
+function initStayCalculator() {
+  const slider = document.getElementById('stay-slider');
+  const daysValue = document.getElementById('stay-days-count');
+  const recPlan = document.getElementById('stay-rec-plan');
+  const pricingCards = document.querySelectorAll('.pricing-card');
+
+  if (!slider || !daysValue) return;
+
+  function updateCalculator() {
+    const days = parseInt(slider.value, 10);
+    daysValue.textContent = `${days} ${days === 1 ? 'day' : 'days'}`;
+
+    pricingCards.forEach(c => c.classList.remove('calc-highlight'));
+
+    let recommended = 'Day Pass';
+    let cardIdx = 0; // Day pass
+
+    if (days >= 16) {
+      recommended = 'Full Month Pass (130€) — Best Value!';
+      cardIdx = 3; // Monthly
+    } else if (days >= 8) {
+      recommended = 'Flex Desk 10-Day (75€)';
+      cardIdx = 2; // Flex
+    } else if (days >= 4) {
+      recommended = 'Weekly Pass (40€)';
+      cardIdx = 1; // Week
+    } else {
+      recommended = `Daily Pass (${days * 10}€ total)`;
+      cardIdx = 0; // Day
+    }
+
+    if (recPlan) recPlan.innerHTML = `Recommended: <strong>${recommended}</strong>`;
+    if (pricingCards[cardIdx]) {
+      pricingCards[cardIdx].classList.add('calc-highlight');
+    }
   }
-);
 
-ScrollReveal().reveal('.card--work-history', {
-  delay: 300,
-  distance: '100px',
-  origin: 'bottom',
-  viewFactor: 0.3,
-});
+  slider.addEventListener('input', updateCalculator);
+  updateCalculator();
+}
 
-ScrollReveal().reveal('.section--page:last-child', {
-  delay: 100,
-  distance: '100px',
-  origin: 'left',
-  viewFactor: 0.1,
-});
+// ============================================================================
+// 7. Interactive Lightbox Modal (Gallery)
+// ============================================================================
+function initGalleryLightbox() {
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  const lightbox = document.getElementById('gallery-lightbox');
+  if (!galleryItems.length || !lightbox) return;
 
-// Desk availability via the OhMyDesk public API.
-// No keys and no direct database access — the desk list, booked days and the
-// space's own calendar rules (working days, closure dates, booking horizon)
-// come straight from the space's live data. (Migrated off the raw Supabase
-// table + anon key that used to live here.)
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const lightboxCaption = lightbox.querySelector('.lightbox-caption-text');
+  const lightboxCounter = lightbox.querySelector('.lightbox-counter');
+  const closeBtn = lightbox.querySelector('.lightbox-close-btn');
+  const prevBtn = lightbox.querySelector('.lightbox-prev');
+  const nextBtn = lightbox.querySelector('.lightbox-next');
+
+  let currentIndex = 0;
+  const itemsData = Array.from(galleryItems).map(item => {
+    const img = item.querySelector('img');
+    const caption = item.querySelector('.gallery-caption')?.textContent || 'CodeBurg Coworking';
+    return {
+      src: img?.src || '',
+      caption: caption
+    };
+  });
+
+  function showImage(index) {
+    if (index < 0) index = itemsData.length - 1;
+    if (index >= itemsData.length) index = 0;
+    currentIndex = index;
+
+    lightboxImg.src = itemsData[currentIndex].src;
+    if (lightboxCaption) lightboxCaption.textContent = itemsData[currentIndex].caption;
+    if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${itemsData.length}`;
+  }
+
+  galleryItems.forEach((item, idx) => {
+    item.addEventListener('click', () => {
+      showImage(idx);
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+  if (prevBtn) prevBtn.addEventListener('click', () => showImage(currentIndex - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => showImage(currentIndex + 1));
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
+    if (e.key === 'ArrowRight') showImage(currentIndex + 1);
+  });
+}
+
+// ============================================================================
+// 8. Interactive FAQ with Instant Live Search
+// ============================================================================
+function initFaq() {
+  const faqItems = document.querySelectorAll('.faq-item');
+  const searchInput = document.getElementById('faq-search');
+
+  // Accordion toggle
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question') || item.querySelector('h3');
+    if (question) {
+      question.addEventListener('click', () => {
+        const wasActive = item.classList.contains('active');
+        // Close others for clean accordion feel
+        faqItems.forEach(other => other.classList.remove('active'));
+        if (!wasActive) item.classList.add('active');
+      });
+    }
+  });
+
+  // Instant live search filter
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase().trim();
+      faqItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (!query || text.includes(query)) {
+          item.style.display = 'block';
+          if (query) item.classList.add('active'); // auto-expand matching
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  }
+}
+
+// ============================================================================
+// 9. Copy Address to Clipboard with Toast Notification
+// ============================================================================
+function initCopyAddress() {
+  const copyBtns = document.querySelectorAll('.hud-copy-btn, .copy-address-action');
+  const toast = document.getElementById('copy-toast');
+  const addressText = "CodeBurg Coworking Space, ul. Peyo K. Yavorov 1, Burgas 8000, Bulgaria";
+
+  copyBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await navigator.clipboard.writeText(addressText);
+        showToast("✓ Address copied to clipboard!");
+      } catch (err) {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = addressText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast("✓ Address copied!");
+      }
+    });
+  });
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+}
+
+// ============================================================================
+// 10. Focus Ambience Synthesizer (Web Audio API Ocean/Rain Easter Egg!)
+// ============================================================================
+function initAudioAmbience() {
+  const toggleBtn = document.getElementById('ambience-toggle');
+  if (!toggleBtn) return;
+
+  let audioCtx = null;
+  let noiseNode = null;
+  let filterNode = null;
+  let gainNode = null;
+  let isPlaying = false;
+
+  function createNoiseGenerator() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioCtx = new AudioContext();
+
+    // Create 5 seconds pink/brown noise buffer for ocean surf
+    const bufferSize = audioCtx.sampleRate * 5;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      // Brown noise integration
+      data[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5;
+    }
+
+    noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = buffer;
+    noiseNode.loop = true;
+
+    // Low pass filter with gentle LFO modulation for ocean waves
+    filterNode = audioCtx.createBiquadFilter();
+    filterNode.type = 'lowpass';
+    filterNode.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+    // Subtle wave LFO
+    const lfo = audioCtx.createOscillator();
+    lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime); // 8-second wave period
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.setValueAtTime(180, audioCtx.currentTime);
+    lfo.connect(lfoGain);
+    lfoGain.connect(filterNode.frequency);
+    lfo.start();
+
+    // Master volume gain
+    gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + 1.5);
+
+    noiseNode.connect(filterNode);
+    filterNode.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    noiseNode.start();
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (!isPlaying) {
+      try {
+        if (!audioCtx) {
+          createNoiseGenerator();
+        } else if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        isPlaying = true;
+        toggleBtn.classList.add('playing');
+        toggleBtn.innerHTML = '<i class="fas fa-volume-up"></i> <span>Ocean Ambience: ON</span>';
+      } catch (err) {
+        console.warn('Audio ambience failed to start:', err);
+      }
+    } else {
+      if (gainNode && audioCtx) {
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+        setTimeout(() => {
+          if (audioCtx.state === 'running') audioCtx.suspend();
+        }, 500);
+      }
+      isPlaying = false;
+      toggleBtn.classList.remove('playing');
+      toggleBtn.innerHTML = '<i class="fas fa-headphones"></i> <span>Focus Ambience</span>';
+    }
+  });
+}
+
+// ============================================================================
+// 11. OhMyDesk Real-Time Availability Integration
+// ============================================================================
 const OHMYDESK_AVAILABILITY_URL = 'https://ohmydesk.app/api/v1/public/codeburg/availability';
-
-// Fallbacks only — the real values come from the API's `org` block.
-const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5]; // ISO weekdays: 1=Mon … 7=Sun
+const DEFAULT_WORKING_DAYS = [1, 2, 3, 4, 5];
 const DEFAULT_MAX_DAYS_AHEAD = 14;
 
-// Local calendar date. Deliberately NOT toISOString(), which converts to UTC
-// and reports the wrong day for any visitor whose local date differs from
-// UTC's — e.g. Europe/Sofia between local midnight and 03:00.
 function formatDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -145,10 +543,6 @@ function closureDatesToSet(closureDates) {
   return out;
 }
 
-// Mirrors isNonWorkingDay() in the OhMyDesk client, so this page and the hosted
-// booking page agree on which days a visitor can actually book. A closure date
-// carries no bookings (nobody can book a closed day), so without this check the
-// naive "free desks" math reads a vacation day as completely available.
 function isNonWorkingDay(dateString, workingDays, closedDates) {
   if (closedDates && closedDates.has(dateString)) return true;
   const jsDay = new Date(dateString + 'T00:00:00').getDay();
@@ -156,7 +550,6 @@ function isNonWorkingDay(dateString, workingDays, closedDates) {
   return !workingDays.includes(isoDay);
 }
 
-// Every day inside the space's booking horizon that a visitor could book.
 function generateBookableDates(org) {
   const workingDays = Array.isArray(org && org.workingDays) && org.workingDays.length
     ? org.workingDays
@@ -191,7 +584,6 @@ async function fetchAvailability() {
     }
 
     const body = await response.json();
-    // { data: { org, rooms: [{ desks: [{ deskId }] }], bookedSlots: [{ deskId, date }], ... } }
     return body.data;
   } catch (error) {
     console.error('Error fetching availability:', error);
@@ -203,21 +595,15 @@ function unknownState() {
   return { status: 'unknown', dates: [], totalDesks: 0, windowDays: DEFAULT_MAX_DAYS_AHEAD };
 }
 
-// Resolves to { status, dates, totalDesks, windowDays }, where status is:
-//   'available' — at least one bookable day still has a free desk
-//   'none'      — the space is genuinely full across the whole horizon
-//   'unknown'   — the API failed, so we must not claim either way
 async function getAvailabilityState() {
   try {
     const availability = await fetchAvailability();
     if (!availability) return unknownState();
 
-    // The real desk list, straight from the space (no hardcoded assumptions).
     const deskIds = (availability.rooms || [])
       .flatMap(room => (room.desks || []).map(desk => desk.deskId));
     const totalDesks = deskIds.length;
 
-    // Booked desk ids grouped by date.
     const bookedByDate = new Map();
     for (const slot of (availability.bookedSlots || [])) {
       if (!bookedByDate.has(slot.date)) bookedByDate.set(slot.date, new Set());
@@ -256,7 +642,6 @@ window.DeskAvailability = {
 };
 
 function isBotOrNoStorage() {
-  // Check if sessionStorage exists (bots/crawlers typically lack it)
   try {
     sessionStorage.setItem('__bot_check', '1');
     sessionStorage.removeItem('__bot_check');
@@ -271,12 +656,10 @@ function getCachedAvailability() {
     const cached = sessionStorage.getItem('desk_availability');
     if (!cached) return null;
     const data = JSON.parse(cached);
-    // Cache valid for 15 minutes
     if (Date.now() - data.timestamp > 15 * 60 * 1000) {
       sessionStorage.removeItem('desk_availability');
       return null;
     }
-    // Ignore entries written before `result` became a state object.
     if (!data.result || typeof data.result !== 'object' || Array.isArray(data.result)) {
       sessionStorage.removeItem('desk_availability');
       return null;
@@ -298,20 +681,12 @@ function setCachedAvailability(result) {
   }
 }
 
-// The booking CTAs point at the OhMyDesk booking page. They ship `hidden` in
-// the markup and are only ever revealed once we have a reason to: a visitor
-// should never see a booking link flash up and then vanish.
-//
-// 'unknown' (API unreachable) also reveals them — an outage is not the same as
-// being full, and must not silently remove the booking path.
 function applyBookingCtaVisibility(state) {
   const show = state.status === 'available' || state.status === 'unknown';
   const ctas = document.querySelectorAll('.book-btn, .availability-book-btn');
   ctas.forEach(cta => { cta.hidden = !show; });
 }
 
-// When the space is full, say so in the availability section too — otherwise
-// hiding the booking button just leaves an unexplained gap.
 function renderSoldOutNotice(state, texts) {
   const resultDiv = document.getElementById('availability-result');
   if (!resultDiv || state.status !== 'none') return;
@@ -323,9 +698,6 @@ async function initAvailability() {
   const container = document.getElementById('hero-availability');
   const texts = getLocalizedTexts();
 
-  // Bot/crawler prevention: skip the API call entirely. The CTAs ship hidden,
-  // so reveal them explicitly here — otherwise crawlers and browsers without
-  // sessionStorage would never see the booking link at all.
   if (isBotOrNoStorage()) {
     if (container) {
       container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
@@ -338,7 +710,6 @@ async function initAvailability() {
   let state = getCachedAvailability();
   if (!state) {
     state = await getAvailabilityState();
-    // Never cache an outage — the next page view should retry.
     if (state.status !== 'unknown') setCachedAvailability(state);
   }
 
@@ -351,11 +722,10 @@ function renderHeroAvailability(container, state, texts) {
   const nextWithDesks = state.dates.find(d => d.availableDesks > 0);
 
   if (state.status === 'unknown') {
-    // The API is unreachable. Don't tell visitors we're full when we don't know.
     container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroFallback}</span>`;
   } else if (nextWithDesks) {
     const dateStr = formatShortDate(nextWithDesks.date);
-    container.innerHTML = `<i class="fas fa-calendar-check"></i> <span class="hero-availability-text">${texts.heroNext} <strong>${dateStr}</strong></span>`;
+    container.innerHTML = `<span class="availability-pulse-dot"></span> <span class="hero-availability-text">${texts.heroNext} <strong>${dateStr}</strong> (${nextWithDesks.availableDesks} free)</span>`;
   } else {
     const text = fillDays(texts.heroNone, state.windowDays);
     container.innerHTML = `<i class="fas fa-calendar-times"></i> <span class="hero-availability-text">${text}</span>`;
@@ -389,7 +759,6 @@ function initAvailabilityButton() {
         return;
       }
 
-      // A manual check is the freshest signal we have — refresh cache and CTAs.
       setCachedAvailability(state);
       applyBookingCtaVisibility(state);
 
@@ -407,7 +776,6 @@ function initAvailabilityButton() {
   });
 }
 
-// Substitutes the real booking horizon into a message template.
 function fillDays(template, days) {
   return template.replace('{days}', days);
 }
@@ -424,7 +792,7 @@ function getLocalizedTexts() {
       loading: 'Проверяем наличие...',
       buttonLoading: 'Проверяем...',
       error: 'Ошибка при проверке наличия. Попробуйте позже.',
-      heroNext: 'Ближайшее свободное место:',
+      heroNext: 'Свободные места:',
       heroNone: 'Мест нет на ближайшие {days} дней',
       heroFallback: 'Свяжитесь с нами для проверки наличия мест'
     };
@@ -437,7 +805,7 @@ function getLocalizedTexts() {
       loading: 'Перевіряємо наявність...',
       buttonLoading: 'Перевіряємо...',
       error: 'Помилка при перевірці наявності. Спробуйте пізніше.',
-      heroNext: 'Найближче вільне місце:',
+      heroNext: 'Вільні місця:',
       heroNone: 'Місць немає на найближчі {days} днів',
       heroFallback: 'Зв\'яжіться з нами для перевірки наявності місць'
     };
@@ -450,7 +818,7 @@ function getLocalizedTexts() {
       loading: 'Проверяваме наличността...',
       buttonLoading: 'Проверяваме...',
       error: 'Грешка при проверка на наличността. Опитайте отново по-късно.',
-      heroNext: 'Следващото свободно място:',
+      heroNext: 'Свободни места:',
       heroNone: 'Няма свободни места през следващите {days} дни',
       heroFallback: 'Свържете се с нас за проверка на наличността'
     };
@@ -463,7 +831,7 @@ function getLocalizedTexts() {
       loading: 'Checking availability...',
       buttonLoading: 'Checking...',
       error: 'Error checking availability. Please try again later.',
-      heroNext: 'Next available desk:',
+      heroNext: 'Available from:',
       heroNone: 'Fully booked for the next {days} days',
       heroFallback: 'Contact us to check desk availability'
     };
@@ -476,7 +844,6 @@ function generateAvailabilityHTML(state) {
 
   if (nextWithDesks) {
     const deskClass = nextWithDesks.availableDesks >= 5 ? 'full' : nextWithDesks.availableDesks >= 1 ? 'limited' : 'none';
-    // Total comes from the payload — adding a desk must not require a code change.
     return `<h4><i class="fas fa-calendar-alt"></i> ${texts.title}</h4>
     <div class="date-info">
       <span class="date">${formatDisplayDate(nextWithDesks.date)}</span>
@@ -485,7 +852,7 @@ function generateAvailabilityHTML(state) {
   }
 
   return `<h4><i class="fas fa-calendar-times"></i> ${texts.soldOutTitle}</h4>
-    <p style="color: var(--secondaryTextColor);">
+    <p style="color: var(--text-muted); margin-top: 0.5rem;">
       ${fillDays(texts.noAvailability, state.windowDays)}
     </p>`;
 }
@@ -525,55 +892,43 @@ function formatShortDate(dateString) {
   }
 
   return date.toLocaleDateString(locale, {
-    month: 'long',
+    month: 'short',
     day: 'numeric'
   });
 }
 
-// Video autoplay fix for mobile devices (especially iOS)
+// ============================================================================
+// 12. Video Autoplay Reliability
+// ============================================================================
 function ensureVideoAutoplay() {
   const video = document.querySelector('.hero-video');
   if (!video) return;
 
-  // Remove any existing play button first
   const existingButton = document.querySelector('.video-play-button');
-  if (existingButton) {
-    existingButton.remove();
-  }
+  if (existingButton) existingButton.remove();
 
-  // Ensure video attributes are set for iOS
   video.setAttribute('autoplay', '');
   video.setAttribute('muted', '');
   video.setAttribute('playsinline', '');
   video.muted = true;
   video.defaultMuted = true;
 
-  // Function to attempt video playback
   const attemptPlay = () => {
     const playPromise = video.play();
-    
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
-          console.log('Video autoplay started');
-          // Remove play button if it exists
           const button = document.querySelector('.video-play-button');
           if (button) button.remove();
         })
-        .catch(error => {
-          console.log('Video autoplay failed:', error);
-          // Only add play button if truly needed
-          if (video.paused) {
-            addPlayButton(video);
-          }
+        .catch(() => {
+          if (video.paused) addPlayButton(video);
         });
     }
   };
 
-  // Try playing immediately
   attemptPlay();
 
-  // iOS Safari needs user interaction - listen for first touch
   const handleFirstTouch = () => {
     if (video.paused) {
       video.play().then(() => {
@@ -587,45 +942,132 @@ function ensureVideoAutoplay() {
   document.addEventListener('click', handleFirstTouch, { once: true });
 }
 
-// Separate function to add play button when needed
 function addPlayButton(video) {
   const heroContent = document.querySelector('.hero-content');
   if (!heroContent || document.querySelector('.video-play-button')) return;
 
   const playButton = document.createElement('button');
   playButton.className = 'video-play-button';
-  playButton.innerHTML = '<i class="fas fa-play-circle"></i>';
-  playButton.setAttribute('aria-label', 'Play video');
+  playButton.innerHTML = '<i class="fas fa-play"></i>';
+  playButton.setAttribute('aria-label', 'Play video background');
   
   playButton.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    video.muted = true; // Ensure muted for iOS
+    video.muted = true;
     video.play().then(() => {
       playButton.remove();
-    }).catch(error => {
-      console.error('Play failed:', error);
-      // Try once more with user gesture
-      setTimeout(() => {
-        video.play().then(() => {
-          playButton.remove();
-        });
-      }, 100);
-    });
+    }).catch(console.error);
   });
   
   heroContent.appendChild(playButton);
 }
 
+// ============================================================================
+// 12b. Custom On-Site Booking Dialog (OhMyDesk Embed)
+// ============================================================================
+function initBookingDialog() {
+  const dialog = document.getElementById('booking-dialog');
+  if (!dialog) return;
+
+  const closeBtn = document.getElementById('booking-dialog-close');
+  const iframe = document.getElementById('booking-iframe');
+  const loader = document.getElementById('booking-loader');
+  const frame = dialog.querySelector('.booking-dialog-frame');
+
+  const BOOKING_URL = 'https://ohmydesk.app/book/codeburg';
+
+  function openBookingDialog() {
+    if (iframe && (!iframe.src || iframe.src === 'about:blank' || !iframe.src.includes('ohmydesk.app'))) {
+      if (loader) loader.classList.remove('loaded');
+      iframe.src = BOOKING_URL;
+      iframe.onload = () => {
+        if (loader) loader.classList.add('loaded');
+      };
+    } else {
+      if (loader) loader.classList.add('loaded');
+    }
+
+    if (typeof dialog.showModal === 'function') {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute('open', '');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBookingDialog() {
+    if (typeof dialog.close === 'function') {
+      dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+    document.body.style.overflow = '';
+  }
+
+  // Intercept all booking triggers (buttons, links, pricing plan CTAs)
+  const bookingTriggers = document.querySelectorAll(
+    '.book-btn, .availability-book-btn, .open-booking-dialog, a[href*="ohmydesk.app/book/"]'
+  );
+
+  bookingTriggers.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openBookingDialog();
+    });
+  });
+
+  // Close on button click
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeBookingDialog);
+  }
+
+  // Restore scroll when closed
+  dialog.addEventListener('close', () => {
+    document.body.style.overflow = '';
+  });
+
+  // Light dismiss: close when clicking the backdrop outside dialog frame
+  dialog.addEventListener('click', (e) => {
+    if (!frame) return;
+    const rect = frame.getBoundingClientRect();
+    const isOutside = (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    );
+    if (isOutside) {
+      closeBookingDialog();
+    }
+  });
+
+  // Escape key support
+  dialog.addEventListener('cancel', () => {
+    document.body.style.overflow = '';
+  });
+}
+
+// ============================================================================
+// 13. DOM Initialization
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initNavigation();
+  initLanguageSwitcher();
+  initBurgasClock();
+  initSpotlightGlow();
+  initDeskWidget();
+  initStayCalculator();
+  initGalleryLightbox();
+  initFaq();
+  initCopyAddress();
+  initAudioAmbience();
   initAvailability();
   initAvailabilityButton();
+  initBookingDialog();
   ensureVideoAutoplay();
   
-  // Also try on visibility change (when user switches tabs back)
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      ensureVideoAutoplay();
-    }
+    if (!document.hidden) ensureVideoAutoplay();
   });
 });

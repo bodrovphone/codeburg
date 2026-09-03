@@ -5,20 +5,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeBurg - Best Coworking Space in Burgas | 24/7 Developer Workspace</title>
-  <link type="text/css" rel="stylesheet" href="./styles/main.css?v=3" />
+  <link type="text/css" rel="stylesheet" href="./styles/main.css?v=4" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
   <link rel="manifest" href="assets/favicons/site.webmanifest">
-  <script src="https://unpkg.com/scrollreveal"></script>
-  <script>
-    ScrollReveal({ reset: false });
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Righteous&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <meta name="description"
     content="Join CodeBurg, Burgas's cozy tech coworking space for developers. 24/7 access, ergonomic workstations, free coffee, meeting rooms, and vibrant tech community. Located in city center near the sea.">
   <meta name="keywords" content="coworking space Burgas, developer workspace Bulgaria, 24/7 coworking Burgas, tech hub Bulgaria, office space Burgas, remote work Bulgaria">
@@ -94,6 +89,13 @@
         },
         {
           "@type": "Offer",
+          "name": "Flex Desk",
+          "price": "75",
+          "priceCurrency": "EUR",
+          "description": "Any 10 business days within 6 months"
+        },
+        {
+          "@type": "Offer",
           "name": "Monthly Pass",
           "price": "130",
           "priceCurrency": "EUR",
@@ -110,380 +112,837 @@
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'GA_MEASUREMENT_ID');
   </script>
 </head>
 
 <body>
+  <!-- Scroll Reading Progress -->
+  <div id="scroll-progress"></div>
+
   <!-- Navigation -->
   <nav class="main-nav">
     <div class="nav-content">
-      <a href="#" class="nav-logo">
-        <img src="assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
-        <span class="nav-logo-text">Code<span>B</span>urg</span>
-      </a>
+      <div class="nav-left">
+        <a href="#" class="nav-logo">
+          <img src="assets/images/codeburg_logo.png" alt="CodeBurg" width="32" height="32">
+          <span class="nav-logo-text">Code<span>B</span>urg</span>
+        </a>
+        <div class="nav-status-badge">
+          <span class="nav-status-pulse"></span>
+          <span>Burgas: <strong id="nav-clock-val">--:--:--</strong></span>
+          <span>· 24/7 Open</span>
+        </div>
+      </div>
       
       <div class="section-links">
+        <a href="#features">Features</a>
         <a href="#gallery">Gallery</a>
-        <a href="#pricing">Price</a>
+        <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="#contacts">Contact</a>
+        <a href="#location">Location</a>
+        <a href="#contact">Contact</a>
       </div>
 
-      <!-- Language Switcher -->
-      <div class="language-switcher">
-        <button class="language-button">
-          <span class="current-lang">🇬🇧</span>
-          <span class="arrow">▼</span>
-        </button>
-        <div class="language-dropdown">
-          <a href="/" class="active">🇬🇧 English</a>
-          <a href="/bg/">🇧🇬 Български</a>
-          <a href="/ua/">🇺🇦 Українська</a>
-          <a href="/ru/">🇷🇺 Русский</a>
+      <div class="nav-right">
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+          <button class="language-button" aria-label="Change Language">
+            <span class="current-lang">🇬🇧</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div class="language-dropdown">
+            <a href="/" class="active">🇬🇧 English</a>
+            <a href="/bg/">🇧🇬 Български</a>
+            <a href="/ua/">🇺🇦 Українська</a>
+            <a href="/ru/">🇷🇺 Русский</a>
+          </div>
         </div>
+
+        <button class="mobile-nav-toggle" aria-label="Toggle navigation menu">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section id="contacts" class="hero-section">
+  <section id="hero" class="hero-section">
     <video class="hero-video" autoplay muted loop playsinline preload="auto" webkit-playsinline defaultmuted>
       <source src="assets/hero_video.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
     
     <div class="hero-content">
-      <img src="assets/images/codeburg_logo.png" alt="CodeBurg Coworking Logo" class="hero-logo">
-      <h1 class="hero-title">Code<span>B</span>urg</h1>
-      <h2 class="hero-subtitle">Cozy Tech Coworking Space<br>Work, Connect, Grow</h2>
-      
-      <div class="hero-nav">
-        <a href="#location" class="hero-nav-btn">
-          <i class="fas fa-map-marker-alt"></i> <span class="btn-label">L<em>o</em>cate Us</span>
-        </a>
-        <a href="#contact" class="hero-nav-btn">
-          <i class="fas fa-envelope"></i> <span class="btn-label">Cont<em>a</em>ct Us</span>
-        </a>
-        <a href="#pricing" class="hero-nav-btn">
-          <i class="fas fa-tag"></i> <span class="btn-label">Pric<em>e</em>s</span>
-        </a>
-        <a href="#faq" class="hero-nav-btn">
-          <i class="fas fa-question-circle"></i> <span class="btn-label">Questions & A<em>n</em>swers</span>
-        </a>
-        <!-- Hidden by default: revealed by js/main.js only when the OhMyDesk API confirms a bookable desk. -->
-        <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="hero-nav-btn book-btn" hidden>
-          <i class="fas fa-calendar-plus"></i> <span class="btn-label">Book a Desk</span>
-        </a>
-        <a href="https://t.me/OhMyDesk_inbox_bot?start=codeburg" target="_blank" class="hero-nav-btn ai-bot-btn">
-          <i class="fas fa-robot"></i> <span class="btn-label">Got a qu<em>e</em>stion? Ask our AI</span>
-        </a>
+      <div class="hero-tag-badge">
+        <i class="fas fa-terminal"></i>
+        <span>DEV SANCTUARY // BURGAS BLACK SEA</span>
       </div>
 
-      <div id="hero-availability" class="hero-availability">
-        <span class="hero-availability-spinner"></span>
-        <span class="hero-availability-text">Checking availability...</span>
+      <img src="assets/images/codeburg_logo.png" alt="CodeBurg Coworking Logo" class="hero-logo">
+      <h1 class="hero-title">Code<span>B</span>urg</h1>
+      <h2 class="hero-subtitle">
+        The Cozy Tech Coworking Space in Burgas<br>
+        24/7 Access · Gigabit Fiber · Ergonomic Desks · Vibrant Dev Community
+      </h2>
+      
+      <!-- Hero Action Rows (Organized per request) -->
+      <div class="hero-cta-cluster">
+        <!-- Row 1: Available from goes first, then Book a desk next -->
+        <div class="hero-cta-row row-primary">
+          <div id="hero-availability" class="hero-availability">
+            <span class="hero-availability-spinner"></span>
+            <span class="hero-availability-text">Checking live desk availability...</span>
+          </div>
+          <!-- Revealed by js/main.js only when OhMyDesk API confirms availability -->
+          <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="hero-nav-btn book-btn" hidden>
+            <i class="fas fa-bolt"></i> <span class="btn-label">Book a Desk</span>
+          </a>
+        </div>
+
+        <!-- Row 2: Locate Us / Plans & Prices / Bot Head Icon with no label -->
+        <div class="hero-cta-row row-secondary">
+          <a href="#location" class="hero-nav-btn">
+            <i class="fas fa-location-dot"></i> <span class="btn-label">Locate Us</span>
+          </a>
+          <a href="#pricing" class="hero-nav-btn">
+            <i class="fas fa-tags"></i> <span class="btn-label">Plans & Prices</span>
+          </a>
+          <a href="https://t.me/OhMyDesk_inbox_bot?start=codeburg" target="_blank" class="hero-nav-btn ai-bot-btn icon-only" title="Ask Our AI" aria-label="Ask Our AI">
+            <i class="fas fa-robot"></i>
+          </a>
+        </div>
+
+        <!-- Row 3: Focus Ambience Easter Egg -->
+        <div class="hero-ambience-bar">
+          <button id="ambience-toggle" class="ambience-btn" title="Toggle gentle ocean focus sound">
+            <i class="fas fa-headphones"></i>
+            <span>Focus Ambience</span>
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Quick Perks Ticker -->
   <div class="container">
-    <!-- Map Section -->
-    <section id="location" class="section">
+    <div class="perks-ticker">
+      <div class="ticker-item">
+        <i class="fas fa-wifi"></i>
+        <span><strong>1,200 Mbps</strong> Dual Fiber</span>
+      </div>
+      <div class="ticker-item">
+        <i class="fas fa-key"></i>
+        <span><strong>24/7 Access</strong> (Weekly & Monthly Members)</span>
+      </div>
+      <div class="ticker-item">
+        <i class="fas fa-tv"></i>
+        <span><strong>32" 4K</strong> External Displays</span>
+      </div>
+      <div class="ticker-item">
+        <i class="fas fa-mug-hot"></i>
+        <span><strong>Endless</strong> Coffee & Tea</span>
+      </div>
+      <div class="ticker-item">
+        <i class="fas fa-water"></i>
+        <span><strong>5 min</strong> to Sea Garden</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Why CodeBurg? Asymmetrical Bento Grid -->
+    <section id="features" class="section">
       <div class="section-title">
-        <h2>Our Location</h2>
-        <p>In the heart of Burgas, steps away from the sea and city park.</p>
+        <div class="mono-tag section-tag"><i class="fas fa-layer-group"></i> Architecture of Productivity</div>
+        <h2>Why <span class="gradient-text">CodeBurg</span>?</h2>
+        <p>A workspace meticulously crafted for developers, digital nomads, and focused creators who demand high performance and cozy vibes.</p>
       </div>
       
-      <div class="map-container" style="margin-top: 0;">
-        <div class="map-wrapper">
-          <iframe 
-            src="https://maps.google.com/maps?q=CodeBurg%20Burgas%20Bulgaria&t=&z=15&ie=UTF8&iwloc=&output=embed"
-            style="border:0;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-        </div>
-        <p class="map-caption">
-          <i class="fas fa-map-pin"></i> 
-          CodeBurg Coworking Space, Peyo K. Yavorov 1, Burgas 8000, Bulgaria
-        </p>
-      </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section id="gallery" class="section">
-      <div class="section-title">
-        <h2>Gallery</h2>
-        <p>Take a look inside our cozy workspace.</p>
-      </div>
-      
-      <div class="gallery-grid">
-        <div class="gallery-item">
-          <img src="assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Workspace View 3">
-        </div>
-        <div class="gallery-item">
-          <img src="assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
-        </div>
-        <div class="gallery-item">
-          <img src="assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 1">
-        </div>
-        <div class="gallery-item">
-          <img src="assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 4">
-        </div>
-        <div class="gallery-item">
-          <img src="assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 6">
-        </div>
-        <div class="gallery-item">
-          <img src="assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Workspace View 5">
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="section">
-      <div class="section-title">
-        <h2>Why CodeBurg?</h2>
-        <p>Everything you need to be productive and comfortable.</p>
-      </div>
-      
-      <div id="qualifications--list" class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-location-dot"></i></div>
-          <h3>Prime Location</h3>
-          <p>In the heart of Burgas, steps away from the sea and city park. 5 minutes from Black Sea beaches and Sea Garden.</p>
+      <!-- Asymmetrical Bento Grid with Interactive Widgets -->
+      <div id="qualifications--list" class="bento-grid">
+        
+        <!-- Bento 1: 24/7 Developer Sanctuary (8 cols) -->
+        <div class="bento-card bento-col-8">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-shield-halved"></i></div>
+              <span class="bento-badge"><i class="fas fa-unlock-keyhole"></i> Autonomous Access</span>
+            </div>
+            <div class="bento-body">
+              <h3>24/7 Developer Sanctuary</h3>
+              <p>Work on your own rhythm. Early bird or midnight hacker, you get your own physical key and RFID access with any weekly or monthly membership. Zero curfews, zero restrictions.</p>
+            </div>
+          </div>
+          <div class="bento-clock-widget">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">Burgas Local Time (EET)</div>
+              <div class="bento-live-time">
+                <i class="fas fa-clock" style="font-size: 1rem;"></i>
+                <span class="bento-live-time-val">--:--:--</span>
+              </div>
+            </div>
+            <div class="bento-rfid-chip">
+              <i class="fas fa-fingerprint"></i>
+              <span>RFID Key Included</span>
+            </div>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-desktop"></i></div>
-          <h3>Premium Workspace</h3>
-          <p>Height-adjustable tables, ergonomic chairs, and blazing-fast internet with 32" monitors available.</p>
+        <!-- Bento 2: Gigabit Fiber Speed Lab (4 cols) -->
+        <div class="bento-card bento-col-4">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-gauge-high"></i></div>
+              <span class="bento-badge">Dual Redundant</span>
+            </div>
+            <div class="bento-body">
+              <h3>Gigabit Speed Lab</h3>
+              <p>Dual independent optical fiber lines with automatic failover. Ultra-low ping to European and US cloud regions.</p>
+            </div>
+          </div>
+          <div class="bento-speed-widget">
+            <div class="speed-meter-header">
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">LIVE BANDWIDTH</span>
+              <span class="speed-number">1,240 <span style="font-size: 0.9rem;">Mbps</span></span>
+            </div>
+            <div class="speed-bar-track">
+              <div class="speed-bar-fill"></div>
+            </div>
+            <div class="speed-meta">
+              <span><i class="fas fa-circle-arrow-down" style="color: var(--primary);"></i> 1.2 Gbps</span>
+              <span><i class="fas fa-circle-arrow-up" style="color: var(--accent-cyan);"></i> 980 Mbps</span>
+              <span><i class="fas fa-bolt" style="color: var(--accent-amber);"></i> 3ms ping</span>
+            </div>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-key"></i></div>
-          <h3>24/7 Access</h3>
-          <p>Your space, your schedule - personal key included with every weekly and monthly plan.</p>
+        <!-- Bento 3: Ergonomic Workstations with Interactive Sit/Stand (4 cols) -->
+        <div class="bento-card bento-col-4">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-desktop"></i></div>
+              <span class="bento-badge">Ergonomics</span>
+            </div>
+            <div class="bento-body">
+              <h3>Battle-Tested Hardware</h3>
+              <p>Motorized height-adjustable standing desks, Herman Miller / ergonomic mesh chairs, and 32" 4K external monitors.</p>
+            </div>
+          </div>
+          <!-- Interactive Sit/Stand Desk Height Widget -->
+          <div class="bento-desk-widget">
+            <div class="desk-selector-buttons">
+              <button class="desk-toggle-btn active" data-mode="sit">
+                <i class="fas fa-chair"></i> Sit Mode (73cm)
+              </button>
+              <button class="desk-toggle-btn" data-mode="stand">
+                <i class="fas fa-person"></i> Stand Mode (108cm)
+              </button>
+            </div>
+            <div class="desk-mini-visual">
+              <div class="desk-monitor-mini"></div>
+              <div class="desk-top-mini"></div>
+              <div class="desk-leg-mini left"></div>
+              <div class="desk-leg-mini right"></div>
+            </div>
+            <div style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--primary);">
+              Height: <span class="desk-height-text">73 cm (Sitting)</span>
+            </div>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-mug-hot"></i></div>
-          <h3>Free Refreshments</h3>
+        <!-- Bento 4: Fuel Bar & Endless Refreshments (4 cols) -->
+        <div class="bento-card bento-col-4">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-mug-hot"></i></div>
+              <span class="bento-badge">Unlimited</span>
+            </div>
+            <div class="bento-body">
+              <h3>Fuel Bar & Refreshments</h3>
+              <p>Top-tier coffee beans freshly ground, loose-leaf organic teas, clean filtered water, and daily fresh snacks to keep you in flow.</p>
+            </div>
+          </div>
           <ul class="nested-list">
-            <li><i class="fas fa-coffee"></i> Three coffee varieties</li>
-            <li><i class="fas fa-leaf"></i> Selection of teas</li>
-            <li><i class="fas fa-apple-alt"></i> Fresh fruits daily</li>
-            <li><i class="fas fa-cookie"></i> Assorted snacks</li>
+            <li><i class="fas fa-coffee"></i> 3 Specialty Coffee Roasts</li>
+            <li><i class="fas fa-leaf"></i> Herbal & Green Teas</li>
+            <li><i class="fas fa-apple-whole"></i> Daily Fresh Fruits</li>
+            <li><i class="fas fa-cookie-bite"></i> Energy Snacks & Sweets</li>
           </ul>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-couch"></i></div>
-          <h3>Comfort Zone</h3>
-          <p>Relaxing lounge area with comfortable seating and ambient music.</p>
+        <!-- Bento 5: 5 Min to the Black Sea (4 cols) -->
+        <div class="bento-card bento-col-4">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-water"></i></div>
+              <span class="bento-badge">5 Min Walk</span>
+            </div>
+            <div class="bento-body">
+              <h3>Coastal Proximity</h3>
+              <p>Located in Burgas center, just a 5-minute stroll from the Sea Garden and sandy Black Sea beaches. Take a swim during lunch or jog at sunset.</p>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.85rem; background: rgba(0, 0, 0, 0.3); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fas fa-tree" style="color: var(--primary);"></i> Sea Garden</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-cyan);">400m away</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-users"></i></div>
-          <h3>Community</h3>
-          <p>Connect with fellow tech enthusiasts who are always ready to collaborate and share knowledge.</p>
+        <!-- Bento 6: Private Chill & Call Room (4 cols) -->
+        <div class="bento-card bento-col-4">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-door-closed"></i></div>
+              <span class="bento-badge">Sound-Isolated</span>
+            </div>
+            <div class="bento-body">
+              <h3>Private Call & Chill Room</h3>
+              <p>Need to run a client sprint, salary review, or take a high-stakes call? Book our isolated chill room for up to an hour with ambient music and privacy.</p>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.85rem; background: rgba(0, 0, 0, 0.3); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fas fa-headphones" style="color: var(--accent-purple);"></i> Ambient Lounge</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #34d399;">Free 1hr daily slots</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-hand-holding-dollar"></i></div>
-          <h3>Affordable Rates</h3>
-          <p>Competitive pricing with flexible plans to suit your needs.</p>
+        <!-- Bento 7: Global Tech Nomad Community (8 cols) -->
+        <div class="bento-card bento-col-8">
+          <div>
+            <div class="bento-header">
+              <div class="bento-icon"><i class="fas fa-network-wired"></i></div>
+              <span class="bento-badge">Global Network</span>
+            </div>
+            <div class="bento-body">
+              <h3>Collaborative Tech Community</h3>
+              <p>Connect with seasoned software architects, startup founders, freelance devs, and remote workers from all over the world. Frequent code chats, knowledge sharing, and friendly evening beers.</p>
+            </div>
+          </div>
+          <div class="bento-tags">
+            <span class="skill-tag">#TypeScript</span>
+            <span class="skill-tag">#Rust</span>
+            <span class="skill-tag">#Go</span>
+            <span class="skill-tag">#Python</span>
+            <span class="skill-tag">#React</span>
+            <span class="skill-tag">#Nextjs</span>
+            <span class="skill-tag">#AI_Agents</span>
+            <span class="skill-tag">#DevOps</span>
+            <span class="skill-tag">#Solana</span>
+            <span class="skill-tag">#RemoteLife</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
-          <h3>Convenience</h3>
-          <p>Close to restaurants, public transport, business district, and Burgas Airport - ideal for digital nomads.</p>
+      </div>
+    </section>
+
+    <!-- Interactive Gallery Section with Lightbox -->
+    <section id="gallery" class="section">
+      <div class="section-title">
+        <div class="mono-tag section-tag"><i class="fas fa-camera"></i> Visual Tour</div>
+        <h2>Inside <span class="gradient-text">CodeBurg</span></h2>
+        <p>Explore our ergonomic workstations, chill out zones, and sunlit workspaces.</p>
+      </div>
+      
+      <div class="gallery-grid">
+        <div class="gallery-item" data-index="0">
+          <img src="assets/images/1.jpg" loading="eager" fetchpriority="high" alt="CodeBurg Main Workspace">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Main Open Workspace</div>
+            <div class="gallery-subcaption">// Standing desks & 32" monitors</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-index="1">
+          <img src="assets/images/6.jpg" loading="lazy" decoding="async" alt="CodeBurg Ergonomic Setup">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Focus Workstations</div>
+            <div class="gallery-subcaption">// Dual screen productivity zones</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-index="2">
+          <img src="assets/images/3.jpg" loading="lazy" decoding="async" alt="CodeBurg Chill Lounge">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Chill Lounge & Sofa</div>
+            <div class="gallery-subcaption">// Rest, read, & decompress</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-index="3">
+          <img src="assets/images/7.jpg" loading="lazy" decoding="async" alt="CodeBurg Coffee & Snacks Area">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Coffee & Refreshment Bar</div>
+            <div class="gallery-subcaption">// Fresh roast & tea selection</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-index="4">
+          <img src="assets/images/4.jpg" loading="lazy" decoding="async" alt="CodeBurg Meeting Room">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Private Call Room</div>
+            <div class="gallery-subcaption">// Sound-isolated meeting zone</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-index="5">
+          <img src="assets/images/5.jpg" loading="lazy" decoding="async" alt="CodeBurg Night Atmosphere">
+          <div class="gallery-overlay">
+            <div class="gallery-zoom-badge"><i class="fas fa-expand"></i></div>
+            <div class="gallery-caption">Night Owl Atmosphere</div>
+            <div class="gallery-subcaption">// 24/7 warm ambient lighting</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FAQ Section -->
+    <!-- Pricing Section with Interactive Stay Duration Calculator -->
+    <section id="pricing" class="section">
+      <div class="section-title">
+        <div class="mono-tag section-tag"><i class="fas fa-tags"></i> Transparent Pricing</div>
+        <h2>Choose Your <span class="gradient-text">Plan</span></h2>
+        <p>Zero hidden fees. Zero setup costs. Simple, flexible passes engineered for digital nomads and local power-users alike.</p>
+      </div>
+
+      <!-- Interactive Stay Duration Calculator -->
+      <div class="stay-calc-box">
+        <div class="stay-calc-header">
+          <h4><i class="fas fa-calculator"></i> Stay Duration Calculator</h4>
+          <span class="stay-days-value" id="stay-days-count">7 days</span>
+        </div>
+        <div class="stay-slider-wrapper">
+          <input type="range" min="1" max="30" value="7" class="stay-slider" id="stay-slider" aria-label="Select stay duration in days">
+        </div>
+        <div class="stay-recommendation-pill" id="stay-rec-plan">
+          Recommended: <strong>Weekly Pass (40€)</strong>
+        </div>
+      </div>
+      
+      <div class="pricing-grid">
+        <!-- Day Pass -->
+        <details class="pricing-card" data-plan="day">
+          <summary class="pricing-summary">
+            <div class="pricing-top-row">
+              <div class="pricing-icon"><i class="fas fa-sun"></i></div>
+              <span class="mono-tag">Day Pass</span>
+            </div>
+            <h3 class="pricing-title">Daily Pass</h3>
+            <div class="pricing-price-box">
+              <span class="pricing-price">10€</span>
+              <span class="pricing-period">/ day</span>
+            </div>
+            <p class="pricing-desc">Perfect for occasional visits, drop-ins, and testing the waters.</p>
+            <div class="pricing-chevron-wrapper">
+              <span>View details</span>
+              <i class="fas fa-chevron-down pricing-chevron"></i>
+            </div>
+          </summary>
+          <div class="pricing-body">
+            <ul class="pricing-rules">
+              <li>Daytime workspace access (Mon–Fri, 09:30 - 18:00)</li>
+              <li>Gigabit Wi-Fi 6 & 32" 4K screen (if available)</li>
+              <li>Unlimited specialty coffee, tea, and snacks</li>
+            </ul>
+            <ul class="pricing-meta">
+              <li><i class="fas fa-clock"></i> Daytime hours only — no 24/7 key</li>
+              <li><i class="fas fa-credit-card"></i> Payment: card or cash</li>
+            </ul>
+            <button type="button" class="pricing-book-btn open-booking-dialog" data-plan="day">
+              <i class="fas fa-bolt"></i> Book Day Pass
+            </button>
+          </div>
+        </details>
+
+        <!-- Week Pass -->
+        <details class="pricing-card" data-plan="week">
+          <summary class="pricing-summary">
+            <div class="pricing-top-row">
+              <div class="pricing-icon"><i class="fas fa-calendar-week"></i></div>
+              <span class="mono-tag" style="background: var(--pop-mint-light); color: #15803d; border-color: var(--ink);">🔑 24/7 Key</span>
+            </div>
+            <h3 class="pricing-title">Weekly Pass</h3>
+            <div class="pricing-price-box">
+              <span class="pricing-price">40€</span>
+              <span class="pricing-period">/ week</span>
+            </div>
+            <p class="pricing-desc">Ideal for project sprints and traveling digital nomads.</p>
+            <div class="pricing-chevron-wrapper">
+              <span>View details</span>
+              <i class="fas fa-chevron-down pricing-chevron"></i>
+            </div>
+          </summary>
+          <div class="pricing-body">
+            <ul class="pricing-rules">
+              <li>24/7 Access with your personal RFID key</li>
+              <li>Reserved desk space</li>
+              <li>Access to call room & all facilities</li>
+            </ul>
+            <ul class="pricing-meta">
+              <li><i class="fas fa-key"></i> 24/7 personal physical key included</li>
+              <li><i class="fas fa-credit-card"></i> Payment: card or cash</li>
+            </ul>
+            <button type="button" class="pricing-book-btn open-booking-dialog" data-plan="week">
+              <i class="fas fa-bolt"></i> Book Weekly Pass
+            </button>
+          </div>
+        </details>
+
+        <!-- Flex Desk -->
+        <details class="pricing-card" data-plan="flex">
+          <summary class="pricing-summary">
+            <div class="pricing-top-row">
+              <div class="pricing-icon"><i class="fas fa-calendar-check"></i></div>
+              <span class="mono-tag">Flexible</span>
+            </div>
+            <h3 class="pricing-title">Flex Desk</h3>
+            <div class="pricing-price-box">
+              <span class="pricing-price">75€</span>
+              <span class="pricing-period">/ 10 days</span>
+            </div>
+            <p class="pricing-desc">Book any 10 business days at your pace over 6 months.</p>
+            <div class="pricing-chevron-wrapper">
+              <span>View details</span>
+              <i class="fas fa-chevron-down pricing-chevron"></i>
+            </div>
+          </summary>
+          <div class="pricing-body">
+            <ul class="pricing-rules">
+              <li>Self-booking — use all at once or spread over up to 6 months</li>
+              <li>Space typically has 2+ free spots per week, at least 1</li>
+              <li>Full access to all amenities</li>
+            </ul>
+            <ul class="pricing-meta">
+              <li><i class="fas fa-clock"></i> Daytime hours on booked days (09:30 - 18:00)</li>
+              <li><i class="fas fa-credit-card"></i> Payment: card or cash</li>
+            </ul>
+            <button type="button" class="pricing-book-btn open-booking-dialog" data-plan="flex">
+              <i class="fas fa-bolt"></i> Book Flex Desk
+            </button>
+          </div>
+        </details>
+
+        <!-- Full Month (Featured) -->
+        <details class="pricing-card featured" data-plan="month">
+          <summary class="pricing-summary">
+            <div class="pricing-top-row">
+              <div class="pricing-icon"><i class="fas fa-rocket"></i></div>
+              <span class="mono-tag" style="background: var(--pop-mint-light); color: #15803d; border-color: var(--ink);">🔑 24/7 Key</span>
+            </div>
+            <h3 class="pricing-title">Full Month</h3>
+            <div class="pricing-price-box">
+              <span class="pricing-price">130€</span>
+              <span class="pricing-period">/ month</span>
+            </div>
+            <p class="pricing-desc">Best value for regular coworkers and local residents.</p>
+            <div class="pricing-chevron-wrapper">
+              <span>View details</span>
+              <i class="fas fa-chevron-down pricing-chevron"></i>
+            </div>
+          </summary>
+          <div class="pricing-body">
+            <ul class="pricing-rules">
+              <li>24/7 unlimited access with personal physical key</li>
+              <li>Dedicated ergonomic workstation</li>
+              <li>Priority chill room reservation</li>
+              <li>Official B2B invoice (фактура) available on request</li>
+            </ul>
+            <ul class="pricing-meta">
+              <li><i class="fas fa-key"></i> 24/7 unrestricted access with personal key</li>
+              <li><i class="fas fa-file-invoice"></i> EU VAT invoice supported</li>
+            </ul>
+            <button type="button" class="pricing-book-btn open-booking-dialog" data-plan="month">
+              <i class="fas fa-bolt"></i> Book Full Month
+            </button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Prominent 24/7 Access Policy Box -->
+      <div class="access-policy-box">
+        <div class="access-policy-header">
+          <div class="access-policy-tag"><i class="fas fa-key"></i> Access Policy</div>
+          <h4>Who Gets 24/7 Access?</h4>
+        </div>
+        <div class="access-policy-grid">
+          <div class="access-policy-card member-access">
+            <div class="access-policy-badge member-badge">
+              <i class="fas fa-lock-open"></i> Weekly & Monthly Members Only
+            </div>
+            <div class="access-policy-details">
+              <h5>24/7 Round-the-Clock Entry</h5>
+              <p>You receive your <strong>personal physical RFID key</strong> to access CodeBurg whenever you want: early mornings, midnight coding sprints, weekends, and holidays. Zero restrictions.</p>
+            </div>
+          </div>
+          <div class="access-policy-card day-access">
+            <div class="access-policy-badge day-badge">
+              <i class="fas fa-sun"></i> Mon – Fri, 09:30 – 18:00
+            </div>
+            <div class="access-policy-details">
+              <h5>Day Pass & Flex Coworking</h5>
+              <p>Day passes and flex passes are strictly <strong>daytime coworking only</strong> during regular staffed hours. Perfect for drop-ins, traveling guests, and daytime sprints.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desk Availability Checker Section -->
+      <div class="availability-section">
+        <button id="check-availability-btn" class="availability-btn">
+          <i class="fas fa-calendar-check"></i> Check Live Desk Availability
+        </button>
+        <div id="availability-result" class="availability-result"></div>
+        <!-- Hidden by default: revealed by js/main.js only when OhMyDesk API confirms availability -->
+        <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="availability-book-btn" hidden>
+          <i class="fas fa-calendar-plus"></i> Book a Desk Online via OhMyDesk
+        </a>
+      </div>
+    </section>
+
+    <!-- Location & Interactive Cyber HUD Map -->
+    <section id="location" class="section">
+      <div class="section-title">
+        <div class="mono-tag section-tag"><i class="fas fa-compass"></i> City Center & Sea</div>
+        <h2>Prime <span class="gradient-text">Location</span></h2>
+        <p>In the very heart of Burgas. 5 minutes walk to Sea Garden, Black Sea beaches, coffee shops, and top restaurants.</p>
+      </div>
+      
+      <div class="location-hud">
+        <div class="map-hud-frame">
+          <div class="map-hud-bar">
+            <span class="hud-gps">
+              <i class="fas fa-crosshairs"></i>
+              <span>GPS: 42.5048° N, 27.4626° E · Peyo K. Yavorov 1, Burgas</span>
+            </span>
+            <button class="hud-copy-btn copy-address-action" title="Copy full address">
+              <i class="fas fa-copy"></i> Copy Address
+            </button>
+          </div>
+          <div class="map-wrapper">
+            <iframe 
+              src="https://maps.google.com/maps?q=CodeBurg%20Burgas%20Bulgaria&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+              title="CodeBurg Location on Google Maps">
+            </iframe>
+          </div>
+        </div>
+
+        <div class="transit-pills">
+          <div class="transit-pill">
+            <i class="fas fa-bus"></i>
+            <span><strong>BurgasBus</strong> (32 routes via Transport Burgas app)</span>
+          </div>
+          <div class="transit-pill">
+            <i class="fas fa-bicycle"></i>
+            <span><strong>SeaPark Bike Track</strong> right outside</span>
+          </div>
+          <div class="transit-pill">
+            <i class="fas fa-plane"></i>
+            <span><strong>15 mins</strong> to Burgas Airport (BOJ)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section with Instant Search -->
     <section id="faq" class="section">
       <div class="section-title">
-        <h2>Frequently Asked Questions</h2>
-        <p>Common questions about our space.</p>
+        <div class="mono-tag section-tag"><i class="fas fa-circle-question"></i> Help & Answers</div>
+        <h2>Frequently Asked <span class="gradient-text">Questions</span></h2>
+        <p>Everything you need to know about keys, monitors, internet, meetings, and reservations.</p>
+      </div>
+
+      <!-- FAQ Search Input -->
+      <div class="faq-search-wrapper">
+        <i class="fas fa-search faq-search-icon"></i>
+        <input type="text" id="faq-search" class="faq-search-input" placeholder="Type to filter questions (e.g. coffee, monitor, keys, parking)..." aria-label="Search FAQ">
       </div>
       
       <div class="faq-grid">
         <div class="faq-item">
-          <h3>What's included in the daily pass?</h3>
-          <p>Our 10€ daily pass includes full workspace access, unlimited coffee/tea, high-speed internet (1GB+), 32" 4K monitor, keyboard & mouse (if available), height adjustable tables, comfortable chairs, clean water, weekly snacks, small talks with people from different countries, plenty of plants, and use of all common areas and facilities.</p>
+          <div class="faq-question">
+            <h3>What is included in the 10€ daily pass?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>Our 10€ daily pass includes full workspace access during operating hours, unlimited specialty coffee & organic teas, gigabit dual-fiber internet (1GB+), 32" 4K monitor (first-come basis), keyboard & mouse if needed, motorized height-adjustable desks, ergonomic mesh chairs, clean filtered water, weekly snacks, and use of all chill and common areas.</p>
+          </div>
         </div>
         
         <div class="faq-item">
-          <h3>Is there parking available?</h3>
-          <p>Yes, there are several parking options nearby including street parking and paid parking lots within walking distance.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3>What are the working hours?</h3>
-          <p>Our regular working hours are Monday to Friday, 09:30 - 6:00 PM. Day pass holders work within these hours (adjustable if needed). Weekly and monthly members are not limited by them - you receive a personal key and can use the space 24/7, including nights and weekends.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3>How do I get to CodeBurg?</h3>
-          <p>We're located in Burgas city center. You can take city buses (БургасБус network with 32 routes) - use the "Transport Burgas" mobile app for real-time schedules. For cycling enthusiasts, there's a nice bicycle track from SeaPark that leads to our area.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3>Can I take calls and have meetings?</h3>
-          <p>Absolutely! We all wear headphones and fully understand the need for meetings. For sensitive conversations like salary negotiations or interviews, you can reserve and lock the chill room, which is equipped with a table and internet, for up to 1 hour during the day if needed.</p>
-        </div>
-        
-        <div class="faq-item">
-          <h3>How do I get in contact?</h3>
-          <p>Check our <a href="#contacts">contacts section</a> above for general information. You can also reach me personally: <a href="https://t.me/oleksandr_bodrov" target="_blank">Telegram</a>, <a href="viber://chat?number=+359884489289">Viber</a>, or <a href="https://www.linkedin.com/in/oleksandr-bodrov-1b9566148/" target="_blank">LinkedIn</a>.</p>
+          <div class="faq-question">
+            <h3>How do the 24/7 keys and working hours work?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>Our staffed hours are Monday to Friday, 09:30 - 18:00. Day pass visitors work within these hours. However, weekly and monthly members are not restricted by them: you receive your own physical key and RFID access so you can code 24/7, including late nights, early mornings, weekends, and holidays.</p>
+          </div>
         </div>
 
         <div class="faq-item">
-          <h3>How does desk booking work?</h3>
-          <p>We manage all reservations through <a href="https://ohmydesk.app" target="_blank">OhMyDesk</a> — a coworking management platform that lets you check real-time desk availability and book your spot online in seconds.</p>
+          <div class="faq-question">
+            <h3>Can I take calls and host video meetings?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>Absolutely! We are all remote engineers and builders wearing headphones. Normal conversational calls are welcome with headphones. For sensitive conversations like interviews, client demos, or salary discussions, you can reserve and close the sound-isolated chill room (equipped with desk and internet) for up to 1 hour daily.</p>
+          </div>
         </div>
-      </div>
 
-      <!-- Desk Availability -->
-      <div class="availability-section">
-        <button id="check-availability-btn" class="availability-btn">
-          <i class="fas fa-calendar-check"></i> Check Desk Availability
-        </button>
-        <div id="availability-result" class="availability-result"></div>
-        <!-- Hidden by default: revealed by js/main.js only when the OhMyDesk API confirms a bookable desk. -->
-        <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="availability-book-btn" hidden>
-          <i class="fas fa-calendar-plus"></i> Book a Desk Online
-        </a>
+        <div class="faq-item">
+          <div class="faq-question">
+            <h3>How does online desk booking work?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>We manage all reservations seamlessly through <a href="https://ohmydesk.app" target="_blank">OhMyDesk</a>. The live availability indicator at the top of this page connects directly to the space API so you can confirm open desks in real-time and secure your spot with card payment in seconds.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <h3>Is there parking available nearby?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>Yes, there are several convenient parking options nearby, including municipal green/blue zone street parking and dedicated paid parking lots within 2-3 minutes walking distance from the entrance.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            <h3>How do I reach Alex or the community?</h3>
+            <div class="faq-icon-toggle"><i class="fas fa-plus"></i></div>
+          </div>
+          <div class="faq-answer">
+            <p>Feel free to reach out directly via <a href="https://t.me/oleksandr_bodrov" target="_blank">Telegram</a>, call <a href="tel:+359884489289">+359 88 4489289</a>, or message on <a href="https://wa.me/359884489289" target="_blank">WhatsApp</a>. We're always happy to show you around the space!</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="section">
-      <div class="section-title">
-        <h2>Pricing and Plans</h2>
-        <p>Simple, transparent pricing for everyone.</p>
-      </div>
-      
-      <div class="pricing-grid">
-        <details class="pricing-card">
-          <summary class="pricing-summary">
-            <div class="pricing-icon"><i class="fas fa-sun"></i></div>
-            <h3 class="pricing-title">Day Pass</h3>
-            <div class="pricing-price">10€</div>
-            <i class="fas fa-chevron-down pricing-chevron"></i>
-          </summary>
-          <div class="pricing-body">
-            <p class="pricing-period">per day</p>
-            <p class="pricing-desc">Perfect for occasional visits</p>
-            <ul class="pricing-meta">
-              <li><i class="fas fa-credit-card"></i>Payment: card or cash</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="pricing-card">
-          <summary class="pricing-summary">
-            <div class="pricing-icon"><i class="fas fa-star"></i></div>
-            <h3 class="pricing-title">Week</h3>
-            <div class="pricing-price">40€</div>
-            <i class="fas fa-chevron-down pricing-chevron"></i>
-          </summary>
-          <div class="pricing-body">
-            <p class="pricing-period">per week</p>
-            <p class="pricing-desc">Perfect for weekly projects</p>
-            <ul class="pricing-meta">
-              <li><i class="fas fa-key"></i>24/7 access with personal key</li>
-              <li><i class="fas fa-credit-card"></i>Payment: card or cash</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="pricing-card">
-          <summary class="pricing-summary">
-            <div class="pricing-icon"><i class="fas fa-calendar-check"></i></div>
-            <h3 class="pricing-title">Flex Desk</h3>
-            <div class="pricing-price">75€</div>
-            <i class="fas fa-chevron-down pricing-chevron"></i>
-          </summary>
-          <div class="pricing-body">
-            <p class="pricing-period">for 10 days</p>
-            <p class="pricing-desc">Book any 10 business days at your pace</p>
-            <ul class="pricing-rules">
-              <li>Self-booking — use all at once or spread over up to 6 months</li>
-              <li>Space is not guaranteed — typically 2+ spots per week available, at least 1</li>
-            </ul>
-            <ul class="pricing-meta">
-              <li><i class="fas fa-credit-card"></i>Payment: card or cash</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="pricing-card featured">
-          <summary class="pricing-summary">
-            <div class="pricing-icon"><i class="fas fa-rocket"></i></div>
-            <h3 class="pricing-title">Full Month</h3>
-            <div class="pricing-price">130€</div>
-            <i class="fas fa-chevron-down pricing-chevron"></i>
-          </summary>
-          <div class="pricing-body">
-            <p class="pricing-period">per month</p>
-            <p class="pricing-desc">Best value for regular members</p>
-            <ul class="pricing-meta">
-              <li><i class="fas fa-key"></i>24/7 access with personal key</li>
-              <li><i class="fas fa-credit-card"></i>Payment: card or cash</li>
-              <li><i class="fas fa-file-invoice"></i>B2B invoice (фактура) available on request</li>
-            </ul>
-          </div>
-        </details>
-      </div>
-
-      <div class="pricing-hours">
-        <p class="pricing-hours-main"><i class="fas fa-clock"></i><span>Working hours: <strong>Mon - Fri, 09:30 - 6:00 PM</strong><sup>*</sup></span></p>
-        <p class="pricing-hours-note">* These hours do not apply to weekly and monthly members - you receive your own key and can use the space 24/7, including nights and weekends.</p>
-      </div>
-    </section>
-
-    <!-- Contact Us Section -->
+    <!-- Contact Channels Section -->
     <section id="contact" class="section">
       <div class="section-title">
-        <h2>Contact Us</h2>
-        <p>Reach out to us through any of these channels.</p>
+        <div class="mono-tag section-tag"><i class="fas fa-paper-plane"></i> Quick Connect</div>
+        <h2>Get in <span class="gradient-text">Touch</span></h2>
+        <p>Drop us a line to schedule a tour, verify special workstation requirements, or ask any question.</p>
       </div>
       <div class="contact-links">
+        <a href="https://t.me/oleksandr_bodrov" class="contact-btn" target="_blank" rel="noopener">
+          <i class="fab fa-telegram-plane"></i>
+          <span>Telegram</span>
+        </a>
+        <a href="https://wa.me/359884489289" class="contact-btn" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i>
+          <span>WhatsApp</span>
+        </a>
         <a href="tel:+359884489289" class="contact-btn">
-          <i class="fas fa-phone-volume"></i> Call Us
-        </a>
-        <a href="https://wa.me/359884489289" class="contact-btn" target="_blank">
-          <i class="fab fa-whatsapp"></i> WhatsApp
-        </a>
-        <a href="https://t.me/oleksandr_bodrov" class="contact-btn" target="_blank">
-          <i class="fab fa-telegram-plane"></i> Telegram
+          <i class="fas fa-phone-volume"></i>
+          <span>Call Us</span>
         </a>
         <a href="viber://chat?number=+359884489289" class="contact-btn">
-          <i class="fab fa-viber"></i> Viber
+          <i class="fab fa-viber"></i>
+          <span>Viber</span>
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" class="contact-btn" target="_blank">
-          <i class="fab fa-instagram"></i> Instagram
+        <a href="https://www.instagram.com/coworking_burgas" class="contact-btn" target="_blank" rel="noopener">
+          <i class="fab fa-instagram"></i>
+          <span>Instagram</span>
         </a>
       </div>
     </section>
 
     <!-- Afterwordings Section -->
     <section id="afterwordings" class="section">
-      <div class="section-title">
-        <h2>Afterwordings</h2>
+      <div class="afterwordings-card">
+        <div class="mono-tag" style="margin-bottom: 1rem;"><i class="fas fa-heart"></i> Built by Developers, for Developers</div>
+        <h2>Community First</h2>
         <p>
-          We'll be happy to see you in CodeBurg! As we try to build a community of developers who work and study together,
-          we'll be happy to see you in our space. We have big plans for the future events and workshops. Become our member
-          today, and we'll see you soon!
+          We'll be thrilled to welcome you at CodeBurg! We are building a vibrant hub of software engineers, creators, and nomads who build cool things together by the Black Sea. Become our member today and join the crew!
         </p>
       </div>
     </section>
+  </div>
+
+  <!-- Gallery Lightbox Modal -->
+  <div id="gallery-lightbox" class="lightbox-modal" role="dialog" aria-modal="true" aria-label="Image gallery viewer">
+    <div class="lightbox-content-wrapper">
+      <button class="lightbox-close-btn" aria-label="Close image viewer"><i class="fas fa-times"></i></button>
+      <button class="lightbox-nav-btn lightbox-prev" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
+      <button class="lightbox-nav-btn lightbox-next" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
+      <img src="" alt="Gallery full preview" class="lightbox-img">
+      <div class="lightbox-caption-bar">
+        <span class="lightbox-caption-text"></span>
+        <span class="lightbox-counter" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary);"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom On-Site OhMyDesk Booking Dialog -->
+  <dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-dialog-title">
+    <div class="booking-dialog-frame">
+      <header class="booking-dialog-header">
+        <div class="booking-dialog-title-group">
+          <div class="booking-badge-row">
+            <span class="booking-dialog-badge"><i class="fas fa-bolt"></i> Instant Booking</span>
+            <span class="booking-dialog-pulse"><span class="availability-pulse-dot"></span> Live Space Connected</span>
+          </div>
+          <h3 id="booking-dialog-title">Reserve a Desk at <span class="brand-pop">CodeBurg</span></h3>
+        </div>
+        <button type="button" class="booking-dialog-close" id="booking-dialog-close" aria-label="Close booking dialog">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <div class="booking-dialog-body">
+        <div class="booking-loader" id="booking-loader">
+          <div class="booking-spinner"></div>
+          <p>Connecting to OhMyDesk live availability...</p>
+        </div>
+        <iframe
+          id="booking-iframe"
+          class="booking-iframe"
+          src="about:blank"
+          title="CodeBurg Desk Booking Portal"
+          allow="payment *">
+        </iframe>
+      </div>
+
+      <footer class="booking-dialog-footer">
+        <div class="booking-footer-help">
+          <i class="fas fa-shield-halved"></i>
+          <span>Secure reservation powered by <strong>OhMyDesk</strong></span>
+        </div>
+        <a href="https://ohmydesk.app/book/codeburg" target="_blank" rel="noopener" class="booking-external-link">
+          <span>Open in new window</span> <i class="fas fa-arrow-up-right-from-square"></i>
+        </a>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Floating Back to Top Button -->
+  <button id="back-to-top" class="back-to-top" aria-label="Scroll back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Copy Toast Notification -->
+  <div id="copy-toast" class="toast-notification">✓ Address copied to clipboard!</div>
+
+  <!-- Bottom 24/7 Access Policy Banner -->
+  <div class="container bottom-access-container">
+    <div class="bottom-access-note">
+      <div class="bottom-access-icon"><i class="fas fa-key"></i></div>
+      <div class="bottom-access-text">
+        <strong>24/7 Access Clarification:</strong> Unlimited 24/7 round-the-clock entry with personal RFID keys is reserved strictly for <strong>Weekly</strong> and <strong>Monthly</strong> paid members. Day passes operate Monday – Friday, 09:30 – 18:00.
+      </div>
+    </div>
   </div>
 
   <!-- Footer -->
@@ -493,15 +952,15 @@
         <img src="assets/images/codeburg_logo.png" alt="CodeBurg Coworking Logo" class="footer-logo-img">
       </div>
       <div class="footer-social">
-        <a href="https://t.me/oleksandr_bodrov" target="_blank" class="social-link">
+        <a href="https://t.me/oleksandr_bodrov" target="_blank" class="social-link" rel="noopener">
           <i class="fab fa-telegram-plane"></i>
           <span>Telegram</span>
         </a>
-        <a href="https://maps.app.goo.gl/Y41ZGGMszpFDiETx8" target="_blank" class="social-link">
-          <i class="fas fa-map-marked-alt"></i>
+        <a href="https://maps.app.goo.gl/Y41ZGGMszpFDiETx8" target="_blank" class="social-link" rel="noopener">
+          <i class="fas fa-map-location-dot"></i>
           <span>Google Maps</span>
         </a>
-        <a href="https://www.instagram.com/coworking_burgas" target="_blank" class="social-link">
+        <a href="https://www.instagram.com/coworking_burgas" target="_blank" class="social-link" rel="noopener">
           <i class="fab fa-instagram"></i>
           <span>Instagram</span>
         </a>
@@ -509,11 +968,11 @@
       <div class="footer-bottom">
         <p>
           <i class="fas fa-code"></i>
-          Made with <i class="fas fa-heart"></i> by Obod Soft LTD 2025
+          Crafted with <i class="fas fa-heart"></i> by Obod Soft LTD &bull; Burgas, Bulgaria
         </p>
         <p class="footer-partner">
           Space management powered by
-          <a href="https://ohmydesk.app" target="_blank" class="footer-partner-link">
+          <a href="https://ohmydesk.app" target="_blank" class="footer-partner-link" rel="noopener">
             <img src="assets/images/ohmydesk-logo.svg" alt="OhMyDesk" class="footer-partner-logo">
           </a>
         </p>
