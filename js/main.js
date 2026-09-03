@@ -964,30 +964,221 @@ function addPlayButton(video) {
 }
 
 // ============================================================================
-// 12b. Custom On-Site Booking Dialog (OhMyDesk Embed)
+// 12b. Custom On-Site Booking Dialog (Native OhMyDesk API Integration)
 // ============================================================================
 function initBookingDialog() {
   const dialog = document.getElementById('booking-dialog');
   if (!dialog) return;
 
-  const closeBtn = document.getElementById('booking-dialog-close');
-  const iframe = document.getElementById('booking-iframe');
-  const loader = document.getElementById('booking-loader');
   const frame = dialog.querySelector('.booking-dialog-frame');
+  const closeBtn = document.getElementById('booking-dialog-close');
+  const form = document.getElementById('custom-booking-form');
+  const successView = document.getElementById('custom-booking-success');
+  const successCloseBtn = document.getElementById('success-close-btn');
+  const dateInput = document.getElementById('custom-booking-date');
+  const availBadge = document.getElementById('booking-date-avail-badge');
+  const alertBox = document.getElementById('custom-booking-alert');
+  const submitBtn = document.getElementById('custom-booking-submit');
+  const submitSpinner = submitBtn ? submitBtn.querySelector('.submit-spinner') : null;
+  const submitText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+  const totalDisplay = document.getElementById('booking-summary-total');
+  const metaDisplay = document.getElementById('booking-summary-meta');
 
-  const BOOKING_URL = 'https://ohmydesk.app/book/codeburg';
+  const currentPath = window.location.pathname;
+  const lang = currentPath.includes('/bg/') ? 'bg' : currentPath.includes('/ru/') ? 'ru' : currentPath.includes('/ua/') ? 'ua' : 'en';
 
-  function openBookingDialog() {
-    if (iframe && (!iframe.src || iframe.src === 'about:blank' || !iframe.src.includes('ohmydesk.app'))) {
-      if (loader) loader.classList.remove('loaded');
-      iframe.src = BOOKING_URL;
-      iframe.onload = () => {
-        if (loader) loader.classList.add('loaded');
-      };
-    } else {
-      if (loader) loader.classList.add('loaded');
+  const planConfigs = {
+    day: {
+      price: '10€',
+      meta: {
+        en: 'Pay with card or cash upon check-in',
+        bg: 'Плащане с карта или в брой при настаняване',
+        ru: 'Оплата картой или наличными при визите',
+        ua: 'Оплата карткою або готівкою при візиті'
+      },
+      name: {
+        en: 'Daily Pass',
+        bg: 'Дневен абонамент',
+        ru: 'Дневной абонемент',
+        ua: 'Денний абонемент'
+      }
+    },
+    week: {
+      price: '40€',
+      meta: {
+        en: '🔑 Personal 24/7 RFID key included',
+        bg: '🔑 Включен личен 24/7 RFID ключ',
+        ru: '🔑 Персональный RFID-ключ 24/7 включен',
+        ua: '🔑 Персональний RFID-ключ 24/7 включено'
+      },
+      name: {
+        en: 'Weekly Pass',
+        bg: 'Седмичен абонамент',
+        ru: 'Недельный тариф',
+        ua: 'Тижневий тариф'
+      }
+    },
+    flex: {
+      price: '75€',
+      meta: {
+        en: 'Any 10 business days within 6 months',
+        bg: 'Всеки 10 работни дни за 6 месеца',
+        ru: 'Любые 10 рабочих дней на 6 месяцев',
+        ua: 'Будь-які 10 робочих днів на 6 місяців'
+      },
+      name: {
+        en: 'Flex Desk',
+        bg: 'Flex Бюро',
+        ru: 'Flex Стол',
+        ua: 'Flex Стіл'
+      }
+    },
+    month: {
+      price: '130€',
+      meta: {
+        en: '🔑 24/7 Dedicated workstation & RFID key',
+        bg: '🔑 24/7 Собствено работно място и ключ',
+        ru: '🔑 24/7 Закрепленное место и ключ',
+        ua: '🔑 24/7 Закріплене місце та ключ'
+      },
+      name: {
+        en: 'Full Month',
+        bg: 'Месечен абонамент',
+        ru: 'Полный месяц',
+        ua: 'Повний місяць'
+      }
+    }
+  };
+
+  const errorMessages = {
+    no_desks_available: {
+      en: 'No desks available on this date. Please pick another date.',
+      bg: 'Няма свободни бюра за тази дата. Моля, изберете друга дата.',
+      ru: 'На эту дату нет свободных столов. Пожалуйста, выберите другую дату.',
+      ua: 'На цю дату немає вільних столів. Будь ласка, оберіть іншу дату.'
+    },
+    missing_visitor_name: {
+      en: 'Please enter your name.',
+      bg: 'Моля, въведете вашето име.',
+      ru: 'Пожалуйста, укажите ваше имя.',
+      ua: 'Будь ласка, введіть ваше ім\'я.'
+    },
+    date_out_of_range: {
+      en: 'Selected date is outside the 14-day bookable window.',
+      bg: 'Избраната дата е извън 14-дневния период за резервация.',
+      ru: 'Выбранная дата выходит за рамки 14-дневного окна.',
+      ua: 'Обрана дата виходить за межі 14-денного вікна.'
+    },
+    generic: {
+      en: 'Failed to confirm booking. Please try again or reach out on Telegram.',
+      bg: 'Неуспешна резервация. Опитайте отново или ни пишете в Telegram.',
+      ru: 'Не удалось забронировать. Попробуйте снова или напишите в Telegram.',
+      ua: 'Не вдалося забронювати. Спробуйте ще раз або напишіть у Telegram.'
+    }
+  };
+
+  function getSofiaTodayString() {
+    const now = new Date();
+    // Sofia is UTC+2 or UTC+3
+    const str = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Sofia' });
+    return str; // Returns YYYY-MM-DD
+  }
+
+  function getSelectedPlan() {
+    const checked = form ? form.querySelector('input[name="booking_plan"]:checked') : null;
+    return checked ? checked.value : 'day';
+  }
+
+  function setSelectedPlan(planKey) {
+    if (!form) return;
+    const radio = form.querySelector(`input[name="booking_plan"][value="${planKey}"]`);
+    if (radio) {
+      radio.checked = true;
+    }
+    updatePlanSummary();
+  }
+
+  function updatePlanSummary() {
+    const planKey = getSelectedPlan();
+    const config = planConfigs[planKey] || planConfigs.day;
+    if (totalDisplay) totalDisplay.textContent = config.price;
+    if (metaDisplay) metaDisplay.textContent = config.meta[lang] || config.meta.en;
+  }
+
+  function updateDateBadge(dateVal) {
+    if (!availBadge) return;
+    if (!dateVal) {
+      availBadge.textContent = '—';
+      availBadge.className = 'booking-avail-pill checking';
+      return;
     }
 
+    const state = getCachedAvailability();
+    if (state && Array.isArray(state.dates)) {
+      const dayEntry = state.dates.find(d => d.date === dateVal);
+      if (dayEntry) {
+        if (dayEntry.availableDesks > 0) {
+          const deskWord = dayEntry.availableDesks === 1
+            ? (lang === 'en' ? 'desk' : lang === 'bg' ? 'бюро' : 'стол')
+            : (lang === 'en' ? 'desks' : lang === 'bg' ? 'бюра' : lang === 'ua' ? 'столи' : 'стола');
+          availBadge.textContent = `🟢 ${dayEntry.availableDesks} ${deskWord}`;
+          availBadge.className = 'booking-avail-pill';
+          return;
+        } else {
+          availBadge.textContent = lang === 'en' ? '🔴 Full' : lang === 'bg' ? '🔴 Заето' : '🔴 Занято';
+          availBadge.className = 'booking-avail-pill full';
+          return;
+        }
+      }
+    }
+
+    // Check if weekend
+    const jsDay = new Date(dateVal + 'T12:00:00').getDay();
+    if (jsDay === 0 || jsDay === 6) {
+      availBadge.textContent = lang === 'en' ? '⚠️ Weekend (24/7 Key)' : lang === 'bg' ? '⚠️ Уикенд (24/7 ключ)' : '⚠️ Выходной (24/7)';
+      availBadge.className = 'booking-avail-pill full';
+    } else {
+      availBadge.textContent = lang === 'en' ? '✓ Open' : lang === 'bg' ? '✓ Отворено' : '✓ Доступно';
+      availBadge.className = 'booking-avail-pill';
+    }
+  }
+
+  function openBookingDialog(preferredPlan) {
+    if (alertBox) {
+      alertBox.hidden = true;
+      alertBox.textContent = '';
+    }
+
+    if (form) form.hidden = false;
+    if (successView) successView.hidden = true;
+
+    // Set plan
+    if (preferredPlan && planConfigs[preferredPlan]) {
+      setSelectedPlan(preferredPlan);
+    } else {
+      updatePlanSummary();
+    }
+
+    // Setup date picker
+    const todayStr = getSofiaTodayString();
+    if (dateInput) {
+      dateInput.min = todayStr;
+
+      // Find first available day
+      const state = getCachedAvailability();
+      let bestDate = todayStr;
+      if (state && Array.isArray(state.dates)) {
+        const firstAvail = state.dates.find(d => d.availableDesks > 0 && d.date >= todayStr);
+        if (firstAvail) bestDate = firstAvail.date;
+      }
+
+      if (!dateInput.value || dateInput.value < todayStr) {
+        dateInput.value = bestDate;
+      }
+      updateDateBadge(dateInput.value);
+    }
+
+    // Open modal
     if (typeof dialog.showModal === 'function') {
       dialog.showModal();
     } else {
@@ -1005,46 +1196,170 @@ function initBookingDialog() {
     document.body.style.overflow = '';
   }
 
-  // Intercept all booking triggers (buttons, links, pricing plan CTAs)
+  // Intercept all booking triggers
   const bookingTriggers = document.querySelectorAll(
-    '.book-btn, .availability-book-btn, .open-booking-dialog, a[href*="ohmydesk.app/book/"]'
+    '.book-btn, .availability-book-btn, .open-booking-dialog, .pricing-book-btn, a[href*="ohmydesk.app/book/"]'
   );
 
   bookingTriggers.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      openBookingDialog();
+      // Extract plan preference from data-plan attribute
+      const plan = btn.getAttribute('data-plan') ||
+        (btn.closest('.pricing-card') && btn.closest('.pricing-card').getAttribute('data-plan')) ||
+        'day';
+      openBookingDialog(plan);
     });
   });
 
-  // Close on button click
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closeBookingDialog);
+  // Radio plan change
+  if (form) {
+    form.querySelectorAll('input[name="booking_plan"]').forEach(radio => {
+      radio.addEventListener('change', updatePlanSummary);
+    });
   }
 
-  // Restore scroll when closed
+  // Date input change
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      updateDateBadge(dateInput.value);
+    });
+    dateInput.addEventListener('input', () => {
+      updateDateBadge(dateInput.value);
+    });
+  }
+
+  // Form submit -> Native OhMyDesk API POST
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (alertBox) {
+        alertBox.hidden = true;
+        alertBox.textContent = '';
+      }
+
+      const nameInput = document.getElementById('custom-booking-name');
+      const emailInput = document.getElementById('custom-booking-email');
+      const phoneInput = document.getElementById('custom-booking-phone');
+      const notesInput = document.getElementById('custom-booking-notes');
+
+      const nameVal = nameInput ? nameInput.value.trim() : '';
+      const emailVal = emailInput ? emailInput.value.trim() : '';
+      const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+      const notesVal = notesInput ? notesInput.value.trim() : '';
+      const dateVal = dateInput ? dateInput.value : '';
+      const planVal = getSelectedPlan();
+      const planConfig = planConfigs[planVal] || planConfigs.day;
+      const planName = planConfig.name[lang] || planConfig.name.en;
+
+      if (!nameVal) {
+        if (alertBox) {
+          alertBox.textContent = errorMessages.missing_visitor_name[lang] || errorMessages.missing_visitor_name.en;
+          alertBox.hidden = false;
+        }
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      if (!dateVal) {
+        if (alertBox) {
+          alertBox.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
+          alertBox.hidden = false;
+        }
+        if (dateInput) dateInput.focus();
+        return;
+      }
+
+      // Enter loading state
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitSpinner) submitSpinner.hidden = false;
+
+      const idempotencyKey = `codeburg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const payload = {
+        dates: [dateVal],
+        visitorName: nameVal,
+        visitorEmail: emailVal || undefined,
+        visitorPhone: phoneVal || undefined,
+        notes: `Plan: ${planName} (${planConfig.price}). ${notesVal}`.trim()
+      };
+
+      try {
+        const response = await fetch('https://ohmydesk.app/api/v1/public/codeburg/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': idempotencyKey,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.status === 201 && result.data && Array.isArray(result.data.bookings) && result.data.bookings.length > 0) {
+          const booking = result.data.bookings[0];
+          const deskLabel = booking.deskLabel || 'Desk assigned';
+
+          // Populate success card
+          const deskLabelEl = document.getElementById('success-desk-label');
+          const dateValEl = document.getElementById('success-date-val');
+          const planValEl = document.getElementById('success-plan-val');
+
+          if (deskLabelEl) deskLabelEl.textContent = deskLabel;
+          if (dateValEl) dateValEl.textContent = dateVal;
+          if (planValEl) planValEl.textContent = `${planName} (${planConfig.price})`;
+
+          // Transition to success screen
+          form.hidden = true;
+          if (successView) successView.hidden = false;
+
+          // Clear availability cache to reflect newly booked slot
+          sessionStorage.removeItem('desk_availability');
+        } else {
+          // Display structured API error
+          const errCode = (result.error && result.error.code) || '';
+          const errMsg = (result.error && result.error.message) || '';
+          const localizedErr = (errorMessages[errCode] && errorMessages[errCode][lang]) ||
+            errMsg ||
+            errorMessages.generic[lang] ||
+            errorMessages.generic.en;
+
+          if (alertBox) {
+            alertBox.textContent = localizedErr;
+            alertBox.hidden = false;
+          }
+        }
+      } catch (err) {
+        console.error('Booking submission error:', err);
+        if (alertBox) {
+          alertBox.textContent = errorMessages.generic[lang] || errorMessages.generic.en;
+          alertBox.hidden = false;
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitSpinner) submitSpinner.hidden = true;
+      }
+    });
+  }
+
+  // Close handlers
+  if (closeBtn) closeBtn.addEventListener('click', closeBookingDialog);
+  if (successCloseBtn) successCloseBtn.addEventListener('click', closeBookingDialog);
+
   dialog.addEventListener('close', () => {
     document.body.style.overflow = '';
   });
 
-  // Light dismiss: close when clicking the backdrop outside dialog frame
-  dialog.addEventListener('click', (e) => {
-    if (!frame) return;
-    const rect = frame.getBoundingClientRect();
-    const isOutside = (
-      e.clientX < rect.left ||
-      e.clientX > rect.right ||
-      e.clientY < rect.top ||
-      e.clientY > rect.bottom
-    );
-    if (isOutside) {
-      closeBookingDialog();
-    }
-  });
-
-  // Escape key support
   dialog.addEventListener('cancel', () => {
     document.body.style.overflow = '';
+  });
+
+  // Light dismiss on backdrop click
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) {
+      closeBookingDialog();
+    }
   });
 }
 

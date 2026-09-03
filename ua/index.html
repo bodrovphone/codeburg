@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeBurg - Найкращий Коворкінг у Бургасі | 24/7 Робочий Простір для IT</title>
-  <link type="text/css" rel="stylesheet" href="../styles/main.css?v=4" />
+  <link type="text/css" rel="stylesheet" href="../styles/main.css?v=5" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicons/favicon-32x32.png">
@@ -147,8 +147,8 @@
             <span class="hero-availability-spinner"></span>
             <span class="hero-availability-text">Перевіряємо наявність вільних місць...</span>
           </div>
-          <!-- Revealed by js/main.js only when OhMyDesk API confirms availability -->
-          <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="hero-nav-btn book-btn" hidden>
+          <!-- Custom native booking dialog trigger -->
+          <a href="#booking-dialog" class="hero-nav-btn book-btn open-booking-dialog" data-plan="day" hidden>
             <i class="fas fa-bolt"></i> <span class="btn-label">Забронювати місце</span>
           </a>
         </div>
@@ -649,10 +649,10 @@
           <i class="fas fa-calendar-check"></i> Перевірити вільні місця онлайн
         </button>
         <div id="availability-result" class="availability-result"></div>
-        <!-- Hidden by default: revealed by js/main.js only when OhMyDesk API confirms availability -->
-        <a href="https://ohmydesk.app/book/codeburg" target="_blank" class="availability-book-btn" hidden>
+        <!-- Custom native dialog trigger -->
+        <button type="button" class="availability-book-btn open-booking-dialog" data-plan="day" hidden>
           <i class="fas fa-calendar-plus"></i> Забронювати місце онлайн через OhMyDesk
-        </a>
+        </button>
       </div>
     </section>
 
@@ -836,7 +836,7 @@
     </div>
   </div>
 
-  <!-- Custom On-Site OhMyDesk Booking Dialog -->
+  <!-- Custom Native OhMyDesk Booking Dialog -->
   <dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-dialog-title">
     <div class="booking-dialog-frame">
       <header class="booking-dialog-header">
@@ -853,26 +853,151 @@
       </header>
 
       <div class="booking-dialog-body">
-        <div class="booking-loader" id="booking-loader">
-          <div class="booking-spinner"></div>
-          <p>Підключення до OhMyDesk...</p>
+        <!-- Step 1: Interactive Booking Form -->
+        <form id="custom-booking-form" class="custom-booking-form" novalidate>
+          
+          <!-- Plan Selection Grid -->
+          <div class="booking-field-group">
+            <label class="booking-field-label">
+              <i class="fas fa-tags"></i> Оберіть тариф
+            </label>
+            <div class="booking-plan-grid">
+              <label class="booking-plan-option" data-plan="day">
+                <input type="radio" name="booking_plan" value="day" checked>
+                <div class="booking-plan-card">
+                  <span class="plan-card-name">Денний абонемент</span>
+                  <span class="plan-card-price">10€</span>
+                  <span class="plan-card-meta">09:30–18:00</span>
+                </div>
+              </label>
+              <label class="booking-plan-option" data-plan="week">
+                <input type="radio" name="booking_plan" value="week">
+                <div class="booking-plan-card">
+                  <span class="plan-card-name">Тижневий тариф</span>
+                  <span class="plan-card-price">40€</span>
+                  <span class="plan-card-meta">🔑 24/7 Ключ</span>
+                </div>
+              </label>
+              <label class="booking-plan-option" data-plan="flex">
+                <input type="radio" name="booking_plan" value="flex">
+                <div class="booking-plan-card">
+                  <span class="plan-card-name">Flex Стіл</span>
+                  <span class="plan-card-price">75€</span>
+                  <span class="plan-card-meta">10 днів</span>
+                </div>
+              </label>
+              <label class="booking-plan-option" data-plan="month">
+                <input type="radio" name="booking_plan" value="month">
+                <div class="booking-plan-card">
+                  <span class="plan-card-name">Повний місяць</span>
+                  <span class="plan-card-price">130€</span>
+                  <span class="plan-card-meta">🔑 24/7 Місце</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Date Picker with Live Availability Badge -->
+          <div class="booking-field-group">
+            <div class="booking-label-row">
+              <label for="custom-booking-date" class="booking-field-label">
+                <i class="fas fa-calendar-day"></i> Дата початку <span class="req-star">*</span>
+              </label>
+              <span id="booking-date-avail-badge" class="booking-avail-pill checking">Перевірка...</span>
+            </div>
+            <input type="date" id="custom-booking-date" name="date" class="booking-input" required>
+            <small class="booking-field-help">Робочі години: Пн–Пт 09:30–18:00 (24/7 ключ для тижня та місяця)</small>
+          </div>
+
+          <!-- Guest Info Inputs -->
+          <div class="booking-form-row">
+            <div class="booking-field-group">
+              <label for="custom-booking-name" class="booking-field-label">
+                <i class="fas fa-user"></i> Ім'я та прізвище <span class="req-star">*</span>
+              </label>
+              <input type="text" id="custom-booking-name" name="name" class="booking-input" placeholder="наприклад, Олександр Бодров" required autocomplete="name">
+            </div>
+            <div class="booking-field-group">
+              <label for="custom-booking-email" class="booking-field-label">
+                <i class="fas fa-envelope"></i> Email (для підтвердження)
+              </label>
+              <input type="email" id="custom-booking-email" name="email" class="booking-input" placeholder="alex@example.com" autocomplete="email">
+            </div>
+          </div>
+
+          <div class="booking-form-row">
+            <div class="booking-field-group">
+              <label for="custom-booking-phone" class="booking-field-label">
+                <i class="fas fa-phone"></i> Телефон / Telegram (необов'язково)
+              </label>
+              <input type="tel" id="custom-booking-phone" name="phone" class="booking-input" placeholder="+359 88 ... або @username">
+            </div>
+            <div class="booking-field-group">
+              <label for="custom-booking-notes" class="booking-field-label">
+                <i class="fas fa-comment-dots"></i> Побажання (необов'язково)
+              </label>
+              <input type="text" id="custom-booking-notes" name="notes" class="booking-input" placeholder="наприклад, 4K монітор, тихий куточок...">
+            </div>
+          </div>
+
+          <!-- Inline Warning/Error Alert Banner -->
+          <div id="custom-booking-alert" class="booking-alert" hidden></div>
+
+          <!-- Total & Confirm CTA -->
+          <div class="booking-summary-box">
+            <div class="booking-summary-left">
+              <span class="booking-summary-label">До сплати на місці</span>
+              <span class="booking-summary-total" id="booking-summary-total">10€</span>
+              <span class="booking-summary-meta" id="booking-summary-meta">Оплата карткою або готівкою при візиті</span>
+            </div>
+            <button type="submit" id="custom-booking-submit" class="booking-confirm-btn">
+              <span class="submit-spinner" hidden></span>
+              <i class="fas fa-bolt"></i>
+              <span class="btn-text">Підтвердити бронювання</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 2: Instant Success Confirmation -->
+        <div id="custom-booking-success" class="custom-booking-success" hidden>
+          <div class="success-icon-badge">🎉</div>
+          <h4>Місце успішно заброньовано!</h4>
+          <p class="success-subtitle">Ваш стіл у CodeBurg призначено автоматично через OhMyDesk.</p>
+          
+          <div class="success-details-card">
+            <div class="success-detail-row">
+              <span>Призначений стіл:</span>
+              <strong id="success-desk-label">--</strong>
+            </div>
+            <div class="success-detail-row">
+              <span>Дата початку:</span>
+              <strong id="success-date-val">--</strong>
+            </div>
+            <div class="success-detail-row">
+              <span>Тариф:</span>
+              <strong id="success-plan-val">--</strong>
+            </div>
+            <div class="success-detail-row">
+              <span>Локація:</span>
+              <strong>вул. Пейо К. Яворов 1, Бургас</strong>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <button type="button" class="success-close-btn" id="success-close-btn">
+              Готово
+            </button>
+          </div>
         </div>
-        <iframe
-          id="booking-iframe"
-          class="booking-iframe"
-          src="about:blank"
-          title="CodeBurg Desk Booking Portal"
-          allow="payment *">
-        </iframe>
       </div>
 
       <footer class="booking-dialog-footer">
         <div class="booking-footer-help">
           <i class="fas fa-shield-halved"></i>
-          <span>Безпечне бронювання через <strong>OhMyDesk</strong></span>
+          <span>Пряма інтеграція через <strong>OhMyDesk API</strong></span>
         </div>
         <a href="https://ohmydesk.app/book/codeburg" target="_blank" rel="noopener" class="booking-external-link">
-          <span>Відкрити в новому вікні</span> <i class="fas fa-arrow-up-right-from-square"></i>
+          <span>Відкрити окремий портал</span> <i class="fas fa-arrow-up-right-from-square"></i>
         </a>
       </footer>
     </div>
