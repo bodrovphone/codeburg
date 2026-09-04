@@ -835,22 +835,88 @@
   <dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-dialog-title">
     <div class="booking-dialog-frame">
       <header class="booking-dialog-header">
-        <div class="booking-dialog-title-group">
-          <div class="booking-badge-row">
-            <span class="booking-dialog-badge"><i class="fas fa-bolt"></i> Бърза резервация</span>
-            <span class="booking-dialog-pulse"><span class="availability-pulse-dot"></span> Свързано в реално време</span>
+        <div class="booking-header-brand">
+          <img src="../assets/images/codeburg_logo.png" alt="CodeBurg" class="booking-logo-badge">
+          <div class="booking-title-stack">
+            <h3 id="booking-dialog-title">CodeBurg</h3>
+            <span class="booking-dialog-subtitle">Резервация на бюро</span>
           </div>
-          <h3 id="booking-dialog-title">Резервирай бюро в <span class="brand-pop">CodeBurg</span></h3>
         </div>
         <button type="button" class="booking-dialog-close" id="booking-dialog-close" aria-label="Затвори прозореца">
           <i class="fas fa-times"></i>
         </button>
       </header>
 
+      <!-- 2-Step Progress Indicator -->
+      <div class="booking-step-tracker" id="booking-step-tracker">
+        <div class="booking-step-bar active" id="step-bar-1">
+          <span class="step-num">1</span>
+          <span class="step-text">Дата</span>
+        </div>
+        <div class="booking-step-bar" id="step-bar-2">
+          <span class="step-num">2</span>
+          <span class="step-text">Детайли</span>
+        </div>
+      </div>
+
       <div class="booking-dialog-body">
-        <!-- Step 1: Interactive Booking Form -->
-        <form id="custom-booking-form" class="custom-booking-form" novalidate>
-          
+        <!-- STEP 1: WHEN DO YOU WANT TO COME? -->
+        <div id="booking-step-1" class="booking-step-view active">
+          <div class="booking-step-heading">
+            <h4>КОГА ИСКАТЕ ДА ДОЙДЕТЕ?</h4>
+          </div>
+
+          <!-- Quick Date Selector: Today & Tomorrow -->
+          <div class="booking-quick-dates">
+            <button type="button" class="booking-date-card" id="quick-date-today" data-relative="today">
+              <span class="date-card-title">Днес</span>
+              <span class="date-card-sub" id="today-avail-sub">Проверка...</span>
+            </button>
+            <button type="button" class="booking-date-card" id="quick-date-tomorrow" data-relative="tomorrow">
+              <span class="date-card-title">Утре</span>
+              <span class="date-card-sub" id="tomorrow-avail-sub">Проверка...</span>
+            </button>
+          </div>
+
+          <!-- Pick Specific Date -->
+          <div class="booking-custom-date-box">
+            <label for="custom-booking-date" class="booking-custom-date-btn" id="pick-date-trigger">
+              <i class="fas fa-calendar-alt"></i>
+              <span id="pick-date-text">Изберете конкретна дата</span>
+            </label>
+            <input type="date" id="custom-booking-date" class="booking-native-date-input" aria-label="Изберете конкретна дата">
+          </div>
+
+          <!-- Selected Date Pill -->
+          <div class="booking-selected-date-chip" id="booking-selected-chip" hidden>
+            <span class="selected-chip-label" id="selected-chip-label"></span>
+            <button type="button" class="selected-chip-clear" id="selected-chip-clear" aria-label="Clear date">✕</button>
+          </div>
+
+          <!-- Step 1 Alert -->
+          <div id="step1-alert" class="booking-alert" hidden></div>
+
+          <!-- Step 1 Continue Button -->
+          <div class="booking-step1-actions">
+            <button type="button" class="booking-continue-btn" id="booking-step1-continue" disabled>
+              <span class="continue-btn-text" id="continue-btn-text">Продължи напред</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: YOUR DETAILS & PLAN -->
+        <form id="custom-booking-form" class="booking-step-view" hidden novalidate>
+          <div class="booking-step2-top-bar">
+            <button type="button" class="booking-back-btn" id="booking-back-to-step1">
+              <i class="fas fa-arrow-left"></i> <span>Смени датата</span>
+            </button>
+            <div class="booking-date-summary-pill" id="step2-date-pill">
+              <i class="fas fa-calendar-check"></i>
+              <span id="step2-date-display"></span>
+            </div>
+          </div>
+
           <!-- Plan Selection Grid -->
           <div class="booking-field-group">
             <label class="booking-field-label">
@@ -860,7 +926,10 @@
               <label class="booking-plan-option" data-plan="day">
                 <input type="radio" name="booking_plan" value="day" checked>
                 <div class="booking-plan-card">
-                  <span class="plan-card-name">Дневен абонамент</span>
+                  <span class="plan-card-name">
+                    <span class="plan-name-full">Дневен абонамент</span>
+                    <span class="plan-name-short">Ден</span>
+                  </span>
                   <span class="plan-card-price">10€</span>
                   <span class="plan-card-meta">09:30–18:00</span>
                 </div>
@@ -868,7 +937,10 @@
               <label class="booking-plan-option" data-plan="week">
                 <input type="radio" name="booking_plan" value="week">
                 <div class="booking-plan-card">
-                  <span class="plan-card-name">Седмичен абонамент</span>
+                  <span class="plan-card-name">
+                    <span class="plan-name-full">Седмичен абонамент</span>
+                    <span class="plan-name-short">Седмица</span>
+                  </span>
                   <span class="plan-card-price">40€</span>
                   <span class="plan-card-meta">🔑 24/7 Ключ</span>
                 </div>
@@ -876,7 +948,10 @@
               <label class="booking-plan-option" data-plan="flex">
                 <input type="radio" name="booking_plan" value="flex">
                 <div class="booking-plan-card">
-                  <span class="plan-card-name">Flex Бюро</span>
+                  <span class="plan-card-name">
+                    <span class="plan-name-full">Flex Бюро</span>
+                    <span class="plan-name-short">Flex</span>
+                  </span>
                   <span class="plan-card-price">75€</span>
                   <span class="plan-card-meta">10 дни</span>
                 </div>
@@ -884,24 +959,15 @@
               <label class="booking-plan-option" data-plan="month">
                 <input type="radio" name="booking_plan" value="month">
                 <div class="booking-plan-card">
-                  <span class="plan-card-name">Месечен абонамент</span>
+                  <span class="plan-card-name">
+                    <span class="plan-name-full">Месечен абонамент</span>
+                    <span class="plan-name-short">Месец</span>
+                  </span>
                   <span class="plan-card-price">130€</span>
                   <span class="plan-card-meta">🔑 24/7 Място</span>
                 </div>
               </label>
             </div>
-          </div>
-
-          <!-- Date Picker with Live Availability Badge -->
-          <div class="booking-field-group">
-            <div class="booking-label-row">
-              <label for="custom-booking-date" class="booking-field-label">
-                <i class="fas fa-calendar-day"></i> Начална дата <span class="req-star">*</span>
-              </label>
-              <span id="booking-date-avail-badge" class="booking-avail-pill checking">Проверка...</span>
-            </div>
-            <input type="date" id="custom-booking-date" name="date" class="booking-input" required>
-            <small class="booking-field-help">Работно време: Пон–Пет 09:30–18:00 (24/7 ключ за седмични и месечни)</small>
           </div>
 
           <!-- Guest Info Inputs -->
@@ -953,7 +1019,7 @@
           </div>
         </form>
 
-        <!-- Step 2: Instant Success Confirmation -->
+        <!-- STEP 3: Instant Success Confirmation -->
         <div id="custom-booking-success" class="custom-booking-success" hidden>
           <div class="success-icon-badge">🎉</div>
           <h4>Бюрото е запазено успешно!</h4>
@@ -987,13 +1053,15 @@
       </div>
 
       <footer class="booking-dialog-footer">
+        <div class="booking-footer-social">
+          <a href="https://t.me/oleksandr_bodrov" target="_blank" rel="noopener" class="footer-contact-icon" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+          <a href="https://maps.app.goo.gl/Y41ZGGMszpFDiETx8" target="_blank" rel="noopener" class="footer-contact-icon" title="Google Maps"><i class="fas fa-map-location-dot"></i></a>
+          <a href="https://www.instagram.com/coworking_burgas" target="_blank" rel="noopener" class="footer-contact-icon" title="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
         <div class="booking-footer-help">
           <i class="fas fa-shield-halved"></i>
           <span>Директна интеграция през <strong>OhMyDesk API</strong></span>
         </div>
-        <a href="https://ohmydesk.app/book/codeburg" target="_blank" rel="noopener" class="booking-external-link">
-          <span>Отвори самостоятелен портал</span> <i class="fas fa-arrow-up-right-from-square"></i>
-        </a>
       </footer>
     </div>
   </dialog>

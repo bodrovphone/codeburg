@@ -945,22 +945,51 @@ function initBookingDialog() {
   const dialog = document.getElementById('booking-dialog');
   if (!dialog) return;
 
-  const frame = dialog.querySelector('.booking-dialog-frame');
   const closeBtn = document.getElementById('booking-dialog-close');
-  const form = document.getElementById('custom-booking-form');
-  const successView = document.getElementById('custom-booking-success');
-  const successCloseBtn = document.getElementById('success-close-btn');
+  const stepTracker = document.getElementById('booking-step-tracker');
+  const stepBar1 = document.getElementById('step-bar-1');
+  const stepBar2 = document.getElementById('step-bar-2');
+
+  // Step 1: Date Selection
+  const step1View = document.getElementById('booking-step-1');
+  const quickDateToday = document.getElementById('quick-date-today');
+  const quickDateTomorrow = document.getElementById('quick-date-tomorrow');
+  const todayAvailSub = document.getElementById('today-avail-sub');
+  const tomorrowAvailSub = document.getElementById('tomorrow-avail-sub');
+  const pickDateTrigger = document.getElementById('pick-date-trigger');
   const dateInput = document.getElementById('custom-booking-date');
-  const availBadge = document.getElementById('booking-date-avail-badge');
-  const alertBox = document.getElementById('custom-booking-alert');
+  const selectedChip = document.getElementById('booking-selected-chip');
+  const selectedChipLabel = document.getElementById('selected-chip-label');
+  const selectedChipClear = document.getElementById('selected-chip-clear');
+  const step1Alert = document.getElementById('step1-alert');
+  const step1ContinueBtn = document.getElementById('booking-step1-continue');
+  const continueBtnText = document.getElementById('continue-btn-text');
+
+  // Step 2: Details & Plan
+  const step2Form = document.getElementById('custom-booking-form');
+  const backBtn = document.getElementById('booking-back-to-step1');
+  const step2DateDisplay = document.getElementById('step2-date-display');
+  const step2Alert = document.getElementById('custom-booking-alert');
+  const nameInput = document.getElementById('custom-booking-name');
+  const emailInput = document.getElementById('custom-booking-email');
+  const phoneInput = document.getElementById('custom-booking-phone');
+  const notesInput = document.getElementById('custom-booking-notes');
   const submitBtn = document.getElementById('custom-booking-submit');
   const submitSpinner = submitBtn ? submitBtn.querySelector('.submit-spinner') : null;
-  const submitText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
   const totalDisplay = document.getElementById('booking-summary-total');
   const metaDisplay = document.getElementById('booking-summary-meta');
 
+  // Step 3: Success Confirmation
+  const successView = document.getElementById('custom-booking-success');
+  const successCloseBtn = document.getElementById('success-close-btn');
+  const successDeskLabel = document.getElementById('success-desk-label');
+  const successDateVal = document.getElementById('success-date-val');
+  const successPlanVal = document.getElementById('success-plan-val');
+
   const currentPath = window.location.pathname;
   const lang = currentPath.includes('/bg/') ? 'bg' : currentPath.includes('/ru/') ? 'ru' : currentPath.includes('/ua/') ? 'ua' : 'en';
+
+  let currentSelectedDate = null;
 
   const planConfigs = {
     day: {
@@ -1025,6 +1054,39 @@ function initBookingDialog() {
     }
   };
 
+  const labels = {
+    today: { en: 'Today', bg: 'Днес', ru: 'Сегодня', ua: 'Сьогодні' },
+    tomorrow: { en: 'Tomorrow', bg: 'Утре', ru: 'Завтра', ua: 'Завтра' },
+    checking: { en: 'Checking...', bg: 'Проверка...', ru: 'Проверка...', ua: 'Перевірка...' },
+    desksLeft: (count, l) => {
+      if (l === 'bg') return count === 1 ? '1 свободно бюро' : `${count} свободни бюра`;
+      if (l === 'ru') return count === 1 ? '1 свободный стол' : count < 5 ? `${count} свободных стола` : `${count} свободных столов`;
+      if (l === 'ua') return count === 1 ? '1 вільний стіл' : count < 5 ? `${count} вільні столи` : `${count} вільних столів`;
+      return count === 1 ? '1 desk left' : `${count} desks left`;
+    },
+    soldOut: { en: 'Sold out', bg: 'Заето', ru: 'Занято', ua: 'Зайнято' },
+    weekend: { en: 'Weekend (24/7 Key)', bg: 'Уикенд (24/7 ключ)', ru: 'Выходной (24/7)', ua: 'Вихідний (24/7)' },
+    closed: { en: 'Closed', bg: 'Затворено', ru: 'Закрыто', ua: 'Зачинено' },
+    weekendNotice: {
+      en: 'Standard drop-ins are Mon–Fri. Weekend access is included with Weekly/Monthly 24/7 key memberships.',
+      bg: 'Дневните посещения са Пон–Пет. Достъпът през уикенда е за седмични/месечни членове с 24/7 ключ.',
+      ru: 'Дневные визиты: Пн–Пт. Доступ в выходные дни включен в недельные и месячные тарифы с 24/7 ключом.',
+      ua: 'Денні візити: Пн–Пт. Доступ у вихідні дні включено в тижневі та місячні тарифи з 24/7 ключем.'
+    },
+    continuePrompt: {
+      en: 'Continue with date',
+      bg: 'Продължи с избраната дата',
+      ru: 'Продолжить с выбранной датой',
+      ua: 'Продовжити з обраною датою'
+    },
+    continueWithDate: (dateStr, l) => {
+      if (l === 'bg') return `Продължи с ${dateStr}`;
+      if (l === 'ru') return `Продолжить на ${dateStr}`;
+      if (l === 'ua') return `Продовжити на ${dateStr}`;
+      return `Continue with ${dateStr}`;
+    }
+  };
+
   const errorMessages = {
     no_desks_available: {
       en: 'No desks available on this date. Please pick another date.',
@@ -1052,21 +1114,221 @@ function initBookingDialog() {
     }
   };
 
-  function getSofiaTodayString() {
+  function getSofiaDateString(offsetDays = 0) {
     const now = new Date();
-    // Sofia is UTC+2 or UTC+3
-    const str = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Sofia' });
-    return str; // Returns YYYY-MM-DD
+    const sofiaParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Sofia',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(now);
+    const y = parseInt(sofiaParts.find(p => p.type === 'year').value, 10);
+    const m = parseInt(sofiaParts.find(p => p.type === 'month').value, 10) - 1;
+    const d = parseInt(sofiaParts.find(p => p.type === 'day').value, 10);
+    const sofiaDate = new Date(Date.UTC(y, m, d + offsetDays));
+    return sofiaDate.toISOString().slice(0, 10);
+  }
+
+  function formatDisplayDate(dateStr, currentLang) {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const dateObj = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    const locale = currentLang === 'bg' ? 'bg-BG' : currentLang === 'ru' ? 'ru-RU' : currentLang === 'ua' ? 'uk-UA' : 'en-US';
+    return dateObj.toLocaleDateString(locale, {
+      timeZone: 'UTC',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  function getDateAvailability(dateStr) {
+    const state = getCachedAvailability();
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const dateObj = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    const jsDay = dateObj.getUTCDay(); // 0 = Sun, 6 = Sat
+    const isWeekend = (jsDay === 0 || jsDay === 6);
+
+    if (state && Array.isArray(state.dates)) {
+      const entry = state.dates.find(d => d.date === dateStr);
+      if (entry) {
+        return {
+          isKnown: true,
+          availableDesks: entry.availableDesks,
+          isWeekend: isWeekend,
+          isFull: entry.availableDesks <= 0
+        };
+      }
+    }
+
+    return {
+      isKnown: false,
+      availableDesks: isWeekend ? 0 : 4,
+      isWeekend: isWeekend,
+      isFull: false
+    };
+  }
+
+  function updateQuickDateCards() {
+    const todayStr = getSofiaDateString(0);
+    const tomorrowStr = getSofiaDateString(1);
+
+    const todayAvail = getDateAvailability(todayStr);
+    const tomorrowAvail = getDateAvailability(tomorrowStr);
+
+    if (todayAvailSub) {
+      if (todayAvail.isWeekend) {
+        todayAvailSub.textContent = labels.weekend[lang] || labels.weekend.en;
+        todayAvailSub.className = 'date-card-sub avail-limited';
+      } else if (todayAvail.isFull) {
+        todayAvailSub.textContent = labels.soldOut[lang] || labels.soldOut.en;
+        todayAvailSub.className = 'date-card-sub avail-closed';
+      } else {
+        todayAvailSub.textContent = `🟢 ${labels.desksLeft(todayAvail.availableDesks, lang)}`;
+        todayAvailSub.className = 'date-card-sub avail-open';
+      }
+    }
+
+    if (tomorrowAvailSub) {
+      if (tomorrowAvail.isWeekend) {
+        tomorrowAvailSub.textContent = labels.weekend[lang] || labels.weekend.en;
+        tomorrowAvailSub.className = 'date-card-sub avail-limited';
+      } else if (tomorrowAvail.isFull) {
+        tomorrowAvailSub.textContent = labels.soldOut[lang] || labels.soldOut.en;
+        tomorrowAvailSub.className = 'date-card-sub avail-closed';
+      } else {
+        tomorrowAvailSub.textContent = `🟢 ${labels.desksLeft(tomorrowAvail.availableDesks, lang)}`;
+        tomorrowAvailSub.className = 'date-card-sub avail-open';
+      }
+    }
+  }
+
+  function selectDate(dateStr) {
+    if (!dateStr) return;
+    currentSelectedDate = dateStr;
+
+    const todayStr = getSofiaDateString(0);
+    const tomorrowStr = getSofiaDateString(1);
+
+    if (quickDateToday) {
+      quickDateToday.classList.toggle('selected', dateStr === todayStr);
+    }
+    if (quickDateTomorrow) {
+      quickDateTomorrow.classList.toggle('selected', dateStr === tomorrowStr);
+    }
+
+    if (dateInput) {
+      dateInput.value = dateStr;
+    }
+
+    const formattedDate = formatDisplayDate(dateStr, lang);
+    let chipText = formattedDate;
+    if (dateStr === todayStr) {
+      chipText = `${labels.today[lang] || labels.today.en} (${formattedDate})`;
+    } else if (dateStr === tomorrowStr) {
+      chipText = `${labels.tomorrow[lang] || labels.tomorrow.en} (${formattedDate})`;
+    }
+
+    if (selectedChip && selectedChipLabel) {
+      selectedChipLabel.textContent = chipText;
+      selectedChip.hidden = false;
+    }
+
+    // Validate availability
+    const avail = getDateAvailability(dateStr);
+    if (avail.isFull) {
+      if (step1Alert) {
+        step1Alert.textContent = errorMessages.no_desks_available[lang] || errorMessages.no_desks_available.en;
+        step1Alert.hidden = false;
+      }
+      if (step1ContinueBtn) step1ContinueBtn.disabled = true;
+    } else {
+      if (avail.isWeekend) {
+        if (step1Alert) {
+          step1Alert.textContent = labels.weekendNotice[lang] || labels.weekendNotice.en;
+          step1Alert.hidden = false;
+        }
+      } else {
+        if (step1Alert) {
+          step1Alert.hidden = true;
+          step1Alert.textContent = '';
+        }
+      }
+      if (step1ContinueBtn) {
+        step1ContinueBtn.disabled = false;
+        if (continueBtnText) {
+          continueBtnText.textContent = labels.continueWithDate(formattedDate, lang);
+        }
+      }
+    }
+  }
+
+  function clearDateSelection() {
+    currentSelectedDate = null;
+    if (quickDateToday) quickDateToday.classList.remove('selected');
+    if (quickDateTomorrow) quickDateTomorrow.classList.remove('selected');
+    if (selectedChip) selectedChip.hidden = true;
+    if (step1Alert) {
+      step1Alert.hidden = true;
+      step1Alert.textContent = '';
+    }
+    if (step1ContinueBtn) step1ContinueBtn.disabled = true;
+    if (continueBtnText) {
+      continueBtnText.textContent = labels.continuePrompt[lang] || labels.continuePrompt.en;
+    }
+  }
+
+  function goToStep2() {
+    if (!currentSelectedDate) return;
+    if (step1View) {
+      step1View.hidden = true;
+      step1View.classList.remove('active');
+    }
+    if (step2Form) {
+      step2Form.hidden = false;
+      step2Form.classList.add('active');
+    }
+    if (stepBar1) {
+      stepBar1.classList.remove('active');
+      stepBar1.classList.add('completed');
+    }
+    if (stepBar2) {
+      stepBar2.classList.add('active');
+    }
+    if (step2DateDisplay) {
+      step2DateDisplay.textContent = formatDisplayDate(currentSelectedDate, lang);
+    }
+    if (nameInput) {
+      setTimeout(() => nameInput.focus(), 50);
+    }
+  }
+
+  function goToStep1() {
+    if (step2Form) {
+      step2Form.hidden = true;
+      step2Form.classList.remove('active');
+    }
+    if (step1View) {
+      step1View.hidden = false;
+      step1View.classList.add('active');
+    }
+    if (stepBar2) {
+      stepBar2.classList.remove('active');
+    }
+    if (stepBar1) {
+      stepBar1.classList.remove('completed');
+      stepBar1.classList.add('active');
+    }
   }
 
   function getSelectedPlan() {
-    const checked = form ? form.querySelector('input[name="booking_plan"]:checked') : null;
+    const checked = step2Form ? step2Form.querySelector('input[name="booking_plan"]:checked') : null;
     return checked ? checked.value : 'day';
   }
 
   function setSelectedPlan(planKey) {
-    if (!form) return;
-    const radio = form.querySelector(`input[name="booking_plan"][value="${planKey}"]`);
+    if (!step2Form) return;
+    const radio = step2Form.querySelector(`input[name="booking_plan"][value="${planKey}"]`);
     if (radio) {
       radio.checked = true;
     }
@@ -1080,52 +1342,32 @@ function initBookingDialog() {
     if (metaDisplay) metaDisplay.textContent = config.meta[lang] || config.meta.en;
   }
 
-  function updateDateBadge(dateVal) {
-    if (!availBadge) return;
-    if (!dateVal) {
-      availBadge.textContent = '—';
-      availBadge.className = 'booking-avail-pill checking';
-      return;
-    }
-
-    const state = getCachedAvailability();
-    if (state && Array.isArray(state.dates)) {
-      const dayEntry = state.dates.find(d => d.date === dateVal);
-      if (dayEntry) {
-        if (dayEntry.availableDesks > 0) {
-          const deskWord = dayEntry.availableDesks === 1
-            ? (lang === 'en' ? 'desk' : lang === 'bg' ? 'бюро' : 'стол')
-            : (lang === 'en' ? 'desks' : lang === 'bg' ? 'бюра' : lang === 'ua' ? 'столи' : 'стола');
-          availBadge.textContent = `🟢 ${dayEntry.availableDesks} ${deskWord}`;
-          availBadge.className = 'booking-avail-pill';
-          return;
-        } else {
-          availBadge.textContent = lang === 'en' ? '🔴 Full' : lang === 'bg' ? '🔴 Заето' : '🔴 Занято';
-          availBadge.className = 'booking-avail-pill full';
-          return;
-        }
-      }
-    }
-
-    // Check if weekend
-    const jsDay = new Date(dateVal + 'T12:00:00').getDay();
-    if (jsDay === 0 || jsDay === 6) {
-      availBadge.textContent = lang === 'en' ? '⚠️ Weekend (24/7 Key)' : lang === 'bg' ? '⚠️ Уикенд (24/7 ключ)' : '⚠️ Выходной (24/7)';
-      availBadge.className = 'booking-avail-pill full';
-    } else {
-      availBadge.textContent = lang === 'en' ? '✓ Open' : lang === 'bg' ? '✓ Отворено' : '✓ Доступно';
-      availBadge.className = 'booking-avail-pill';
-    }
-  }
-
   function openBookingDialog(preferredPlan) {
-    if (alertBox) {
-      alertBox.hidden = true;
-      alertBox.textContent = '';
+    if (stepTracker) stepTracker.hidden = false;
+    if (stepBar1) {
+      stepBar1.classList.add('active');
+      stepBar1.classList.remove('completed');
     }
-
-    if (form) form.hidden = false;
+    if (stepBar2) {
+      stepBar2.classList.remove('active');
+    }
+    if (step1View) {
+      step1View.hidden = false;
+      step1View.classList.add('active');
+    }
+    if (step2Form) {
+      step2Form.hidden = true;
+      step2Form.classList.remove('active');
+    }
     if (successView) successView.hidden = true;
+    if (step1Alert) {
+      step1Alert.hidden = true;
+      step1Alert.textContent = '';
+    }
+    if (step2Alert) {
+      step2Alert.hidden = true;
+      step2Alert.textContent = '';
+    }
 
     // Set plan
     if (preferredPlan && planConfigs[preferredPlan]) {
@@ -1135,22 +1377,33 @@ function initBookingDialog() {
     }
 
     // Setup date picker
-    const todayStr = getSofiaTodayString();
+    const todayStr = getSofiaDateString(0);
+    const tomorrowStr = getSofiaDateString(1);
+    const maxDateStr = getSofiaDateString(30);
+
     if (dateInput) {
       dateInput.min = todayStr;
+      dateInput.max = maxDateStr;
+    }
 
-      // Find first available day
+    updateQuickDateCards();
+
+    // Auto-select best date
+    const todayAvail = getDateAvailability(todayStr);
+    const tomorrowAvail = getDateAvailability(tomorrowStr);
+
+    if (!todayAvail.isWeekend && !todayAvail.isFull) {
+      selectDate(todayStr);
+    } else if (!tomorrowAvail.isWeekend && !tomorrowAvail.isFull) {
+      selectDate(tomorrowStr);
+    } else {
       const state = getCachedAvailability();
       let bestDate = todayStr;
       if (state && Array.isArray(state.dates)) {
         const firstAvail = state.dates.find(d => d.availableDesks > 0 && d.date >= todayStr);
         if (firstAvail) bestDate = firstAvail.date;
       }
-
-      if (!dateInput.value || dateInput.value < todayStr) {
-        dateInput.value = bestDate;
-      }
-      updateDateBadge(dateInput.value);
+      selectDate(bestDate);
     }
 
     // Open modal
@@ -1181,7 +1434,6 @@ function initBookingDialog() {
   bookingTriggers.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      // Extract plan preference from data-plan attribute
       const plan = btn.getAttribute('data-plan') ||
         (btn.closest('.pricing-card') && btn.closest('.pricing-card').getAttribute('data-plan')) ||
         'day';
@@ -1189,62 +1441,95 @@ function initBookingDialog() {
     });
   });
 
+  // Quick date events
+  if (quickDateToday) {
+    quickDateToday.addEventListener('click', () => {
+      selectDate(getSofiaDateString(0));
+    });
+  }
+
+  if (quickDateTomorrow) {
+    quickDateTomorrow.addEventListener('click', () => {
+      selectDate(getSofiaDateString(1));
+    });
+  }
+
+  if (pickDateTrigger && dateInput) {
+    pickDateTrigger.addEventListener('click', () => {
+      if (typeof dateInput.showPicker === 'function') {
+        try {
+          dateInput.showPicker();
+        } catch (err) {
+          // Ignored
+        }
+      }
+    });
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      if (dateInput.value) {
+        selectDate(dateInput.value);
+      }
+    });
+  }
+
+  if (selectedChipClear) {
+    selectedChipClear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearDateSelection();
+    });
+  }
+
+  if (step1ContinueBtn) {
+    step1ContinueBtn.addEventListener('click', goToStep2);
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', goToStep1);
+  }
+
   // Radio plan change
-  if (form) {
-    form.querySelectorAll('input[name="booking_plan"]').forEach(radio => {
+  if (step2Form) {
+    step2Form.querySelectorAll('input[name="booking_plan"]').forEach(radio => {
       radio.addEventListener('change', updatePlanSummary);
     });
   }
 
-  // Date input change
-  if (dateInput) {
-    dateInput.addEventListener('change', () => {
-      updateDateBadge(dateInput.value);
-    });
-    dateInput.addEventListener('input', () => {
-      updateDateBadge(dateInput.value);
-    });
-  }
-
   // Form submit -> Native OhMyDesk API POST
-  if (form) {
-    form.addEventListener('submit', async (e) => {
+  if (step2Form) {
+    step2Form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      if (alertBox) {
-        alertBox.hidden = true;
-        alertBox.textContent = '';
+      if (step2Alert) {
+        step2Alert.hidden = true;
+        step2Alert.textContent = '';
       }
-
-      const nameInput = document.getElementById('custom-booking-name');
-      const emailInput = document.getElementById('custom-booking-email');
-      const phoneInput = document.getElementById('custom-booking-phone');
-      const notesInput = document.getElementById('custom-booking-notes');
 
       const nameVal = nameInput ? nameInput.value.trim() : '';
       const emailVal = emailInput ? emailInput.value.trim() : '';
       const phoneVal = phoneInput ? phoneInput.value.trim() : '';
       const notesVal = notesInput ? notesInput.value.trim() : '';
-      const dateVal = dateInput ? dateInput.value : '';
+      const dateVal = currentSelectedDate || (dateInput ? dateInput.value : '');
       const planVal = getSelectedPlan();
       const planConfig = planConfigs[planVal] || planConfigs.day;
       const planName = planConfig.name[lang] || planConfig.name.en;
 
       if (!nameVal) {
-        if (alertBox) {
-          alertBox.textContent = errorMessages.missing_visitor_name[lang] || errorMessages.missing_visitor_name.en;
-          alertBox.hidden = false;
+        if (step2Alert) {
+          step2Alert.textContent = errorMessages.missing_visitor_name[lang] || errorMessages.missing_visitor_name.en;
+          step2Alert.hidden = false;
         }
         if (nameInput) nameInput.focus();
         return;
       }
 
       if (!dateVal) {
-        if (alertBox) {
-          alertBox.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
-          alertBox.hidden = false;
+        goToStep1();
+        if (step1Alert) {
+          step1Alert.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
+          step1Alert.hidden = false;
         }
-        if (dateInput) dateInput.focus();
         return;
       }
 
@@ -1279,20 +1564,20 @@ function initBookingDialog() {
           const deskLabel = booking.deskLabel || 'Desk assigned';
 
           // Populate success card
-          const deskLabelEl = document.getElementById('success-desk-label');
-          const dateValEl = document.getElementById('success-date-val');
-          const planValEl = document.getElementById('success-plan-val');
-
-          if (deskLabelEl) deskLabelEl.textContent = deskLabel;
-          if (dateValEl) dateValEl.textContent = dateVal;
-          if (planValEl) planValEl.textContent = `${planName} (${planConfig.price})`;
+          if (successDeskLabel) successDeskLabel.textContent = deskLabel;
+          if (successDateVal) successDateVal.textContent = formatDisplayDate(dateVal, lang);
+          if (successPlanVal) successPlanVal.textContent = `${planName} (${planConfig.price})`;
 
           // Transition to success screen
-          form.hidden = true;
+          step2Form.hidden = true;
+          if (stepTracker) stepTracker.hidden = true;
           if (successView) successView.hidden = false;
 
-          // Clear availability cache to reflect newly booked slot
+          // Clear availability cache to reflect newly booked slot & update hero
           sessionStorage.removeItem('desk_availability');
+          if (typeof initAvailability === 'function') {
+            initAvailability();
+          }
         } else {
           // Display structured API error
           const errCode = (result.error && result.error.code) || '';
@@ -1302,16 +1587,16 @@ function initBookingDialog() {
             errorMessages.generic[lang] ||
             errorMessages.generic.en;
 
-          if (alertBox) {
-            alertBox.textContent = localizedErr;
-            alertBox.hidden = false;
+          if (step2Alert) {
+            step2Alert.textContent = localizedErr;
+            step2Alert.hidden = false;
           }
         }
       } catch (err) {
         console.error('Booking submission error:', err);
-        if (alertBox) {
-          alertBox.textContent = errorMessages.generic[lang] || errorMessages.generic.en;
-          alertBox.hidden = false;
+        if (step2Alert) {
+          step2Alert.textContent = errorMessages.generic[lang] || errorMessages.generic.en;
+          step2Alert.hidden = false;
         }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
