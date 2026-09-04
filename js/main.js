@@ -956,6 +956,8 @@ function initBookingDialog() {
   const quickDateTomorrow = document.getElementById('quick-date-tomorrow');
   const todayAvailSub = document.getElementById('today-avail-sub');
   const tomorrowAvailSub = document.getElementById('tomorrow-avail-sub');
+  const twoDesksCheckbox = document.getElementById('booking-two-desks-checkbox');
+  const twoDesksSpinner = document.getElementById('two-desks-spinner');
   const pickDateTrigger = document.getElementById('pick-date-trigger');
   const inlineCalendar = document.getElementById('booking-inline-calendar');
   const calMonthTitle = document.getElementById('cal-month-title');
@@ -964,9 +966,8 @@ function initBookingDialog() {
   const calWeekdaysRow = document.getElementById('cal-weekdays-row');
   const calDaysGrid = document.getElementById('cal-days-grid');
   const calDoneBtn = document.getElementById('cal-done-btn');
-  const dateInput = document.getElementById('custom-booking-date');
   const selectedChip = document.getElementById('booking-selected-chip');
-  const selectedChipLabel = document.getElementById('selected-chip-label');
+  const selectedChipsList = document.getElementById('selected-chips-list');
   const selectedChipClear = document.getElementById('selected-chip-clear');
   const step1Alert = document.getElementById('step1-alert');
   const step1ContinueBtn = document.getElementById('booking-step1-continue');
@@ -976,6 +977,12 @@ function initBookingDialog() {
   const step2Form = document.getElementById('custom-booking-form');
   const backBtn = document.getElementById('booking-back-to-step1');
   const step2DateDisplay = document.getElementById('step2-date-display');
+  const step2PassTag = document.getElementById('step2-pass-tag');
+  const step2PassTitle = document.getElementById('step2-pass-title');
+  const step2UnitPrice = document.getElementById('step2-unit-price');
+  const step2PriceUnit = document.getElementById('step2-price-unit');
+  const step2DatesSummary = document.getElementById('step2-dates-summary');
+  const step2DatesList = document.getElementById('step2-dates-list');
   const step2Alert = document.getElementById('custom-booking-alert');
   const nameInput = document.getElementById('custom-booking-name');
   const emailInput = document.getElementById('custom-booking-email');
@@ -985,13 +992,7 @@ function initBookingDialog() {
   const submitSpinner = submitBtn ? submitBtn.querySelector('.submit-spinner') : null;
   const totalDisplay = document.getElementById('booking-summary-total');
   const metaDisplay = document.getElementById('booking-summary-meta');
-  const submitBtnText = document.getElementById('submit-btn-text');
-  const multidayCheckbox = document.getElementById('booking-multiday-checkbox');
-  const multidayControls = document.getElementById('multiday-controls');
-  const multidayDecBtn = document.getElementById('multiday-dec');
-  const multidayIncBtn = document.getElementById('multiday-inc');
-  const multidayCountVal = document.getElementById('multiday-count-val');
-  const multidayDatesPreview = document.getElementById('multiday-dates-preview');
+  const submitBtnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
 
   // Step 3: Success Confirmation
   const successView = document.getElementById('custom-booking-success');
@@ -1003,9 +1004,9 @@ function initBookingDialog() {
   const currentPath = window.location.pathname;
   const lang = currentPath.includes('/bg/') ? 'bg' : currentPath.includes('/ru/') ? 'ru' : currentPath.includes('/ua/') ? 'ua' : 'en';
 
-  let currentSelectedDate = null;
-  let isMultiDay = false;
-  let multiDayCount = 2;
+  // Multi-date selection & desk count state
+  let selectedDates = [];
+  let neededDesks = 1;
 
   const planConfigs = {
     day: {
@@ -1080,6 +1081,12 @@ function initBookingDialog() {
       if (l === 'ua') return count === 1 ? '1 вільний стіл' : count < 5 ? `${count} вільні столи` : `${count} вільних столів`;
       return count === 1 ? '1 desk left' : `${count} desks left`;
     },
+    insufficientDesks: {
+      en: 'Only 1 desk left (need 2)',
+      bg: 'Само 1 свободно бюро (трябват 2)',
+      ru: 'Остался только 1 стол (нужно 2)',
+      ua: 'Лишився лише 1 стіл (потрібно 2)'
+    },
     soldOut: { en: 'Sold out', bg: 'Заето', ru: 'Занято', ua: 'Зайнято' },
     weekend: { en: 'Weekend (24/7 Key)', bg: 'Уикенд (24/7 ключ)', ru: 'Выходной (24/7)', ua: 'Вихідний (24/7)' },
     closed: { en: 'Closed', bg: 'Затворено', ru: 'Закрыто', ua: 'Зачинено' },
@@ -1089,17 +1096,59 @@ function initBookingDialog() {
       ru: 'Дневные визиты: Пн–Пт. Доступ в выходные дни включен в недельные и месячные тарифы с 24/7 ключом.',
       ua: 'Денні візити: Пн–Пт. Доступ у вихідні дні включено в тижневі та місячні тарифи з 24/7 ключем.'
     },
-    continuePrompt: {
-      en: 'Continue with date',
-      bg: 'Продължи с избраната дата',
-      ru: 'Продолжить с выбранной датой',
-      ua: 'Продовжити з обраною датою'
+    insufficientNotice: {
+      en: 'Only 1 desk is available on this date, but 2 desks are required. Please pick another date.',
+      bg: 'Има само 1 свободно бюро за тази дата, а са нужни 2. Моля, изберете друга дата.',
+      ru: 'На эту дату доступен только 1 стол, а требуется 2. Пожалуйста, выберите другую дату.',
+      ua: 'На цю дату доступний лише 1 стіл, а потрібно 2. Будь ласка, оберіть іншу дату.'
+    },
+    continueSelectDate: {
+      en: 'Select a date to continue',
+      bg: 'Изберете дата за продължаване',
+      ru: 'Выберите дату для продолжения',
+      ua: 'Оберіть дату для продовження'
+    },
+    continueWithCount: (count, l) => {
+      if (l === 'bg') return count === 1 ? 'Продължи с 1 дата' : `Продължи с ${count} дати`;
+      if (l === 'ru') return count === 1 ? 'Продолжить с 1 датой' : `Продолжить с ${count} датами`;
+      if (l === 'ua') return count === 1 ? 'Продовжити з 1 датою' : `Продовжити з ${count} датами`;
+      return count === 1 ? 'Continue with 1 date' : `Continue with ${count} dates`;
     },
     continueWithDate: (dateStr, l) => {
       if (l === 'bg') return `Продължи с ${dateStr}`;
       if (l === 'ru') return `Продолжить на ${dateStr}`;
       if (l === 'ua') return `Продовжити на ${dateStr}`;
       return `Continue with ${dateStr}`;
+    },
+    passTag: (desks, l) => {
+      if (desks === 2) {
+        if (l === 'bg') return 'Дневен пропуск (2 бюра)';
+        if (l === 'ru') return 'Дневной пропуск (2 стола)';
+        if (l === 'ua') return 'Денний пропуск (2 столи)';
+        return 'On-Site Pass (2 Desks)';
+      }
+      if (l === 'bg') return 'Дневен пропуск';
+      if (l === 'ru') return 'Дневной пропуск';
+      if (l === 'ua') return 'Денний пропуск';
+      return 'On-Site Pass';
+    },
+    metaCalculation: (datesCount, desks, total, l) => {
+      if (l === 'bg') {
+        return `${datesCount} ${datesCount === 1 ? 'ден' : 'дни'} × ${desks} ${desks === 1 ? 'бюро' : 'бюра'} × 10€ = ${total}€ • Плащане на място`;
+      }
+      if (l === 'ru') {
+        return `${datesCount} ${datesCount === 1 ? 'день' : 'дней'} × ${desks} ${desks === 1 ? 'стол' : 'стола'} × 10€ = ${total}€ • Оплата на месте`;
+      }
+      if (l === 'ua') {
+        return `${datesCount} ${datesCount === 1 ? 'день' : 'днів'} × ${desks} ${desks === 1 ? 'стіл' : 'столи'} × 10€ = ${total}€ • Оплата на місці`;
+      }
+      return `${datesCount} day(s) × ${desks} desk(s) × 10€ = ${total}€ • Pay on arrival`;
+    },
+    confirmBtn: (total, l) => {
+      if (l === 'bg') return `Потвърди резервацията (${total}€)`;
+      if (l === 'ru') return `Подтвердить бронирование (${total}€)`;
+      if (l === 'ua') return `Підтвердити бронювання (${total}€)`;
+      return `Confirm Desk Booking (${total}€)`;
     }
   };
 
@@ -1165,23 +1214,28 @@ function initBookingDialog() {
     const jsDay = dateObj.getUTCDay(); // 0 = Sun, 6 = Sat
     const isWeekend = (jsDay === 0 || jsDay === 6);
 
+    let availableDesks = isWeekend ? 0 : 4;
+    let isKnown = false;
+
     if (state && Array.isArray(state.dates)) {
       const entry = state.dates.find(d => d.date === dateStr);
       if (entry) {
-        return {
-          isKnown: true,
-          availableDesks: entry.availableDesks,
-          isWeekend: isWeekend,
-          isFull: entry.availableDesks <= 0
-        };
+        isKnown = true;
+        availableDesks = entry.availableDesks;
       }
     }
 
+    const isFull = availableDesks <= 0;
+    const isInsufficient = !isWeekend && availableDesks > 0 && availableDesks < neededDesks;
+    const isEligible = !isWeekend && availableDesks >= neededDesks;
+
     return {
-      isKnown: false,
-      availableDesks: isWeekend ? 0 : 4,
-      isWeekend: isWeekend,
-      isFull: false
+      isKnown,
+      availableDesks,
+      isWeekend,
+      isFull,
+      isInsufficient,
+      isEligible
     };
   }
 
@@ -1199,6 +1253,9 @@ function initBookingDialog() {
       } else if (todayAvail.isFull) {
         todayAvailSub.textContent = labels.soldOut[lang] || labels.soldOut.en;
         todayAvailSub.className = 'date-card-sub avail-closed';
+      } else if (todayAvail.isInsufficient) {
+        todayAvailSub.textContent = labels.insufficientDesks[lang] || labels.insufficientDesks.en;
+        todayAvailSub.className = 'date-card-sub avail-limited';
       } else {
         todayAvailSub.textContent = `🟢 ${labels.desksLeft(todayAvail.availableDesks, lang)}`;
         todayAvailSub.className = 'date-card-sub avail-open';
@@ -1212,10 +1269,22 @@ function initBookingDialog() {
       } else if (tomorrowAvail.isFull) {
         tomorrowAvailSub.textContent = labels.soldOut[lang] || labels.soldOut.en;
         tomorrowAvailSub.className = 'date-card-sub avail-closed';
+      } else if (tomorrowAvail.isInsufficient) {
+        tomorrowAvailSub.textContent = labels.insufficientDesks[lang] || labels.insufficientDesks.en;
+        tomorrowAvailSub.className = 'date-card-sub avail-limited';
       } else {
         tomorrowAvailSub.textContent = `🟢 ${labels.desksLeft(tomorrowAvail.availableDesks, lang)}`;
         tomorrowAvailSub.className = 'date-card-sub avail-open';
       }
+    }
+
+    if (quickDateToday) {
+      quickDateToday.classList.toggle('selected', selectedDates.includes(todayStr));
+      quickDateToday.disabled = !todayAvail.isEligible;
+    }
+    if (quickDateTomorrow) {
+      quickDateTomorrow.classList.toggle('selected', selectedDates.includes(tomorrowStr));
+      quickDateTomorrow.disabled = !tomorrowAvail.isEligible;
     }
   }
 
@@ -1243,7 +1312,7 @@ function initBookingDialog() {
     const cells = calDaysGrid.querySelectorAll('.cal-day-cell');
     cells.forEach(cell => {
       const d = cell.getAttribute('data-date');
-      if (currentSelectedDate && d === currentSelectedDate) {
+      if (selectedDates.includes(d)) {
         cell.classList.add('selected');
         cell.setAttribute('aria-selected', 'true');
       } else {
@@ -1327,7 +1396,7 @@ function initBookingDialog() {
         btn.classList.add('is-today');
       }
 
-      if (cell.dateStr === currentSelectedDate) {
+      if (selectedDates.includes(cell.dateStr)) {
         btn.classList.add('selected');
         btn.setAttribute('aria-selected', 'true');
       }
@@ -1347,11 +1416,15 @@ function initBookingDialog() {
         btn.classList.add('sold-out');
         btn.disabled = true;
         btn.title = labels.soldOut[lang] || labels.soldOut.en;
-      } else if (avail.availableDesks > 0) {
+      } else if (avail.isInsufficient) {
+        btn.classList.add('insufficient');
+        btn.disabled = true;
+        btn.title = labels.insufficientDesks[lang] || labels.insufficientDesks.en;
+      } else if (avail.isEligible) {
         btn.classList.add('available');
         btn.title = labels.desksLeft(avail.availableDesks, lang);
         btn.addEventListener('click', () => {
-          selectDate(cell.dateStr);
+          toggleDate(cell.dateStr);
         });
       } else {
         btn.disabled = true;
@@ -1372,8 +1445,8 @@ function initBookingDialog() {
         pickDateTrigger.classList.add('open');
         pickDateTrigger.setAttribute('aria-expanded', 'true');
       }
-      if (currentSelectedDate) {
-        const [sY, sM] = currentSelectedDate.split('-').map(Number);
+      if (selectedDates.length > 0) {
+        const [sY, sM] = selectedDates[0].split('-').map(Number);
         calViewYear = sY;
         calViewMonth = sM - 1;
       } else if (calViewYear === null || calViewMonth === null) {
@@ -1391,177 +1464,163 @@ function initBookingDialog() {
     }
   }
 
-  function selectDate(dateStr) {
+  function toggleDate(dateStr) {
     if (!dateStr) return;
-    currentSelectedDate = dateStr;
 
-    const todayStr = getSofiaDateString(0);
-    const tomorrowStr = getSofiaDateString(1);
-
-    if (quickDateToday) {
-      quickDateToday.classList.toggle('selected', dateStr === todayStr);
-    }
-    if (quickDateTomorrow) {
-      quickDateTomorrow.classList.toggle('selected', dateStr === tomorrowStr);
-    }
-
-    if (dateInput) {
-      dateInput.value = dateStr;
-    }
-
-    const formattedDate = formatDisplayDate(dateStr, lang);
-    let chipText = formattedDate;
-    if (dateStr === todayStr) {
-      chipText = `${labels.today[lang] || labels.today.en} (${formattedDate})`;
-    } else if (dateStr === tomorrowStr) {
-      chipText = `${labels.tomorrow[lang] || labels.tomorrow.en} (${formattedDate})`;
-    }
-
-    if (selectedChip && selectedChipLabel) {
-      selectedChipLabel.textContent = chipText;
-      selectedChip.hidden = false;
-    }
-
-    // Update calendar highlight
-    updateCalendarSelection();
-
-    // Validate availability
     const avail = getDateAvailability(dateStr);
-    if (avail.isFull) {
+
+    if (selectedDates.includes(dateStr)) {
+      selectedDates = selectedDates.filter(d => d !== dateStr);
       if (step1Alert) {
-        step1Alert.textContent = errorMessages.no_desks_available[lang] || errorMessages.no_desks_available.en;
-        step1Alert.hidden = false;
+        step1Alert.hidden = true;
+        step1Alert.textContent = '';
       }
-      if (step1ContinueBtn) step1ContinueBtn.disabled = true;
     } else {
       if (avail.isWeekend) {
         if (step1Alert) {
           step1Alert.textContent = labels.weekendNotice[lang] || labels.weekendNotice.en;
           step1Alert.hidden = false;
         }
-      } else {
-        if (step1Alert) {
-          step1Alert.hidden = true;
-          step1Alert.textContent = '';
-        }
+        return;
       }
-      if (step1ContinueBtn) {
-        step1ContinueBtn.disabled = false;
-        if (continueBtnText) {
-          continueBtnText.textContent = labels.continueWithDate(formattedDate, lang);
+      if (avail.isFull) {
+        if (step1Alert) {
+          step1Alert.textContent = errorMessages.no_desks_available[lang] || errorMessages.no_desks_available.en;
+          step1Alert.hidden = false;
+        }
+        return;
+      }
+      if (avail.isInsufficient) {
+        if (step1Alert) {
+          step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
+          step1Alert.hidden = false;
+        }
+        return;
+      }
+
+      selectedDates.push(dateStr);
+      selectedDates.sort();
+
+      if (step1Alert) {
+        step1Alert.hidden = true;
+        step1Alert.textContent = '';
+      }
+    }
+
+    onSelectionChanged();
+  }
+
+  function onSelectionChanged() {
+    updateQuickDateCards();
+    updateCalendarSelection();
+    renderSelectedChips();
+
+    const count = selectedDates.length;
+    if (count === 0) {
+      if (step1ContinueBtn) step1ContinueBtn.disabled = true;
+      if (continueBtnText) {
+        continueBtnText.textContent = labels.continueSelectDate[lang] || labels.continueSelectDate.en;
+      }
+    } else {
+      if (step1ContinueBtn) step1ContinueBtn.disabled = false;
+      if (continueBtnText) {
+        if (count === 1) {
+          const dateFmt = formatDisplayDate(selectedDates[0], lang);
+          continueBtnText.textContent = labels.continueWithDate(dateFmt, lang);
+        } else {
+          continueBtnText.textContent = labels.continueWithCount(count, lang);
         }
       }
     }
   }
 
+  function renderSelectedChips() {
+    if (!selectedChip || !selectedChipsList) return;
+    if (selectedDates.length === 0) {
+      selectedChip.hidden = true;
+      selectedChipsList.innerHTML = '';
+      return;
+    }
+
+    selectedChip.hidden = false;
+    const todayStr = getSofiaDateString(0);
+    const tomorrowStr = getSofiaDateString(1);
+
+    selectedChipsList.innerHTML = selectedDates.map(d => {
+      const dateFmt = formatDisplayDate(d, lang);
+      let prefix = '';
+      if (d === todayStr) prefix = `${labels.today[lang] || labels.today.en}: `;
+      else if (d === tomorrowStr) prefix = `${labels.tomorrow[lang] || labels.tomorrow.en}: `;
+
+      return `<span class="date-chip-item">
+        <span>${prefix}${dateFmt}</span>
+        <button type="button" class="chip-remove-btn" data-date="${d}" aria-label="Remove ${dateFmt}">✕</button>
+      </span>`;
+    }).join('');
+
+    selectedChipsList.querySelectorAll('.chip-remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dateToRemove = btn.getAttribute('data-date');
+        toggleDate(dateToRemove);
+      });
+    });
+  }
+
   function clearDateSelection() {
-    currentSelectedDate = null;
-    if (quickDateToday) quickDateToday.classList.remove('selected');
-    if (quickDateTomorrow) quickDateTomorrow.classList.remove('selected');
-    if (selectedChip) selectedChip.hidden = true;
-    updateCalendarSelection();
+    selectedDates = [];
     if (step1Alert) {
       step1Alert.hidden = true;
       step1Alert.textContent = '';
     }
-    if (step1ContinueBtn) step1ContinueBtn.disabled = true;
-    if (continueBtnText) {
-      continueBtnText.textContent = labels.continuePrompt[lang] || labels.continuePrompt.en;
-    }
+    onSelectionChanged();
   }
 
-  function getConsecutiveWorkdays(startDateStr, count) {
-    if (!startDateStr || count < 1) return [];
-    const dates = [startDateStr];
-    let offset = 1;
-    const [y, m, d] = startDateStr.split('-').map(Number);
-    while (dates.length < count && offset < 30) {
-      const nextDateObj = new Date(Date.UTC(y, m - 1, d + offset, 12, 0, 0));
-      const jsDay = nextDateObj.getUTCDay(); // 0 = Sun, 6 = Sat
-      if (jsDay !== 0 && jsDay !== 6) { // Skip weekends
-        const nextStr = nextDateObj.toISOString().slice(0, 10);
-        dates.push(nextStr);
-      }
-      offset++;
+  function renderStep2Summary() {
+    const datesCount = selectedDates.length;
+    const unitPrice = 10 * neededDesks;
+    const totalPrice = datesCount * unitPrice;
+
+    if (step2PassTag) {
+      step2PassTag.textContent = labels.passTag(neededDesks, lang);
     }
-    return dates;
-  }
-
-  function updateMultiDaySummary() {
-    if (!currentSelectedDate) return;
-
-    if (!isMultiDay) {
-      if (multidayControls) multidayControls.hidden = true;
-      if (multidayCheckbox) multidayCheckbox.checked = false;
-      if (totalDisplay) totalDisplay.textContent = '10€';
-      if (metaDisplay) metaDisplay.textContent = planConfigs.day.meta[lang] || planConfigs.day.meta.en;
-      if (step2DateDisplay) {
-        step2DateDisplay.textContent = formatDisplayDate(currentSelectedDate, lang);
-      }
-      if (submitBtnText) {
-        const confirmTxt = {
-          en: 'Confirm Desk Booking',
-          bg: 'Потвърди резервацията',
-          ru: 'Подтвердить бронирование',
-          ua: 'Підтвердити бронювання'
-        };
-        submitBtnText.textContent = confirmTxt[lang] || confirmTxt.en;
-      }
-      return;
+    if (step2UnitPrice) {
+      step2UnitPrice.textContent = `${unitPrice}€`;
     }
 
-    if (multidayControls) multidayControls.hidden = false;
-    if (multidayCheckbox) multidayCheckbox.checked = true;
-    if (multidayCountVal) multidayCountVal.textContent = multiDayCount;
-
-    // Highlight active quick pill
-    if (multidayControls) {
-      multidayControls.querySelectorAll('.multiday-quick-pill').forEach(pill => {
-        const days = parseInt(pill.getAttribute('data-days'), 10);
-        pill.classList.toggle('active', days === multiDayCount);
-      });
+    if (step2DateDisplay) {
+      if (datesCount === 1) {
+        step2DateDisplay.textContent = formatDisplayDate(selectedDates[0], lang);
+      } else {
+        const firstFmt = formatDisplayDate(selectedDates[0], lang);
+        const lastFmt = formatDisplayDate(selectedDates[datesCount - 1], lang);
+        step2DateDisplay.textContent = `${firstFmt} – ${lastFmt} (${datesCount})`;
+      }
     }
 
-    const selectedDates = getConsecutiveWorkdays(currentSelectedDate, multiDayCount);
-    const totalPrice = selectedDates.length * 10;
+    if (step2DatesList) {
+      step2DatesList.innerHTML = selectedDates.map(d => {
+        const fmt = formatDisplayDate(d, lang);
+        return `<span class="step2-date-tag"><i class="fas fa-calendar-day"></i> ${fmt}</span>`;
+      }).join('');
+    }
 
-    if (totalDisplay) totalDisplay.textContent = `${totalPrice}€`;
+    if (totalDisplay) {
+      totalDisplay.textContent = `${totalPrice}€`;
+    }
+
     if (metaDisplay) {
-      const metaMsg = {
-        en: `${selectedDates.length} days × 10€ • Pay with card or cash upon check-in`,
-        bg: `${selectedDates.length} дни × 10€ • Плащане с карта или в брой при настаняване`,
-        ru: `${selectedDates.length} дн. × 10€ • Оплата картой или наличными при визите`,
-        ua: `${selectedDates.length} дн. × 10€ • Оплата карткою або готівкою при візиті`
-      };
-      metaDisplay.textContent = metaMsg[lang] || metaMsg.en;
-    }
-
-    if (step2DateDisplay && selectedDates.length > 0) {
-      const firstFormatted = formatDisplayDate(selectedDates[0], lang);
-      const lastFormatted = formatDisplayDate(selectedDates[selectedDates.length - 1], lang);
-      step2DateDisplay.textContent = `${firstFormatted} – ${lastFormatted} (${selectedDates.length})`;
+      metaDisplay.textContent = labels.metaCalculation(datesCount, neededDesks, totalPrice, lang);
     }
 
     if (submitBtnText) {
-      const btnMsg = {
-        en: `Confirm ${selectedDates.length} Days Booking`,
-        bg: `Потвърди резервация за ${selectedDates.length} дни`,
-        ru: `Забронировать на ${selectedDates.length} дн.`,
-        ua: `Забронювати на ${selectedDates.length} дн.`
-      };
-      submitBtnText.textContent = btnMsg[lang] || btnMsg.en;
-    }
-
-    if (multidayDatesPreview) {
-      multidayDatesPreview.innerHTML = selectedDates.map(d => {
-        const fmt = formatDisplayDate(d, lang);
-        return `<span class="multiday-date-pill">${fmt}</span>`;
-      }).join('');
+      submitBtnText.textContent = labels.confirmBtn(totalPrice, lang);
     }
   }
 
   function goToStep2() {
-    if (!currentSelectedDate) return;
+    if (selectedDates.length === 0) return;
+
     if (step1View) {
       step1View.hidden = true;
       step1View.classList.remove('active');
@@ -1577,7 +1636,9 @@ function initBookingDialog() {
     if (stepBar2) {
       stepBar2.classList.add('active');
     }
-    updateMultiDaySummary();
+
+    renderStep2Summary();
+
     if (nameInput) {
       setTimeout(() => nameInput.focus(), 50);
     }
@@ -1601,25 +1662,7 @@ function initBookingDialog() {
     }
   }
 
-  function getSelectedPlan() {
-    return 'day';
-  }
-
-  function setSelectedPlan(planKey) {
-    if (planKey === 'week') {
-      isMultiDay = true;
-      multiDayCount = 5;
-    } else {
-      isMultiDay = false;
-    }
-    updateMultiDaySummary();
-  }
-
-  function updatePlanSummary() {
-    updateMultiDaySummary();
-  }
-
-  function openBookingDialog(preferredPlan) {
+  function openBookingDialog() {
     if (stepTracker) stepTracker.hidden = false;
     if (stepBar1) {
       stepBar1.classList.add('active');
@@ -1647,42 +1690,36 @@ function initBookingDialog() {
     }
     toggleInlineCalendar(false);
 
-    // Set plan
-    if (preferredPlan && planConfigs[preferredPlan]) {
-      setSelectedPlan(preferredPlan);
-    } else {
-      updatePlanSummary();
+    if (twoDesksCheckbox) {
+      neededDesks = twoDesksCheckbox.checked ? 2 : 1;
     }
 
-    // Setup date picker
     const todayStr = getSofiaDateString(0);
     const tomorrowStr = getSofiaDateString(1);
-    const maxDateStr = getSofiaDateString(30);
-
-    if (dateInput) {
-      dateInput.min = todayStr;
-      dateInput.max = maxDateStr;
-    }
 
     updateQuickDateCards();
 
-    // Auto-select best date
-    const todayAvail = getDateAvailability(todayStr);
-    const tomorrowAvail = getDateAvailability(tomorrowStr);
+    // Auto-select initial date if none selected yet
+    if (selectedDates.length === 0) {
+      const todayAvail = getDateAvailability(todayStr);
+      const tomorrowAvail = getDateAvailability(tomorrowStr);
 
-    if (!todayAvail.isWeekend && !todayAvail.isFull) {
-      selectDate(todayStr);
-    } else if (!tomorrowAvail.isWeekend && !tomorrowAvail.isFull) {
-      selectDate(tomorrowStr);
-    } else {
-      const state = getCachedAvailability();
-      let bestDate = todayStr;
-      if (state && Array.isArray(state.dates)) {
-        const firstAvail = state.dates.find(d => d.availableDesks > 0 && d.date >= todayStr);
-        if (firstAvail) bestDate = firstAvail.date;
+      if (todayAvail.isEligible) {
+        selectedDates = [todayStr];
+      } else if (tomorrowAvail.isEligible) {
+        selectedDates = [tomorrowStr];
+      } else {
+        const state = getCachedAvailability();
+        if (state && Array.isArray(state.dates)) {
+          const firstEligible = state.dates.find(d => d.availableDesks >= neededDesks && d.date >= todayStr);
+          if (firstEligible) {
+            selectedDates = [firstEligible.date];
+          }
+        }
       }
-      selectDate(bestDate);
     }
+
+    onSelectionChanged();
 
     // Open modal
     if (typeof dialog.showModal === 'function') {
@@ -1713,23 +1750,58 @@ function initBookingDialog() {
   bookingTriggers.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const plan = btn.getAttribute('data-plan') ||
-        (btn.closest('.pricing-card') && btn.closest('.pricing-card').getAttribute('data-plan')) ||
-        'day';
-      openBookingDialog(plan);
+      openBookingDialog();
     });
   });
 
   // Quick date events
   if (quickDateToday) {
     quickDateToday.addEventListener('click', () => {
-      selectDate(getSofiaDateString(0));
+      toggleDate(getSofiaDateString(0));
     });
   }
 
   if (quickDateTomorrow) {
     quickDateTomorrow.addEventListener('click', () => {
-      selectDate(getSofiaDateString(1));
+      toggleDate(getSofiaDateString(1));
+    });
+  }
+
+  // 2 Desks checkbox event (with live API refresh)
+  if (twoDesksCheckbox) {
+    twoDesksCheckbox.addEventListener('change', async () => {
+      neededDesks = twoDesksCheckbox.checked ? 2 : 1;
+
+      if (twoDesksSpinner) twoDesksSpinner.hidden = false;
+
+      try {
+        sessionStorage.removeItem('desk_availability');
+        const freshState = await getAvailabilityState();
+        if (freshState && freshState.status !== 'unknown') {
+          setCachedAvailability(freshState);
+        }
+      } catch (err) {
+        console.warn('Could not refresh live availability:', err);
+      } finally {
+        if (twoDesksSpinner) twoDesksSpinner.hidden = true;
+      }
+
+      const prevCount = selectedDates.length;
+      selectedDates = selectedDates.filter(d => {
+        const avail = getDateAvailability(d);
+        return avail.isEligible;
+      });
+
+      if (prevCount > selectedDates.length && step1Alert) {
+        step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
+        step1Alert.hidden = false;
+      }
+
+      updateQuickDateCards();
+      if (inlineCalendar && !inlineCalendar.hidden) {
+        renderCalendar(calViewYear, calViewMonth);
+      }
+      onSelectionChanged();
     });
   }
 
@@ -1789,47 +1861,6 @@ function initBookingDialog() {
     backBtn.addEventListener('click', goToStep1);
   }
 
-  // Multiday toggle and stepper events
-  if (multidayCheckbox) {
-    multidayCheckbox.addEventListener('change', () => {
-      isMultiDay = multidayCheckbox.checked;
-      updateMultiDaySummary();
-    });
-  }
-
-  if (multidayDecBtn) {
-    multidayDecBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (multiDayCount > 2) {
-        multiDayCount--;
-        updateMultiDaySummary();
-      }
-    });
-  }
-
-  if (multidayIncBtn) {
-    multidayIncBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (multiDayCount < 10) {
-        multiDayCount++;
-        updateMultiDaySummary();
-      }
-    });
-  }
-
-  if (multidayControls) {
-    multidayControls.querySelectorAll('.multiday-quick-pill').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const days = parseInt(btn.getAttribute('data-days'), 10);
-        if (days >= 2 && days <= 10) {
-          multiDayCount = days;
-          updateMultiDaySummary();
-        }
-      });
-    });
-  }
-
   // Form submit -> Native OhMyDesk API POST
   if (step2Form) {
     step2Form.addEventListener('submit', async (e) => {
@@ -1844,14 +1875,11 @@ function initBookingDialog() {
       const emailVal = emailInput ? emailInput.value.trim() : '';
       const phoneVal = phoneInput ? phoneInput.value.trim() : '';
       const notesVal = notesInput ? notesInput.value.trim() : '';
-      const selectedDates = isMultiDay
-        ? getConsecutiveWorkdays(currentSelectedDate, multiDayCount)
-        : [currentSelectedDate || (dateInput ? dateInput.value : '')];
 
-      const totalPrice = selectedDates.length * 10;
-      const planName = isMultiDay
-        ? `Daily Pass (${selectedDates.length} days)`
-        : 'Daily Pass';
+      const unitPrice = 10 * neededDesks;
+      const totalPrice = selectedDates.length * unitPrice;
+      const deskCountText = neededDesks === 2 ? '2 desks' : '1 desk';
+      const planName = `Daily Pass (${deskCountText}, ${selectedDates.length} ${selectedDates.length === 1 ? 'day' : 'days'})`;
 
       if (!nameVal) {
         if (step2Alert) {
@@ -1862,7 +1890,7 @@ function initBookingDialog() {
         return;
       }
 
-      if (!selectedDates || selectedDates.length === 0 || !selectedDates[0]) {
+      if (!selectedDates || selectedDates.length === 0) {
         goToStep1();
         if (step1Alert) {
           step1Alert.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
@@ -1898,11 +1926,10 @@ function initBookingDialog() {
         const result = await response.json().catch(() => ({}));
 
         if (response.status === 201 && result.data && Array.isArray(result.data.bookings) && result.data.bookings.length > 0) {
-          const booking = result.data.bookings[0];
-          const deskLabel = booking.deskLabel || 'Desk assigned';
+          const deskLabels = result.data.bookings.map(b => b.deskLabel).filter(Boolean).join(', ') || 'Assigned';
 
           // Populate success card
-          if (successDeskLabel) successDeskLabel.textContent = deskLabel;
+          if (successDeskLabel) successDeskLabel.textContent = deskLabels;
           if (successDateVal) {
             if (selectedDates.length > 1) {
               const firstFmt = formatDisplayDate(selectedDates[0], lang);

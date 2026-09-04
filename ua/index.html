@@ -878,6 +878,21 @@
             </button>
           </div>
 
+          <!-- 2 Desks Checkbox Option -->
+          <div class="booking-two-desks-box">
+            <label class="booking-two-desks-label" for="booking-two-desks-checkbox">
+              <input type="checkbox" id="booking-two-desks-checkbox" class="booking-two-desks-checkbox">
+              <span class="two-desks-custom-check">
+                <i class="fas fa-check"></i>
+              </span>
+              <span class="two-desks-text-wrap">
+                <strong class="two-desks-title"><i class="fas fa-user-friends"></i> Мені потрібно 2 столи</strong>
+                <span class="two-desks-sub">Перевірити наявність двох вільних місць (2 × 10€ / день)</span>
+              </span>
+              <span class="two-desks-spinner" id="two-desks-spinner" hidden></span>
+            </label>
+          </div>
+
           <!-- Pick Specific Date Button & Inline Calendar -->
           <div class="booking-custom-date-box">
             <button type="button" class="booking-custom-date-btn" id="pick-date-trigger" aria-expanded="false" aria-controls="booking-inline-calendar">
@@ -912,10 +927,13 @@
             </div>
           </div>
 
-          <!-- Selected Date Pill -->
-          <div class="booking-selected-date-chip" id="booking-selected-chip" hidden>
-            <span class="selected-chip-label" id="selected-chip-label"></span>
-            <button type="button" class="selected-chip-clear" id="selected-chip-clear" aria-label="Clear date">✕</button>
+          <!-- Selected Dates Pills -->
+          <div class="booking-selected-dates-wrap" id="booking-selected-chip" hidden>
+            <div class="selected-chips-header">
+              <span class="selected-chips-title" id="selected-chips-title">Обрані дати:</span>
+              <button type="button" class="selected-chips-clear-all" id="selected-chip-clear">Очистити все</button>
+            </div>
+            <div class="selected-chips-list" id="selected-chips-list"></div>
           </div>
 
           <!-- Step 1 Alert -->
@@ -942,52 +960,26 @@
             </div>
           </div>
 
-          <!-- Day Pass & Multi-Day Option Card -->
+          <!-- Day Pass Summary Card -->
           <div class="booking-pass-card">
             <div class="booking-pass-main">
               <div class="pass-info-col">
                 <div class="pass-badge-row">
-                  <span class="pass-tag">Денний пропуск</span>
+                  <span class="pass-tag" id="step2-pass-tag">Денний пропуск</span>
                   <span class="pass-hours"><i class="fas fa-clock"></i> 09:30–18:00</span>
                 </div>
-                <h4 class="pass-name">Денний абонемент</h4>
+                <h4 class="pass-name" id="step2-pass-title">Денний абонемент</h4>
               </div>
               <div class="pass-price-col">
-                <span class="pass-price-num">10€</span>
-                <span class="pass-price-unit">/ день</span>
+                <span class="pass-price-num" id="step2-unit-price">10€</span>
+                <span class="pass-price-unit" id="step2-price-unit">/ день</span>
               </div>
             </div>
 
-            <!-- Multi-day Booking Checkbox -->
-            <div class="booking-multiday-wrap">
-              <label class="booking-multiday-toggle" for="booking-multiday-checkbox">
-                <input type="checkbox" id="booking-multiday-checkbox" class="booking-multiday-checkbox">
-                <span class="multiday-checkbox-custom">
-                  <i class="fas fa-check"></i>
-                </span>
-                <span class="multiday-toggle-text">
-                  <strong class="multiday-toggle-title">Забронювати на кілька днів</strong>
-                  <span class="multiday-toggle-sub">Бронювання робочих днів поспіль (10€ / день)</span>
-                </span>
-              </label>
-
-              <!-- Collapsible Stepper & Dates -->
-              <div class="multiday-controls" id="multiday-controls" hidden>
-                <div class="multiday-stepper-row">
-                  <span class="multiday-stepper-label">Кількість робочих днів:</span>
-                  <div class="multiday-stepper">
-                    <button type="button" class="multiday-step-btn" id="multiday-dec" aria-label="Decrease days">−</button>
-                    <span class="multiday-step-val" id="multiday-count-val">2</span>
-                    <button type="button" class="multiday-step-btn" id="multiday-inc" aria-label="Increase days">+</button>
-                  </div>
-                  <div class="multiday-quick-pills">
-                    <button type="button" class="multiday-quick-pill" data-days="2">2d</button>
-                    <button type="button" class="multiday-quick-pill" data-days="3">3d</button>
-                    <button type="button" class="multiday-quick-pill" data-days="5">5d</button>
-                  </div>
-                </div>
-                <div class="multiday-dates-preview" id="multiday-dates-preview"></div>
-              </div>
+            <!-- Selected Dates in Step 2 -->
+            <div class="step2-dates-summary" id="step2-dates-summary">
+              <span class="step2-dates-label">Заброньовані дати:</span>
+              <div class="step2-dates-list" id="step2-dates-list"></div>
             </div>
           </div>
 
