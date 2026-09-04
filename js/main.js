@@ -966,9 +966,6 @@ function initBookingDialog() {
   const calWeekdaysRow = document.getElementById('cal-weekdays-row');
   const calDaysGrid = document.getElementById('cal-days-grid');
   const calDoneBtn = document.getElementById('cal-done-btn');
-  const selectedChip = document.getElementById('booking-selected-chip');
-  const selectedChipsList = document.getElementById('selected-chips-list');
-  const selectedChipClear = document.getElementById('selected-chip-clear');
   const step1Alert = document.getElementById('step1-alert');
   const step1ContinueBtn = document.getElementById('booking-step1-continue');
   const continueBtnText = document.getElementById('continue-btn-text');
@@ -981,8 +978,6 @@ function initBookingDialog() {
   const step2PassTitle = document.getElementById('step2-pass-title');
   const step2UnitPrice = document.getElementById('step2-unit-price');
   const step2PriceUnit = document.getElementById('step2-price-unit');
-  const step2DatesSummary = document.getElementById('step2-dates-summary');
-  const step2DatesList = document.getElementById('step2-dates-list');
   const step2Alert = document.getElementById('custom-booking-alert');
   const nameInput = document.getElementById('custom-booking-name');
   const emailInput = document.getElementById('custom-booking-email');
@@ -1004,8 +999,8 @@ function initBookingDialog() {
   const currentPath = window.location.pathname;
   const lang = currentPath.includes('/bg/') ? 'bg' : currentPath.includes('/ru/') ? 'ru' : currentPath.includes('/ua/') ? 'ua' : 'en';
 
-  // Multi-date selection & desk count state
-  let selectedDates = [];
+  // Date selection & desk count state
+  let currentSelectedDate = null;
   let neededDesks = 1;
 
   const planConfigs = {
@@ -1108,12 +1103,6 @@ function initBookingDialog() {
       ru: 'Выберите дату для продолжения',
       ua: 'Оберіть дату для продовження'
     },
-    continueWithCount: (count, l) => {
-      if (l === 'bg') return count === 1 ? 'Продължи с 1 дата' : `Продължи с ${count} дати`;
-      if (l === 'ru') return count === 1 ? 'Продолжить с 1 датой' : `Продолжить с ${count} датами`;
-      if (l === 'ua') return count === 1 ? 'Продовжити з 1 датою' : `Продовжити з ${count} датами`;
-      return count === 1 ? 'Continue with 1 date' : `Continue with ${count} dates`;
-    },
     continueWithDate: (dateStr, l) => {
       if (l === 'bg') return `Продължи с ${dateStr}`;
       if (l === 'ru') return `Продолжить на ${dateStr}`;
@@ -1132,17 +1121,17 @@ function initBookingDialog() {
       if (l === 'ua') return 'Денний пропуск';
       return 'On-Site Pass';
     },
-    metaCalculation: (datesCount, desks, total, l) => {
-      if (l === 'bg') {
-        return `${datesCount} ${datesCount === 1 ? 'ден' : 'дни'} × ${desks} ${desks === 1 ? 'бюро' : 'бюра'} × 10€ = ${total}€ • Плащане на място`;
-      }
-      if (l === 'ru') {
-        return `${datesCount} ${datesCount === 1 ? 'день' : 'дней'} × ${desks} ${desks === 1 ? 'стол' : 'стола'} × 10€ = ${total}€ • Оплата на месте`;
-      }
-      if (l === 'ua') {
-        return `${datesCount} ${datesCount === 1 ? 'день' : 'днів'} × ${desks} ${desks === 1 ? 'стіл' : 'столи'} × 10€ = ${total}€ • Оплата на місці`;
-      }
-      return `${datesCount} day(s) × ${desks} desk(s) × 10€ = ${total}€ • Pay on arrival`;
+    singleDeskMeta: {
+      en: 'Pay with card or cash upon check-in',
+      bg: 'Плащане с карта или в брой при настаняване',
+      ru: 'Оплата картой или наличными при заселении',
+      ua: 'Оплата карткою або готівкою при поселенні'
+    },
+    twoDesksMeta: (total, l) => {
+      if (l === 'bg') return `2 бюра × 10€ = ${total}€ • Плащане на място`;
+      if (l === 'ru') return `2 стола × 10€ = ${total}€ • Оплата на месте`;
+      if (l === 'ua') return `2 столи × 10€ = ${total}€ • Оплата на місці`;
+      return `2 desks × 10€ = ${total}€ • Pay on arrival`;
     },
     confirmBtn: (total, l) => {
       if (l === 'bg') return `Потвърди резервацията (${total}€)`;
@@ -1279,11 +1268,11 @@ function initBookingDialog() {
     }
 
     if (quickDateToday) {
-      quickDateToday.classList.toggle('selected', selectedDates.includes(todayStr));
+      quickDateToday.classList.toggle('selected', currentSelectedDate === todayStr);
       quickDateToday.disabled = !todayAvail.isEligible;
     }
     if (quickDateTomorrow) {
-      quickDateTomorrow.classList.toggle('selected', selectedDates.includes(tomorrowStr));
+      quickDateTomorrow.classList.toggle('selected', currentSelectedDate === tomorrowStr);
       quickDateTomorrow.disabled = !tomorrowAvail.isEligible;
     }
   }
@@ -1312,7 +1301,7 @@ function initBookingDialog() {
     const cells = calDaysGrid.querySelectorAll('.cal-day-cell');
     cells.forEach(cell => {
       const d = cell.getAttribute('data-date');
-      if (selectedDates.includes(d)) {
+      if (d === currentSelectedDate) {
         cell.classList.add('selected');
         cell.setAttribute('aria-selected', 'true');
       } else {
@@ -1396,7 +1385,7 @@ function initBookingDialog() {
         btn.classList.add('is-today');
       }
 
-      if (selectedDates.includes(cell.dateStr)) {
+      if (cell.dateStr === currentSelectedDate) {
         btn.classList.add('selected');
         btn.setAttribute('aria-selected', 'true');
       }
@@ -1424,7 +1413,7 @@ function initBookingDialog() {
         btn.classList.add('available');
         btn.title = labels.desksLeft(avail.availableDesks, lang);
         btn.addEventListener('click', () => {
-          toggleDate(cell.dateStr);
+          selectDate(cell.dateStr);
         });
       } else {
         btn.disabled = true;
@@ -1445,8 +1434,8 @@ function initBookingDialog() {
         pickDateTrigger.classList.add('open');
         pickDateTrigger.setAttribute('aria-expanded', 'true');
       }
-      if (selectedDates.length > 0) {
-        const [sY, sM] = selectedDates[0].split('-').map(Number);
+      if (currentSelectedDate) {
+        const [sY, sM] = currentSelectedDate.split('-').map(Number);
         calViewYear = sY;
         calViewMonth = sM - 1;
       } else if (calViewYear === null || calViewMonth === null) {
@@ -1464,47 +1453,38 @@ function initBookingDialog() {
     }
   }
 
-  function toggleDate(dateStr) {
+  function selectDate(dateStr) {
     if (!dateStr) return;
 
     const avail = getDateAvailability(dateStr);
 
-    if (selectedDates.includes(dateStr)) {
-      selectedDates = selectedDates.filter(d => d !== dateStr);
+    if (avail.isWeekend) {
       if (step1Alert) {
-        step1Alert.hidden = true;
-        step1Alert.textContent = '';
+        step1Alert.textContent = labels.weekendNotice[lang] || labels.weekendNotice.en;
+        step1Alert.hidden = false;
       }
-    } else {
-      if (avail.isWeekend) {
-        if (step1Alert) {
-          step1Alert.textContent = labels.weekendNotice[lang] || labels.weekendNotice.en;
-          step1Alert.hidden = false;
-        }
-        return;
-      }
-      if (avail.isFull) {
-        if (step1Alert) {
-          step1Alert.textContent = errorMessages.no_desks_available[lang] || errorMessages.no_desks_available.en;
-          step1Alert.hidden = false;
-        }
-        return;
-      }
-      if (avail.isInsufficient) {
-        if (step1Alert) {
-          step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
-          step1Alert.hidden = false;
-        }
-        return;
-      }
-
-      selectedDates.push(dateStr);
-      selectedDates.sort();
-
+      return;
+    }
+    if (avail.isFull) {
       if (step1Alert) {
-        step1Alert.hidden = true;
-        step1Alert.textContent = '';
+        step1Alert.textContent = errorMessages.no_desks_available[lang] || errorMessages.no_desks_available.en;
+        step1Alert.hidden = false;
       }
+      return;
+    }
+    if (avail.isInsufficient) {
+      if (step1Alert) {
+        step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
+        step1Alert.hidden = false;
+      }
+      return;
+    }
+
+    currentSelectedDate = dateStr;
+
+    if (step1Alert) {
+      step1Alert.hidden = true;
+      step1Alert.textContent = '';
     }
 
     onSelectionChanged();
@@ -1513,10 +1493,8 @@ function initBookingDialog() {
   function onSelectionChanged() {
     updateQuickDateCards();
     updateCalendarSelection();
-    renderSelectedChips();
 
-    const count = selectedDates.length;
-    if (count === 0) {
+    if (!currentSelectedDate) {
       if (step1ContinueBtn) step1ContinueBtn.disabled = true;
       if (continueBtnText) {
         continueBtnText.textContent = labels.continueSelectDate[lang] || labels.continueSelectDate.en;
@@ -1524,62 +1502,17 @@ function initBookingDialog() {
     } else {
       if (step1ContinueBtn) step1ContinueBtn.disabled = false;
       if (continueBtnText) {
-        if (count === 1) {
-          const dateFmt = formatDisplayDate(selectedDates[0], lang);
-          continueBtnText.textContent = labels.continueWithDate(dateFmt, lang);
-        } else {
-          continueBtnText.textContent = labels.continueWithCount(count, lang);
-        }
+        const dateFmt = formatDisplayDate(currentSelectedDate, lang);
+        continueBtnText.textContent = labels.continueWithDate(dateFmt, lang);
       }
     }
   }
 
-  function renderSelectedChips() {
-    if (!selectedChip || !selectedChipsList) return;
-    if (selectedDates.length === 0) {
-      selectedChip.hidden = true;
-      selectedChipsList.innerHTML = '';
-      return;
-    }
-
-    selectedChip.hidden = false;
-    const todayStr = getSofiaDateString(0);
-    const tomorrowStr = getSofiaDateString(1);
-
-    selectedChipsList.innerHTML = selectedDates.map(d => {
-      const dateFmt = formatDisplayDate(d, lang);
-      let prefix = '';
-      if (d === todayStr) prefix = `${labels.today[lang] || labels.today.en}: `;
-      else if (d === tomorrowStr) prefix = `${labels.tomorrow[lang] || labels.tomorrow.en}: `;
-
-      return `<span class="date-chip-item">
-        <span>${prefix}${dateFmt}</span>
-        <button type="button" class="chip-remove-btn" data-date="${d}" aria-label="Remove ${dateFmt}">✕</button>
-      </span>`;
-    }).join('');
-
-    selectedChipsList.querySelectorAll('.chip-remove-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const dateToRemove = btn.getAttribute('data-date');
-        toggleDate(dateToRemove);
-      });
-    });
-  }
-
-  function clearDateSelection() {
-    selectedDates = [];
-    if (step1Alert) {
-      step1Alert.hidden = true;
-      step1Alert.textContent = '';
-    }
-    onSelectionChanged();
-  }
-
   function renderStep2Summary() {
-    const datesCount = selectedDates.length;
+    if (!currentSelectedDate) return;
+
     const unitPrice = 10 * neededDesks;
-    const totalPrice = datesCount * unitPrice;
+    const totalPrice = unitPrice;
 
     if (step2PassTag) {
       step2PassTag.textContent = labels.passTag(neededDesks, lang);
@@ -1589,20 +1522,7 @@ function initBookingDialog() {
     }
 
     if (step2DateDisplay) {
-      if (datesCount === 1) {
-        step2DateDisplay.textContent = formatDisplayDate(selectedDates[0], lang);
-      } else {
-        const firstFmt = formatDisplayDate(selectedDates[0], lang);
-        const lastFmt = formatDisplayDate(selectedDates[datesCount - 1], lang);
-        step2DateDisplay.textContent = `${firstFmt} – ${lastFmt} (${datesCount})`;
-      }
-    }
-
-    if (step2DatesList) {
-      step2DatesList.innerHTML = selectedDates.map(d => {
-        const fmt = formatDisplayDate(d, lang);
-        return `<span class="step2-date-tag"><i class="fas fa-calendar-day"></i> ${fmt}</span>`;
-      }).join('');
+      step2DateDisplay.textContent = formatDisplayDate(currentSelectedDate, lang);
     }
 
     if (totalDisplay) {
@@ -1610,7 +1530,11 @@ function initBookingDialog() {
     }
 
     if (metaDisplay) {
-      metaDisplay.textContent = labels.metaCalculation(datesCount, neededDesks, totalPrice, lang);
+      if (neededDesks === 2) {
+        metaDisplay.textContent = labels.twoDesksMeta(totalPrice, lang);
+      } else {
+        metaDisplay.textContent = labels.singleDeskMeta[lang] || labels.singleDeskMeta.en;
+      }
     }
 
     if (submitBtnText) {
@@ -1619,7 +1543,7 @@ function initBookingDialog() {
   }
 
   function goToStep2() {
-    if (selectedDates.length === 0) return;
+    if (!currentSelectedDate) return;
 
     if (step1View) {
       step1View.hidden = true;
@@ -1699,21 +1623,22 @@ function initBookingDialog() {
 
     updateQuickDateCards();
 
-    // Auto-select initial date if none selected yet
-    if (selectedDates.length === 0) {
+    // Auto-select initial date if none selected yet or if current date is no longer eligible
+    const curAvail = currentSelectedDate ? getDateAvailability(currentSelectedDate) : null;
+    if (!currentSelectedDate || !curAvail || !curAvail.isEligible) {
       const todayAvail = getDateAvailability(todayStr);
       const tomorrowAvail = getDateAvailability(tomorrowStr);
 
       if (todayAvail.isEligible) {
-        selectedDates = [todayStr];
+        currentSelectedDate = todayStr;
       } else if (tomorrowAvail.isEligible) {
-        selectedDates = [tomorrowStr];
+        currentSelectedDate = tomorrowStr;
       } else {
         const state = getCachedAvailability();
         if (state && Array.isArray(state.dates)) {
           const firstEligible = state.dates.find(d => d.availableDesks >= neededDesks && d.date >= todayStr);
           if (firstEligible) {
-            selectedDates = [firstEligible.date];
+            currentSelectedDate = firstEligible.date;
           }
         }
       }
@@ -1757,13 +1682,13 @@ function initBookingDialog() {
   // Quick date events
   if (quickDateToday) {
     quickDateToday.addEventListener('click', () => {
-      toggleDate(getSofiaDateString(0));
+      selectDate(getSofiaDateString(0));
     });
   }
 
   if (quickDateTomorrow) {
     quickDateTomorrow.addEventListener('click', () => {
-      toggleDate(getSofiaDateString(1));
+      selectDate(getSofiaDateString(1));
     });
   }
 
@@ -1786,15 +1711,15 @@ function initBookingDialog() {
         if (twoDesksSpinner) twoDesksSpinner.hidden = true;
       }
 
-      const prevCount = selectedDates.length;
-      selectedDates = selectedDates.filter(d => {
-        const avail = getDateAvailability(d);
-        return avail.isEligible;
-      });
-
-      if (prevCount > selectedDates.length && step1Alert) {
-        step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
-        step1Alert.hidden = false;
+      if (currentSelectedDate) {
+        const avail = getDateAvailability(currentSelectedDate);
+        if (!avail.isEligible) {
+          if (step1Alert) {
+            step1Alert.textContent = labels.insufficientNotice[lang] || labels.insufficientNotice.en;
+            step1Alert.hidden = false;
+          }
+          currentSelectedDate = null;
+        }
       }
 
       updateQuickDateCards();
@@ -1846,13 +1771,6 @@ function initBookingDialog() {
     });
   }
 
-  if (selectedChipClear) {
-    selectedChipClear.addEventListener('click', (e) => {
-      e.stopPropagation();
-      clearDateSelection();
-    });
-  }
-
   if (step1ContinueBtn) {
     step1ContinueBtn.addEventListener('click', goToStep2);
   }
@@ -1877,9 +1795,9 @@ function initBookingDialog() {
       const notesVal = notesInput ? notesInput.value.trim() : '';
 
       const unitPrice = 10 * neededDesks;
-      const totalPrice = selectedDates.length * unitPrice;
+      const totalPrice = unitPrice;
       const deskCountText = neededDesks === 2 ? '2 desks' : '1 desk';
-      const planName = `Daily Pass (${deskCountText}, ${selectedDates.length} ${selectedDates.length === 1 ? 'day' : 'days'})`;
+      const planName = `Daily Pass (${deskCountText})`;
 
       if (!nameVal) {
         if (step2Alert) {
@@ -1890,7 +1808,7 @@ function initBookingDialog() {
         return;
       }
 
-      if (!selectedDates || selectedDates.length === 0) {
+      if (!currentSelectedDate) {
         goToStep1();
         if (step1Alert) {
           step1Alert.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
@@ -1905,7 +1823,7 @@ function initBookingDialog() {
 
       const idempotencyKey = `codeburg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const payload = {
-        dates: selectedDates,
+        dates: [currentSelectedDate],
         visitorName: nameVal,
         visitorEmail: emailVal || undefined,
         visitorPhone: phoneVal || undefined,
@@ -1931,13 +1849,7 @@ function initBookingDialog() {
           // Populate success card
           if (successDeskLabel) successDeskLabel.textContent = deskLabels;
           if (successDateVal) {
-            if (selectedDates.length > 1) {
-              const firstFmt = formatDisplayDate(selectedDates[0], lang);
-              const lastFmt = formatDisplayDate(selectedDates[selectedDates.length - 1], lang);
-              successDateVal.textContent = `${firstFmt} – ${lastFmt} (${selectedDates.length})`;
-            } else {
-              successDateVal.textContent = formatDisplayDate(selectedDates[0], lang);
-            }
+            successDateVal.textContent = formatDisplayDate(currentSelectedDate, lang);
           }
           if (successPlanVal) successPlanVal.textContent = `${planName} (${totalPrice}€)`;
 
