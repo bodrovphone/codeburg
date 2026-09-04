@@ -47,30 +47,43 @@ function initNavigation() {
   const scrollProgress = document.getElementById('scroll-progress');
   const backToTop = document.getElementById('back-to-top');
 
-  // Navbar glass blur intensity on scroll + Scroll progress
+  // Throttled scroll handling with requestAnimationFrame
+  let scrollTicking = false;
+  let cachedDocHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+
+  window.addEventListener('resize', () => {
+    cachedDocHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  }, { passive: true });
+
   window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    
-    if (mainNav) {
-      if (scrollY > 40) {
-        mainNav.classList.add('scrolled');
-      } else {
-        mainNav.classList.remove('scrolled');
-      }
-    }
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        
+        if (mainNav) {
+          if (scrollY > 40) {
+            mainNav.classList.add('scrolled');
+          } else {
+            mainNav.classList.remove('scrolled');
+          }
+        }
 
-    if (scrollProgress && docHeight > 0) {
-      const progress = Math.min(100, Math.max(0, (scrollY / docHeight) * 100));
-      scrollProgress.style.width = `${progress}%`;
-    }
+        if (scrollProgress && cachedDocHeight > 0) {
+          const progress = Math.min(100, Math.max(0, (scrollY / cachedDocHeight) * 100));
+          scrollProgress.style.width = `${progress}%`;
+        }
 
-    if (backToTop) {
-      if (scrollY > 500) {
-        backToTop.classList.add('visible');
-      } else {
-        backToTop.classList.remove('visible');
-      }
+        if (backToTop) {
+          if (scrollY > 500) {
+            backToTop.classList.add('visible');
+          } else {
+            backToTop.classList.remove('visible');
+          }
+        }
+
+        scrollTicking = false;
+      });
+      scrollTicking = true;
     }
   }, { passive: true });
 
@@ -204,24 +217,49 @@ function initBurgasClock() {
   }
 
   updateClock();
-  setInterval(updateClock, 1000);
+  let clockInterval = setInterval(updateClock, 1000);
+
+  // Stop clock ticks when browser tab is inactive to preserve battery
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(clockInterval);
+    } else {
+      updateClock();
+      clearInterval(clockInterval);
+      clockInterval = setInterval(updateClock, 1000);
+    }
+  });
 }
 
 // ============================================================================
-// 4. Mouse Cursor Spotlight Effect (Cards & Buttons)
+// 4. Performance & Viewport Intersection Management
 // ============================================================================
-function initSpotlightGlow() {
-  const targets = document.querySelectorAll('.bento-card, .pricing-card, .faq-item, .contact-btn, .stay-calc-box');
-  
-  targets.forEach(card => {
-    card.addEventListener('pointermove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
-  });
+function initPerformanceOptimizations() {
+  // 1. Pause floating logo animation when scrolled out of view
+  const heroSection = document.getElementById('hero');
+  const heroLogo = document.querySelector('.hero-logo');
+
+  if (heroSection && 'IntersectionObserver' in window && heroLogo) {
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        heroLogo.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+      });
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(heroSection);
+  }
+
+  // 2. Pause live bandwidth animation when widget is not visible
+  const speedFill = document.querySelector('.speed-bar-fill');
+  if (speedFill && 'IntersectionObserver' in window) {
+    const speedObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        speedFill.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+      });
+    }, { threshold: 0.1 });
+
+    speedObserver.observe(speedFill);
+  }
 }
 
 // ============================================================================
@@ -899,69 +937,6 @@ function formatShortDate(dateString) {
 
 // ============================================================================
 // 12. Video Autoplay Reliability
-// ============================================================================
-function ensureVideoAutoplay() {
-  const video = document.querySelector('.hero-video');
-  if (!video) return;
-
-  const existingButton = document.querySelector('.video-play-button');
-  if (existingButton) existingButton.remove();
-
-  video.setAttribute('autoplay', '');
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.muted = true;
-  video.defaultMuted = true;
-
-  const attemptPlay = () => {
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          const button = document.querySelector('.video-play-button');
-          if (button) button.remove();
-        })
-        .catch(() => {
-          if (video.paused) addPlayButton(video);
-        });
-    }
-  };
-
-  attemptPlay();
-
-  const handleFirstTouch = () => {
-    if (video.paused) {
-      video.play().then(() => {
-        const button = document.querySelector('.video-play-button');
-        if (button) button.remove();
-      }).catch(console.error);
-    }
-  };
-
-  document.addEventListener('touchstart', handleFirstTouch, { once: true });
-  document.addEventListener('click', handleFirstTouch, { once: true });
-}
-
-function addPlayButton(video) {
-  const heroContent = document.querySelector('.hero-content');
-  if (!heroContent || document.querySelector('.video-play-button')) return;
-
-  const playButton = document.createElement('button');
-  playButton.className = 'video-play-button';
-  playButton.innerHTML = '<i class="fas fa-play"></i>';
-  playButton.setAttribute('aria-label', 'Play video background');
-  
-  playButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    video.muted = true;
-    video.play().then(() => {
-      playButton.remove();
-    }).catch(console.error);
-  });
-  
-  heroContent.appendChild(playButton);
-}
 
 // ============================================================================
 // 12b. Custom On-Site Booking Dialog (Native OhMyDesk API Integration)
@@ -1185,6 +1160,7 @@ function initBookingDialog() {
       dialog.setAttribute('open', '');
     }
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   }
 
   function closeBookingDialog() {
@@ -1194,6 +1170,7 @@ function initBookingDialog() {
       dialog.removeAttribute('open');
     }
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
 
   // Intercept all booking triggers
@@ -1370,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initLanguageSwitcher();
   initBurgasClock();
-  initSpotlightGlow();
+  initPerformanceOptimizations();
   initDeskWidget();
   initStayCalculator();
   initGalleryLightbox();
@@ -1380,9 +1357,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initAvailability();
   initAvailabilityButton();
   initBookingDialog();
-  ensureVideoAutoplay();
-  
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) ensureVideoAutoplay();
-  });
 });

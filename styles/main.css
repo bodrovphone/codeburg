@@ -77,6 +77,7 @@ html {
   scroll-padding-top: calc(var(--header-height) + 1.5rem);
   background-color: var(--bg-base);
   color-scheme: light;
+  overflow-x: hidden;
 }
 
 body {
@@ -90,7 +91,7 @@ body {
   min-height: 100vh;
 }
 
-/* Playful Comic Halftone Dots Background */
+/* Playful Comic Halftone Dots Background (GPU-composited) */
 body::before {
   content: '';
   position: fixed;
@@ -106,6 +107,8 @@ body::before {
   pointer-events: none;
   opacity: 0.65;
   z-index: -2;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Colorful Cartoon Scrollbar */
@@ -330,11 +333,12 @@ ul {
   border: 1.5px solid var(--ink);
   border-radius: 50%;
   animation: cartoonPulse 1.5s infinite ease-in-out;
+  will-change: transform;
 }
 
 @keyframes cartoonPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.35); background: var(--pop-yellow); }
+  50% { transform: scale(1.35); }
 }
 
 .section-links {
@@ -504,30 +508,6 @@ ul {
   padding: 8rem 1.5rem 5rem;
 }
 
-.hero-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -2;
-  filter: brightness(0.95) saturate(1.1);
-}
-
-/* Soft Light Tint Overlay */
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(ellipse 90% 70% at center, rgba(251, 249, 244, 0.7) 0%, rgba(251, 249, 244, 0.92) 80%, var(--bg-base) 100%),
-    linear-gradient(to bottom, rgba(251, 249, 244, 0.8) 0%, transparent 40%, transparent 60%, var(--bg-base) 100%);
-  z-index: -1;
-}
-
 .hero-content {
   text-align: center;
   max-width: 920px;
@@ -576,6 +556,7 @@ ul {
   box-shadow: 5px 5px 0px var(--ink);
   background: #ffffff;
   animation: cartoonFloat 5s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes cartoonFloat {
@@ -880,32 +861,6 @@ ul {
   font-weight: 800;
 }
 
-/* Video Play Button for iOS Safari fallback */
-.video-play-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--pop-yellow);
-  border: var(--border-comic-thick);
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink);
-  font-size: 2rem;
-  cursor: pointer;
-  z-index: 10;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s var(--spring-bounce);
-}
-
-.video-play-button:hover {
-  transform: translate(-50%, -50%) scale(1.15);
-}
-
 /* ==========================================================================
    WHY CODEBURG? - PLAYFUL CARTOON BENTO GRID
    Bright Pastel Cards, Chunky Borders & Tactile Widgets
@@ -1089,15 +1044,18 @@ ul {
 
 .speed-bar-fill {
   height: 100%;
-  width: 95%;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0.95);
   background: linear-gradient(90deg, var(--pop-mint), var(--pop-cyan));
   border-radius: var(--radius-pill);
   animation: cartoonSpeed 2.5s infinite ease-in-out;
+  will-change: transform;
 }
 
 @keyframes cartoonSpeed {
-  0%, 100% { width: 93%; }
-  50% { width: 98%; }
+  0%, 100% { transform: scaleX(0.93); }
+  50% { transform: scaleX(0.98); }
 }
 
 .speed-meta {
@@ -1553,34 +1511,83 @@ ul {
 }
 
 .stay-slider-wrapper {
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
+  padding: 0.5rem 0;
 }
 
-.stay-slider {
+input[type="range"].stay-slider {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   width: 100%;
-  height: 14px;
+  height: 20px;
   border-radius: var(--radius-pill);
-  background: #e2e8f0;
-  border: 2.5px solid var(--ink);
+  background: #f1f5f9;
+  border: 3px solid var(--ink);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
   outline: none;
-  -webkit-appearance: none;
   cursor: pointer;
+  touch-action: pan-y;
+  position: relative;
 }
 
-.stay-slider::-webkit-slider-thumb {
+/* WebKit (Safari / Chrome / iOS) */
+input[type="range"].stay-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 28px;
-  height: 28px;
+  appearance: none;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--pop-mint);
-  border: 2.5px solid var(--ink);
+  background: var(--pop-yellow);
+  border: 3px solid var(--ink);
   box-shadow: 2px 2px 0px var(--ink);
-  cursor: pointer;
+  cursor: grab;
+  margin-top: -11px;
+  transition: transform 0.15s var(--spring-bounce), background-color 0.15s ease;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #fde047;
+}
+
+input[type="range"].stay-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
+  background: #facc15;
+}
+
+/* Firefox */
+input[type="range"].stay-slider::-moz-range-track {
+  width: 100%;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: #f1f5f9;
+  border: 3px solid var(--ink);
+}
+
+input[type="range"].stay-slider::-moz-range-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--pop-yellow);
+  border: 3px solid var(--ink);
+  box-shadow: 2px 2px 0px var(--ink);
+  cursor: grab;
   transition: transform 0.15s var(--spring-bounce);
 }
 
-.stay-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
+input[type="range"].stay-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
 }
 
 .stay-recommendation-pill {
@@ -3163,6 +3170,88 @@ dialog.booking-dialog[open]::backdrop {
   color: #0284c7;
 }
 
+/* Responsive Booking Dialog - Mobile Narrowing & Anti-Overflow */
+@media (max-width: 640px) {
+  dialog.booking-dialog {
+    width: calc(100% - 1.25rem);
+    max-width: calc(100% - 1.25rem);
+    margin: auto;
+    overflow: hidden;
+  }
+
+  .booking-dialog-frame {
+    box-shadow: 6px 6px 0px var(--ink);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .booking-dialog-header {
+    padding: 0.85rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .booking-badge-row {
+    gap: 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .booking-dialog-badge,
+  .booking-dialog-pulse {
+    font-size: 0.68rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .booking-dialog-title-group h3 {
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+
+  .booking-dialog-close {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .booking-dialog-body {
+    height: 490px;
+    max-height: calc(85vh - 120px);
+  }
+
+  .booking-dialog-footer {
+    padding: 0.65rem 1rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 380px) {
+  dialog.booking-dialog {
+    width: calc(100% - 0.75rem);
+    max-width: calc(100% - 0.75rem);
+  }
+
+  .booking-dialog-frame {
+    box-shadow: 4px 4px 0px var(--ink);
+  }
+
+  .booking-dialog-header {
+    padding: 0.75rem 0.75rem;
+  }
+
+  .booking-dialog-title-group h3 {
+    font-size: 1.05rem;
+  }
+
+  .booking-dialog-body {
+    height: 440px;
+    max-height: calc(85vh - 110px);
+  }
+}
+
 /* Pricing Card Book Button */
 .pricing-book-btn {
   width: 100%;
@@ -3248,14 +3337,7 @@ dialog.booking-dialog[open]::backdrop {
   }
 
   .nav-status-badge {
-    display: inline-flex;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.72rem;
-    gap: 0.35rem;
-  }
-
-  .nav-status-badge span:last-child {
-    display: none;
+    display: none !important;
   }
 
   .hero-title {
@@ -3264,23 +3346,67 @@ dialog.booking-dialog[open]::backdrop {
 
   .hero-cta-cluster {
     width: 100%;
-    max-width: 360px;
+    max-width: 350px;
+    gap: 0.65rem;
   }
 
   .hero-cta-row {
     width: 100%;
+    gap: 0.65rem;
+  }
+
+  .hero-cta-row.row-primary,
+  .hero-cta-row.row-secondary {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.65rem;
+  }
+
+  .hero-availability {
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  .hero-nav-btn {
+    white-space: nowrap;
   }
 
   .hero-nav-btn:not(.icon-only) {
-    flex: 1;
-    min-width: 130px;
+    width: 100%;
     justify-content: center;
+    padding: 0.75rem 1.25rem;
+    box-sizing: border-box;
   }
 
   .hero-nav-btn.ai-bot-btn.icon-only {
     width: 48px;
     height: 48px;
+    margin: 0 auto;
     flex-shrink: 0;
+  }
+
+  /* Bento Clock Widget: Stack cleanly on mobile to prevent RFID chip overflow */
+  .bento-clock-widget {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.15rem;
+  }
+
+  .bento-live-time {
+    font-size: 1.35rem;
+  }
+
+  .bento-rfid-chip {
+    width: 100%;
+    justify-content: center;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .perks-ticker {
@@ -3305,6 +3431,85 @@ dialog.booking-dialog[open]::backdrop {
 
   .contact-links {
     grid-template-columns: 1fr;
+  }
+
+  /* Access Policy Responsive Stacking & Mobile Sizing */
+  .access-policy-box {
+    margin: 2rem auto 0;
+    padding: 1.25rem 1rem;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+  }
+
+  .access-policy-header {
+    gap: 0.65rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .access-policy-header h4 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .access-policy-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .access-policy-card {
+    padding: 1.15rem 1rem;
+    gap: 0.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .access-policy-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .access-policy-details h5 {
+    font-size: 1.05rem;
+  }
+
+  .access-policy-details p {
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .bottom-access-note {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .bottom-access-text {
+    font-size: 0.82rem;
+  }
+
+  /* Calculator Slider Mobile Touch Sizing */
+  .stay-slider-wrapper {
+    margin: 1.5rem 0;
+    padding: 0.5rem 0;
+  }
+
+  input[type="range"].stay-slider {
+    height: 22px;
+  }
+
+  input[type="range"].stay-slider::-webkit-slider-thumb {
+    width: 44px;
+    height: 44px;
+    margin-top: -13px;
+    box-shadow: 3px 3px 0px var(--ink);
+  }
+
+  input[type="range"].stay-slider::-moz-range-thumb {
+    width: 44px;
+    height: 44px;
+    box-shadow: 3px 3px 0px var(--ink);
   }
 }
 
