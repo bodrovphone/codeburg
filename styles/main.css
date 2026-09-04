@@ -3671,9 +3671,10 @@ dialog.booking-dialog[open]::backdrop {
 .success-detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.75rem;
   font-size: 0.9rem;
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.45rem;
   border-bottom: 1px dashed #e2e8f0;
 }
 
@@ -3685,12 +3686,18 @@ dialog.booking-dialog[open]::backdrop {
 .success-detail-row span {
   color: var(--ink-subtle);
   font-weight: 500;
+  flex-shrink: 0;
+  line-height: 1.4;
 }
 
 .success-detail-row strong {
   color: var(--ink);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.92rem;
+  line-height: 1.4;
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
 }
 
 .success-actions {
@@ -3953,6 +3960,45 @@ dialog.booking-dialog[open]::backdrop {
   .booking-input {
     padding: 0.42rem 0.65rem;
     font-size: 0.88rem;
+  }
+
+  .custom-booking-success {
+    padding: 0.75rem 0.25rem 0.5rem;
+  }
+
+  .success-icon-badge {
+    font-size: 2.4rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .custom-booking-success h4 {
+    font-size: 1.3rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .success-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .success-details-card {
+    padding: 0.85rem 1rem;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .success-detail-row {
+    font-size: 0.85rem;
+    gap: 0.5rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .success-detail-row span {
+    font-size: 0.82rem;
+  }
+
+  .success-detail-row strong {
+    font-size: 0.85rem;
   }
 }
 
