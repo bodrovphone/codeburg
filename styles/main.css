@@ -3357,90 +3357,372 @@ dialog.booking-dialog[open]::backdrop {
   font-weight: 500;
 }
 
-/* Plan Selection Cards */
-.booking-plan-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* Day Pass & Multi-Day Option Card */
+.booking-pass-card {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  background: #ffffff;
+  box-shadow: 2.5px 2.5px 0px var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+.booking-pass-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pass-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pass-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.pass-tag {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--pop-yellow);
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 0.1rem 0.45rem;
+  box-shadow: 1px 1px 0px var(--ink);
+}
+
+.pass-hours {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pass-name {
+  font-family: 'Fredoka', 'Righteous', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pass-price-col {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.pass-price-num {
+  font-family: 'Righteous', 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.pass-price-unit {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* Multi-Day Booking Checkbox */
+.booking-multiday-wrap {
+  border-top: 1.5px dashed #cbd5e1;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.booking-multiday-toggle {
+  display: flex;
+  align-items: flex-start;
   gap: 0.65rem;
-}
-
-@media (max-width: 600px) {
-  .booking-plan-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.35rem;
-  }
-}
-
-.booking-plan-option {
   cursor: pointer;
   user-select: none;
 }
 
-.booking-plan-option input[type="radio"] {
+.booking-multiday-checkbox {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.booking-plan-card {
+.multiday-checkbox-custom {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
   border: 2px solid var(--ink);
-  border-radius: var(--radius-md);
-  padding: 0.65rem 0.4rem;
-  text-align: center;
+  border-radius: 5px;
   background: #ffffff;
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: all 0.15s var(--spring-bounce);
+}
+
+.multiday-checkbox-custom i {
+  font-size: 0.72rem;
+  color: transparent;
+  transition: color 0.15s ease;
+}
+
+.booking-multiday-checkbox:checked + .multiday-checkbox-custom {
+  background: var(--pop-yellow);
+  transform: translateY(-1px);
   box-shadow: 2px 2px 0px var(--ink);
+}
+
+.booking-multiday-checkbox:checked + .multiday-checkbox-custom i {
+  color: var(--ink);
+}
+
+.multiday-toggle-text {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  transition: all 0.2s var(--spring-bounce);
+  gap: 0.15rem;
 }
 
-.booking-plan-option:hover .booking-plan-card {
-  transform: translateY(-2px);
-  box-shadow: 3px 3px 0px var(--ink);
-  background: #fffdf5;
+.multiday-toggle-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
 }
 
-.booking-plan-option input[type="radio"]:checked + .booking-plan-card {
-  background: var(--pop-yellow);
-  box-shadow: 4px 4px 0px var(--ink);
-  transform: translate(-2px, -2px);
+.multiday-toggle-sub {
+  font-size: 0.74rem;
+  color: #64748b;
+  line-height: 1.25;
 }
 
-.plan-card-name {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 0.85rem;
+/* Multi-day Controls */
+.multiday-controls {
+  margin-top: 0.65rem;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  animation: calPopIn 0.2s var(--spring-bounce);
+}
+
+.multiday-controls[hidden] {
+  display: none !important;
+}
+
+.multiday-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.multiday-stepper-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--ink);
 }
 
-.plan-name-short {
-  display: none;
+.multiday-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: #ffffff;
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+  overflow: hidden;
 }
 
-@media (max-width: 600px) {
-  .plan-name-full {
-    display: none;
-  }
-  .plan-name-short {
-    display: inline;
-  }
+.multiday-step-btn {
+  width: 26px;
+  height: 26px;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  padding: 0;
+  line-height: 1;
 }
 
-.plan-card-price {
+.multiday-step-btn:hover {
+  background: var(--pop-yellow);
+}
+
+.multiday-step-val {
+  padding: 0 0.6rem;
   font-family: 'Righteous', 'Space Grotesk', sans-serif;
-  font-size: 1.15rem;
+  font-weight: 700;
+  font-size: 0.92rem;
   color: var(--ink);
 }
 
-.plan-card-meta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
-  color: var(--ink-subtle);
-  font-weight: 600;
+.multiday-quick-pills {
+  display: flex;
+  gap: 0.3rem;
 }
 
-.booking-plan-option input[type="radio"]:checked + .booking-plan-card .plan-card-meta {
+.multiday-quick-pill {
+  background: #ffffff;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 1px 1px 0px var(--ink);
+  transition: all 0.15s var(--spring-bounce);
+}
+
+.multiday-quick-pill:hover,
+.multiday-quick-pill.active {
+  background: var(--pop-yellow);
+  transform: translateY(-1px);
+}
+
+.multiday-dates-preview {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.multiday-date-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.18rem 0.45rem;
+  box-shadow: 1px 1px 0px var(--ink);
+}
+
+/* Grey Plate: Other Plans In-Place Only */
+.booking-inplace-plate {
+  background: #f1f5f9;
+  border: 1.5px solid #64748b;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 2px 2px 0px #cbd5e1;
+}
+
+.inplace-plate-header {
+  margin-bottom: 0.55rem;
+}
+
+.inplace-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #e2e8f0;
+  color: #334155;
+  border: 1px solid #94a3b8;
+  border-radius: var(--radius-sm);
+  padding: 0.12rem 0.45rem;
+  margin-bottom: 0.35rem;
+}
+
+.inplace-notice {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: #475569;
+  margin: 0;
+}
+
+.inplace-contacts-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 0.5rem;
+}
+
+.inplace-contact-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.inplace-contact-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.inplace-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.55rem;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 1.5px 1.5px 0px var(--ink);
+  transition: all 0.15s var(--spring-bounce);
+}
+
+.inplace-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 2px 2px 0px var(--ink);
+}
+
+.inplace-btn.tg:hover {
+  background: #229ED9;
+  color: #ffffff;
+}
+
+.inplace-btn.wa:hover {
+  background: #25D366;
+  color: #ffffff;
+}
+
+.inplace-btn.phone:hover {
+  background: var(--pop-yellow);
   color: var(--ink);
 }
 

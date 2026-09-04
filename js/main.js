@@ -985,6 +985,13 @@ function initBookingDialog() {
   const submitSpinner = submitBtn ? submitBtn.querySelector('.submit-spinner') : null;
   const totalDisplay = document.getElementById('booking-summary-total');
   const metaDisplay = document.getElementById('booking-summary-meta');
+  const submitBtnText = document.getElementById('submit-btn-text');
+  const multidayCheckbox = document.getElementById('booking-multiday-checkbox');
+  const multidayControls = document.getElementById('multiday-controls');
+  const multidayDecBtn = document.getElementById('multiday-dec');
+  const multidayIncBtn = document.getElementById('multiday-inc');
+  const multidayCountVal = document.getElementById('multiday-count-val');
+  const multidayDatesPreview = document.getElementById('multiday-dates-preview');
 
   // Step 3: Success Confirmation
   const successView = document.getElementById('custom-booking-success');
@@ -997,6 +1004,8 @@ function initBookingDialog() {
   const lang = currentPath.includes('/bg/') ? 'bg' : currentPath.includes('/ru/') ? 'ru' : currentPath.includes('/ua/') ? 'ua' : 'en';
 
   let currentSelectedDate = null;
+  let isMultiDay = false;
+  let multiDayCount = 2;
 
   const planConfigs = {
     day: {
@@ -1461,6 +1470,96 @@ function initBookingDialog() {
     }
   }
 
+  function getConsecutiveWorkdays(startDateStr, count) {
+    if (!startDateStr || count < 1) return [];
+    const dates = [startDateStr];
+    let offset = 1;
+    const [y, m, d] = startDateStr.split('-').map(Number);
+    while (dates.length < count && offset < 30) {
+      const nextDateObj = new Date(Date.UTC(y, m - 1, d + offset, 12, 0, 0));
+      const jsDay = nextDateObj.getUTCDay(); // 0 = Sun, 6 = Sat
+      if (jsDay !== 0 && jsDay !== 6) { // Skip weekends
+        const nextStr = nextDateObj.toISOString().slice(0, 10);
+        dates.push(nextStr);
+      }
+      offset++;
+    }
+    return dates;
+  }
+
+  function updateMultiDaySummary() {
+    if (!currentSelectedDate) return;
+
+    if (!isMultiDay) {
+      if (multidayControls) multidayControls.hidden = true;
+      if (multidayCheckbox) multidayCheckbox.checked = false;
+      if (totalDisplay) totalDisplay.textContent = '10€';
+      if (metaDisplay) metaDisplay.textContent = planConfigs.day.meta[lang] || planConfigs.day.meta.en;
+      if (step2DateDisplay) {
+        step2DateDisplay.textContent = formatDisplayDate(currentSelectedDate, lang);
+      }
+      if (submitBtnText) {
+        const confirmTxt = {
+          en: 'Confirm Desk Booking',
+          bg: 'Потвърди резервацията',
+          ru: 'Подтвердить бронирование',
+          ua: 'Підтвердити бронювання'
+        };
+        submitBtnText.textContent = confirmTxt[lang] || confirmTxt.en;
+      }
+      return;
+    }
+
+    if (multidayControls) multidayControls.hidden = false;
+    if (multidayCheckbox) multidayCheckbox.checked = true;
+    if (multidayCountVal) multidayCountVal.textContent = multiDayCount;
+
+    // Highlight active quick pill
+    if (multidayControls) {
+      multidayControls.querySelectorAll('.multiday-quick-pill').forEach(pill => {
+        const days = parseInt(pill.getAttribute('data-days'), 10);
+        pill.classList.toggle('active', days === multiDayCount);
+      });
+    }
+
+    const selectedDates = getConsecutiveWorkdays(currentSelectedDate, multiDayCount);
+    const totalPrice = selectedDates.length * 10;
+
+    if (totalDisplay) totalDisplay.textContent = `${totalPrice}€`;
+    if (metaDisplay) {
+      const metaMsg = {
+        en: `${selectedDates.length} days × 10€ • Pay with card or cash upon check-in`,
+        bg: `${selectedDates.length} дни × 10€ • Плащане с карта или в брой при настаняване`,
+        ru: `${selectedDates.length} дн. × 10€ • Оплата картой или наличными при визите`,
+        ua: `${selectedDates.length} дн. × 10€ • Оплата карткою або готівкою при візиті`
+      };
+      metaDisplay.textContent = metaMsg[lang] || metaMsg.en;
+    }
+
+    if (step2DateDisplay && selectedDates.length > 0) {
+      const firstFormatted = formatDisplayDate(selectedDates[0], lang);
+      const lastFormatted = formatDisplayDate(selectedDates[selectedDates.length - 1], lang);
+      step2DateDisplay.textContent = `${firstFormatted} – ${lastFormatted} (${selectedDates.length})`;
+    }
+
+    if (submitBtnText) {
+      const btnMsg = {
+        en: `Confirm ${selectedDates.length} Days Booking`,
+        bg: `Потвърди резервация за ${selectedDates.length} дни`,
+        ru: `Забронировать на ${selectedDates.length} дн.`,
+        ua: `Забронювати на ${selectedDates.length} дн.`
+      };
+      submitBtnText.textContent = btnMsg[lang] || btnMsg.en;
+    }
+
+    if (multidayDatesPreview) {
+      multidayDatesPreview.innerHTML = selectedDates.map(d => {
+        const fmt = formatDisplayDate(d, lang);
+        return `<span class="multiday-date-pill">${fmt}</span>`;
+      }).join('');
+    }
+  }
+
   function goToStep2() {
     if (!currentSelectedDate) return;
     if (step1View) {
@@ -1478,9 +1577,7 @@ function initBookingDialog() {
     if (stepBar2) {
       stepBar2.classList.add('active');
     }
-    if (step2DateDisplay) {
-      step2DateDisplay.textContent = formatDisplayDate(currentSelectedDate, lang);
-    }
+    updateMultiDaySummary();
     if (nameInput) {
       setTimeout(() => nameInput.focus(), 50);
     }
@@ -1505,24 +1602,21 @@ function initBookingDialog() {
   }
 
   function getSelectedPlan() {
-    const checked = step2Form ? step2Form.querySelector('input[name="booking_plan"]:checked') : null;
-    return checked ? checked.value : 'day';
+    return 'day';
   }
 
   function setSelectedPlan(planKey) {
-    if (!step2Form) return;
-    const radio = step2Form.querySelector(`input[name="booking_plan"][value="${planKey}"]`);
-    if (radio) {
-      radio.checked = true;
+    if (planKey === 'week') {
+      isMultiDay = true;
+      multiDayCount = 5;
+    } else {
+      isMultiDay = false;
     }
-    updatePlanSummary();
+    updateMultiDaySummary();
   }
 
   function updatePlanSummary() {
-    const planKey = getSelectedPlan();
-    const config = planConfigs[planKey] || planConfigs.day;
-    if (totalDisplay) totalDisplay.textContent = config.price;
-    if (metaDisplay) metaDisplay.textContent = config.meta[lang] || config.meta.en;
+    updateMultiDaySummary();
   }
 
   function openBookingDialog(preferredPlan) {
@@ -1695,10 +1789,44 @@ function initBookingDialog() {
     backBtn.addEventListener('click', goToStep1);
   }
 
-  // Radio plan change
-  if (step2Form) {
-    step2Form.querySelectorAll('input[name="booking_plan"]').forEach(radio => {
-      radio.addEventListener('change', updatePlanSummary);
+  // Multiday toggle and stepper events
+  if (multidayCheckbox) {
+    multidayCheckbox.addEventListener('change', () => {
+      isMultiDay = multidayCheckbox.checked;
+      updateMultiDaySummary();
+    });
+  }
+
+  if (multidayDecBtn) {
+    multidayDecBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (multiDayCount > 2) {
+        multiDayCount--;
+        updateMultiDaySummary();
+      }
+    });
+  }
+
+  if (multidayIncBtn) {
+    multidayIncBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (multiDayCount < 10) {
+        multiDayCount++;
+        updateMultiDaySummary();
+      }
+    });
+  }
+
+  if (multidayControls) {
+    multidayControls.querySelectorAll('.multiday-quick-pill').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const days = parseInt(btn.getAttribute('data-days'), 10);
+        if (days >= 2 && days <= 10) {
+          multiDayCount = days;
+          updateMultiDaySummary();
+        }
+      });
     });
   }
 
@@ -1716,10 +1844,14 @@ function initBookingDialog() {
       const emailVal = emailInput ? emailInput.value.trim() : '';
       const phoneVal = phoneInput ? phoneInput.value.trim() : '';
       const notesVal = notesInput ? notesInput.value.trim() : '';
-      const dateVal = currentSelectedDate || (dateInput ? dateInput.value : '');
-      const planVal = getSelectedPlan();
-      const planConfig = planConfigs[planVal] || planConfigs.day;
-      const planName = planConfig.name[lang] || planConfig.name.en;
+      const selectedDates = isMultiDay
+        ? getConsecutiveWorkdays(currentSelectedDate, multiDayCount)
+        : [currentSelectedDate || (dateInput ? dateInput.value : '')];
+
+      const totalPrice = selectedDates.length * 10;
+      const planName = isMultiDay
+        ? `Daily Pass (${selectedDates.length} days)`
+        : 'Daily Pass';
 
       if (!nameVal) {
         if (step2Alert) {
@@ -1730,7 +1862,7 @@ function initBookingDialog() {
         return;
       }
 
-      if (!dateVal) {
+      if (!selectedDates || selectedDates.length === 0 || !selectedDates[0]) {
         goToStep1();
         if (step1Alert) {
           step1Alert.textContent = errorMessages.date_out_of_range[lang] || errorMessages.date_out_of_range.en;
@@ -1745,11 +1877,11 @@ function initBookingDialog() {
 
       const idempotencyKey = `codeburg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const payload = {
-        dates: [dateVal],
+        dates: selectedDates,
         visitorName: nameVal,
         visitorEmail: emailVal || undefined,
         visitorPhone: phoneVal || undefined,
-        notes: `Plan: ${planName} (${planConfig.price}). ${notesVal}`.trim()
+        notes: `Plan: ${planName} (${totalPrice}€). ${notesVal}`.trim()
       };
 
       try {
@@ -1771,8 +1903,16 @@ function initBookingDialog() {
 
           // Populate success card
           if (successDeskLabel) successDeskLabel.textContent = deskLabel;
-          if (successDateVal) successDateVal.textContent = formatDisplayDate(dateVal, lang);
-          if (successPlanVal) successPlanVal.textContent = `${planName} (${planConfig.price})`;
+          if (successDateVal) {
+            if (selectedDates.length > 1) {
+              const firstFmt = formatDisplayDate(selectedDates[0], lang);
+              const lastFmt = formatDisplayDate(selectedDates[selectedDates.length - 1], lang);
+              successDateVal.textContent = `${firstFmt} – ${lastFmt} (${selectedDates.length})`;
+            } else {
+              successDateVal.textContent = formatDisplayDate(selectedDates[0], lang);
+            }
+          }
+          if (successPlanVal) successPlanVal.textContent = `${planName} (${totalPrice}€)`;
 
           // Transition to success screen
           step2Form.hidden = true;

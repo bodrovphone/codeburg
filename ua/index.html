@@ -942,56 +942,74 @@
             </div>
           </div>
 
-          <!-- Plan Selection Grid -->
-          <div class="booking-field-group">
-            <label class="booking-field-label">
-              <i class="fas fa-tags"></i> Оберіть тариф
-            </label>
-            <div class="booking-plan-grid">
-              <label class="booking-plan-option" data-plan="day">
-                <input type="radio" name="booking_plan" value="day" checked>
-                <div class="booking-plan-card">
-                  <span class="plan-card-name">
-                    <span class="plan-name-full">Денний абонемент</span>
-                    <span class="plan-name-short">День</span>
-                  </span>
-                  <span class="plan-card-price">10€</span>
-                  <span class="plan-card-meta">09:30–18:00</span>
+          <!-- Day Pass & Multi-Day Option Card -->
+          <div class="booking-pass-card">
+            <div class="booking-pass-main">
+              <div class="pass-info-col">
+                <div class="pass-badge-row">
+                  <span class="pass-tag">Денний пропуск</span>
+                  <span class="pass-hours"><i class="fas fa-clock"></i> 09:30–18:00</span>
                 </div>
+                <h4 class="pass-name">Денний абонемент</h4>
+              </div>
+              <div class="pass-price-col">
+                <span class="pass-price-num">10€</span>
+                <span class="pass-price-unit">/ день</span>
+              </div>
+            </div>
+
+            <!-- Multi-day Booking Checkbox -->
+            <div class="booking-multiday-wrap">
+              <label class="booking-multiday-toggle" for="booking-multiday-checkbox">
+                <input type="checkbox" id="booking-multiday-checkbox" class="booking-multiday-checkbox">
+                <span class="multiday-checkbox-custom">
+                  <i class="fas fa-check"></i>
+                </span>
+                <span class="multiday-toggle-text">
+                  <strong class="multiday-toggle-title">Забронювати на кілька днів</strong>
+                  <span class="multiday-toggle-sub">Бронювання робочих днів поспіль (10€ / день)</span>
+                </span>
               </label>
-              <label class="booking-plan-option" data-plan="week">
-                <input type="radio" name="booking_plan" value="week">
-                <div class="booking-plan-card">
-                  <span class="plan-card-name">
-                    <span class="plan-name-full">Тижневий тариф</span>
-                    <span class="plan-name-short">Тиждень</span>
-                  </span>
-                  <span class="plan-card-price">40€</span>
-                  <span class="plan-card-meta">🔑 24/7 Ключ</span>
+
+              <!-- Collapsible Stepper & Dates -->
+              <div class="multiday-controls" id="multiday-controls" hidden>
+                <div class="multiday-stepper-row">
+                  <span class="multiday-stepper-label">Кількість робочих днів:</span>
+                  <div class="multiday-stepper">
+                    <button type="button" class="multiday-step-btn" id="multiday-dec" aria-label="Decrease days">−</button>
+                    <span class="multiday-step-val" id="multiday-count-val">2</span>
+                    <button type="button" class="multiday-step-btn" id="multiday-inc" aria-label="Increase days">+</button>
+                  </div>
+                  <div class="multiday-quick-pills">
+                    <button type="button" class="multiday-quick-pill" data-days="2">2d</button>
+                    <button type="button" class="multiday-quick-pill" data-days="3">3d</button>
+                    <button type="button" class="multiday-quick-pill" data-days="5">5d</button>
+                  </div>
                 </div>
-              </label>
-              <label class="booking-plan-option" data-plan="flex">
-                <input type="radio" name="booking_plan" value="flex">
-                <div class="booking-plan-card">
-                  <span class="plan-card-name">
-                    <span class="plan-name-full">Flex Стіл</span>
-                    <span class="plan-name-short">Flex</span>
-                  </span>
-                  <span class="plan-card-price">75€</span>
-                  <span class="plan-card-meta">10 днів</span>
-                </div>
-              </label>
-              <label class="booking-plan-option" data-plan="month">
-                <input type="radio" name="booking_plan" value="month">
-                <div class="booking-plan-card">
-                  <span class="plan-card-name">
-                    <span class="plan-name-full">Повний місяць</span>
-                    <span class="plan-name-short">Місяць</span>
-                  </span>
-                  <span class="plan-card-price">130€</span>
-                  <span class="plan-card-meta">🔑 24/7 Місце</span>
-                </div>
-              </label>
+                <div class="multiday-dates-preview" id="multiday-dates-preview"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grey Plate: Other Plans In-Place Only -->
+          <div class="booking-inplace-plate">
+            <div class="inplace-plate-header">
+              <div class="inplace-badge"><i class="fas fa-store-alt"></i> Лише на місці</div>
+              <p class="inplace-notice">Тижневі, Flex (10 днів) та місячні тарифи включають персональний 24/7 RFID-ключ і оформлюються лише на місці в CodeBurg.</p>
+            </div>
+            <div class="inplace-contacts-bar">
+              <span class="inplace-contact-label">Зв'яжіться напряму:</span>
+              <div class="inplace-contact-links">
+                <a href="https://t.me/oleksandr_bodrov" target="_blank" rel="noopener" class="inplace-btn tg" title="Telegram">
+                  <i class="fab fa-telegram-plane"></i> <span>Telegram</span>
+                </a>
+                <a href="https://wa.me/359884489289" target="_blank" rel="noopener" class="inplace-btn wa" title="WhatsApp">
+                  <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+                </a>
+                <a href="tel:+359884489289" class="inplace-btn phone" title="Call">
+                  <i class="fas fa-phone-alt"></i> <span>+359 88 4489289</span>
+                </a>
+              </div>
             </div>
           </div>
 
