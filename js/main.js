@@ -1615,7 +1615,8 @@ function initBookingDialog() {
     toggleInlineCalendar(false);
 
     if (twoDesksCheckbox) {
-      neededDesks = twoDesksCheckbox.checked ? 2 : 1;
+      twoDesksCheckbox.checked = false;
+      neededDesks = 1;
     }
 
     const todayStr = getSofiaDateString(0);
