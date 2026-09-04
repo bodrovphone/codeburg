@@ -1154,6 +1154,12 @@ function initBookingDialog() {
       ru: 'Пожалуйста, укажите ваше имя.',
       ua: 'Будь ласка, введіть ваше ім\'я.'
     },
+    missing_phone: {
+      en: 'Please provide your phone number or Telegram handle.',
+      bg: 'Моля, въведете телефонен номер или Telegram потребител.',
+      ru: 'Пожалуйста, укажите номер телефона или Telegram.',
+      ua: 'Будь ласка, вкажіть номер телефону або Telegram.'
+    },
     date_out_of_range: {
       en: 'Selected date is outside the 14-day bookable window.',
       bg: 'Избраната дата е извън 14-дневния период за резервация.',
@@ -1809,6 +1815,15 @@ function initBookingDialog() {
         return;
       }
 
+      if (!phoneVal) {
+        if (step2Alert) {
+          step2Alert.textContent = errorMessages.missing_phone[lang] || errorMessages.missing_phone.en;
+          step2Alert.hidden = false;
+        }
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+
       if (!currentSelectedDate) {
         goToStep1();
         if (step1Alert) {
@@ -1827,7 +1842,7 @@ function initBookingDialog() {
         dates: [currentSelectedDate],
         visitorName: nameVal,
         visitorEmail: emailVal || undefined,
-        visitorPhone: phoneVal || undefined,
+        visitorPhone: phoneVal,
         notes: `Plan: ${planName} (${totalPrice}€). ${notesVal}`.trim()
       };
 
