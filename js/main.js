@@ -957,6 +957,13 @@ function initBookingDialog() {
   const todayAvailSub = document.getElementById('today-avail-sub');
   const tomorrowAvailSub = document.getElementById('tomorrow-avail-sub');
   const pickDateTrigger = document.getElementById('pick-date-trigger');
+  const inlineCalendar = document.getElementById('booking-inline-calendar');
+  const calMonthTitle = document.getElementById('cal-month-title');
+  const calPrevMonth = document.getElementById('cal-prev-month');
+  const calNextMonth = document.getElementById('cal-next-month');
+  const calWeekdaysRow = document.getElementById('cal-weekdays-row');
+  const calDaysGrid = document.getElementById('cal-days-grid');
+  const calDoneBtn = document.getElementById('cal-done-btn');
   const dateInput = document.getElementById('custom-booking-date');
   const selectedChip = document.getElementById('booking-selected-chip');
   const selectedChipLabel = document.getElementById('selected-chip-label');
@@ -1203,6 +1210,178 @@ function initBookingDialog() {
     }
   }
 
+  // Calendar configuration and state
+  const calWeekdays = {
+    en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    bg: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
+    ru: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+    ua: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
+  };
+
+  let calViewYear = null;
+  let calViewMonth = null;
+
+  function formatCalMonthTitle(year, monthIndex, currentLang) {
+    const dateObj = new Date(Date.UTC(year, monthIndex, 1, 12, 0, 0));
+    const locale = currentLang === 'bg' ? 'bg-BG' : currentLang === 'ru' ? 'ru-RU' : currentLang === 'ua' ? 'uk-UA' : 'en-US';
+    const monthName = dateObj.toLocaleDateString(locale, { timeZone: 'UTC', month: 'long' });
+    const capMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    return `${capMonth} ${year}`;
+  }
+
+  function updateCalendarSelection() {
+    if (!calDaysGrid) return;
+    const cells = calDaysGrid.querySelectorAll('.cal-day-cell');
+    cells.forEach(cell => {
+      const d = cell.getAttribute('data-date');
+      if (currentSelectedDate && d === currentSelectedDate) {
+        cell.classList.add('selected');
+        cell.setAttribute('aria-selected', 'true');
+      } else {
+        cell.classList.remove('selected');
+        cell.removeAttribute('aria-selected');
+      }
+    });
+  }
+
+  function renderCalendar(year, month) {
+    if (!inlineCalendar || !calDaysGrid || !calMonthTitle) return;
+
+    calViewYear = year;
+    calViewMonth = month;
+
+    calMonthTitle.textContent = formatCalMonthTitle(year, month, lang);
+
+    const todayStr = getSofiaDateString(0);
+    const maxDateStr = getSofiaDateString(14);
+    const [tY, tM] = todayStr.split('-').map(Number);
+    const [mY, mM] = maxDateStr.split('-').map(Number);
+
+    if (calPrevMonth) {
+      calPrevMonth.disabled = (year < tY || (year === tY && month <= tM - 1));
+    }
+    if (calNextMonth) {
+      calNextMonth.disabled = (year > mY || (year === mY && month >= mM - 1));
+    }
+
+    if (calWeekdaysRow && calWeekdaysRow.children.length === 0) {
+      const days = calWeekdays[lang] || calWeekdays.en;
+      calWeekdaysRow.innerHTML = days.map(d => `<span>${d}</span>`).join('');
+    }
+
+    calDaysGrid.innerHTML = '';
+
+    const firstDay = new Date(Date.UTC(year, month, 1));
+    const startDay = (firstDay.getUTCDay() + 6) % 7; // Mon=0, Sun=6
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    const daysInPrevMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+    const cells = [];
+
+    // Trailing days from previous month
+    for (let i = startDay - 1; i >= 0; i--) {
+      const d = daysInPrevMonth - i;
+      const prevM = month === 0 ? 11 : month - 1;
+      const prevY = month === 0 ? year - 1 : year;
+      const dateStr = `${prevY}-${String(prevM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: false });
+    }
+
+    // Days of current month
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: true });
+    }
+
+    // Leading days of next month
+    const totalCells = Math.ceil(cells.length / 7) * 7;
+    const nextDaysNeeded = totalCells - cells.length;
+    for (let d = 1; d <= nextDaysNeeded; d++) {
+      const nextM = month === 11 ? 0 : month + 1;
+      const nextY = month === 11 ? year + 1 : year;
+      const dateStr = `${nextY}-${String(nextM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      cells.push({ day: d, dateStr, isCurrentMonth: false });
+    }
+
+    cells.forEach(cell => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cal-day-cell';
+      btn.textContent = cell.day;
+      btn.setAttribute('data-date', cell.dateStr);
+
+      if (!cell.isCurrentMonth) {
+        btn.classList.add('other-month');
+      }
+
+      if (cell.dateStr === todayStr) {
+        btn.classList.add('is-today');
+      }
+
+      if (cell.dateStr === currentSelectedDate) {
+        btn.classList.add('selected');
+        btn.setAttribute('aria-selected', 'true');
+      }
+
+      const avail = getDateAvailability(cell.dateStr);
+      const isPast = cell.dateStr < todayStr;
+      const isBeyondRange = cell.dateStr > maxDateStr;
+
+      if (isPast || isBeyondRange) {
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+      } else if (avail.isWeekend) {
+        btn.classList.add('weekend');
+        btn.disabled = true;
+        btn.title = labels.weekend[lang] || labels.weekend.en;
+      } else if (avail.isFull) {
+        btn.classList.add('sold-out');
+        btn.disabled = true;
+        btn.title = labels.soldOut[lang] || labels.soldOut.en;
+      } else if (avail.availableDesks > 0) {
+        btn.classList.add('available');
+        btn.title = labels.desksLeft(avail.availableDesks, lang);
+        btn.addEventListener('click', () => {
+          selectDate(cell.dateStr);
+        });
+      } else {
+        btn.disabled = true;
+      }
+
+      calDaysGrid.appendChild(btn);
+    });
+  }
+
+  function toggleInlineCalendar(forceShow) {
+    if (!inlineCalendar) return;
+    const isCurrentlyOpen = !inlineCalendar.hidden;
+    const shouldOpen = typeof forceShow === 'boolean' ? forceShow : !isCurrentlyOpen;
+
+    if (shouldOpen) {
+      inlineCalendar.hidden = false;
+      if (pickDateTrigger) {
+        pickDateTrigger.classList.add('open');
+        pickDateTrigger.setAttribute('aria-expanded', 'true');
+      }
+      if (currentSelectedDate) {
+        const [sY, sM] = currentSelectedDate.split('-').map(Number);
+        calViewYear = sY;
+        calViewMonth = sM - 1;
+      } else if (calViewYear === null || calViewMonth === null) {
+        const [tY, tM] = getSofiaDateString(0).split('-').map(Number);
+        calViewYear = tY;
+        calViewMonth = tM - 1;
+      }
+      renderCalendar(calViewYear, calViewMonth);
+    } else {
+      inlineCalendar.hidden = true;
+      if (pickDateTrigger) {
+        pickDateTrigger.classList.remove('open');
+        pickDateTrigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+  }
+
   function selectDate(dateStr) {
     if (!dateStr) return;
     currentSelectedDate = dateStr;
@@ -1233,6 +1412,9 @@ function initBookingDialog() {
       selectedChipLabel.textContent = chipText;
       selectedChip.hidden = false;
     }
+
+    // Update calendar highlight
+    updateCalendarSelection();
 
     // Validate availability
     const avail = getDateAvailability(dateStr);
@@ -1268,6 +1450,7 @@ function initBookingDialog() {
     if (quickDateToday) quickDateToday.classList.remove('selected');
     if (quickDateTomorrow) quickDateTomorrow.classList.remove('selected');
     if (selectedChip) selectedChip.hidden = true;
+    updateCalendarSelection();
     if (step1Alert) {
       step1Alert.hidden = true;
       step1Alert.textContent = '';
@@ -1368,6 +1551,7 @@ function initBookingDialog() {
       step2Alert.hidden = true;
       step2Alert.textContent = '';
     }
+    toggleInlineCalendar(false);
 
     // Set plan
     if (preferredPlan && planConfigs[preferredPlan]) {
@@ -1417,6 +1601,7 @@ function initBookingDialog() {
   }
 
   function closeBookingDialog() {
+    toggleInlineCalendar(false);
     if (typeof dialog.close === 'function') {
       dialog.close();
     } else {
@@ -1454,23 +1639,44 @@ function initBookingDialog() {
     });
   }
 
-  if (pickDateTrigger && dateInput) {
-    pickDateTrigger.addEventListener('click', () => {
-      if (typeof dateInput.showPicker === 'function') {
-        try {
-          dateInput.showPicker();
-        } catch (err) {
-          // Ignored
-        }
-      }
+  // Inline calendar toggle & navigation events
+  if (pickDateTrigger) {
+    pickDateTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleInlineCalendar();
     });
   }
 
-  if (dateInput) {
-    dateInput.addEventListener('change', () => {
-      if (dateInput.value) {
-        selectDate(dateInput.value);
+  if (calPrevMonth) {
+    calPrevMonth.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (calViewMonth === 0) {
+        calViewMonth = 11;
+        calViewYear -= 1;
+      } else {
+        calViewMonth -= 1;
       }
+      renderCalendar(calViewYear, calViewMonth);
+    });
+  }
+
+  if (calNextMonth) {
+    calNextMonth.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (calViewMonth === 11) {
+        calViewMonth = 0;
+        calViewYear += 1;
+      } else {
+        calViewMonth += 1;
+      }
+      renderCalendar(calViewYear, calViewMonth);
+    });
+  }
+
+  if (calDoneBtn) {
+    calDoneBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleInlineCalendar(false);
     });
   }
 

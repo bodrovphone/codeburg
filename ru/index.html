@@ -878,13 +878,38 @@
             </button>
           </div>
 
-          <!-- Pick Specific Date -->
+          <!-- Pick Specific Date Button & Inline Calendar -->
           <div class="booking-custom-date-box">
-            <label for="custom-booking-date" class="booking-custom-date-btn" id="pick-date-trigger">
+            <button type="button" class="booking-custom-date-btn" id="pick-date-trigger" aria-expanded="false" aria-controls="booking-inline-calendar">
               <i class="fas fa-calendar-alt"></i>
               <span id="pick-date-text">Выбрать дату</span>
-            </label>
-            <input type="date" id="custom-booking-date" class="booking-native-date-input" aria-label="Выбрать дату">
+              <i class="fas fa-chevron-down calendar-toggle-chevron" id="calendar-toggle-chevron"></i>
+            </button>
+
+            <!-- Inline Month Calendar Component -->
+            <div class="booking-inline-calendar" id="booking-inline-calendar" hidden>
+              <div class="calendar-header">
+                <button type="button" class="cal-nav-btn" id="cal-prev-month" aria-label="Предыдущий месяц">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="cal-month-title" id="cal-month-title"></div>
+                <button type="button" class="cal-nav-btn" id="cal-next-month" aria-label="Следующий месяц">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+
+              <!-- Weekday Header Row -->
+              <div class="cal-weekdays-row" id="cal-weekdays-row"></div>
+
+              <!-- Days Grid -->
+              <div class="cal-days-grid" id="cal-days-grid"></div>
+
+              <div class="cal-legend-bar">
+                <span class="legend-item"><span class="legend-dot green"></span> Доступно</span>
+                <span class="legend-item"><span class="legend-dot gray"></span> Занято / Выходной</span>
+                <button type="button" class="cal-close-btn" id="cal-done-btn">Готово</button>
+              </div>
+            </div>
           </div>
 
           <!-- Selected Date Pill -->
