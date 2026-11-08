@@ -847,207 +847,18 @@
         </button>
       </header>
 
-      <!-- 2-Step Progress Indicator -->
-      <div class="booking-step-tracker" id="booking-step-tracker">
-        <div class="booking-step-bar active" id="step-bar-1">
-          <span class="step-num">1</span>
-          <span class="step-text">Дата</span>
-        </div>
-        <div class="booking-step-bar" id="step-bar-2">
-          <span class="step-num">2</span>
-          <span class="step-text">Детайли</span>
-        </div>
-      </div>
-
       <div class="booking-dialog-body">
-        <!-- STEP 1: WHEN DO YOU WANT TO COME? -->
-        <div id="booking-step-1" class="booking-step-view active">
-          <div class="booking-step-heading">
-            <h4>КОГА ИСКАТЕ ДА ДОЙДЕТЕ?</h4>
-          </div>
-
-          <!-- Quick Date Selector: Today & Tomorrow -->
-          <div class="booking-quick-dates">
-            <button type="button" class="booking-date-card" id="quick-date-today" data-relative="today">
-              <span class="date-card-title">Днес</span>
-              <span class="date-card-sub" id="today-avail-sub">Проверка...</span>
-            </button>
-            <button type="button" class="booking-date-card" id="quick-date-tomorrow" data-relative="tomorrow">
-              <span class="date-card-title">Утре</span>
-              <span class="date-card-sub" id="tomorrow-avail-sub">Проверка...</span>
-            </button>
-          </div>
-
-          <!-- Pick Specific Date Button & Inline Calendar -->
-          <div class="booking-custom-date-box">
-            <button type="button" class="booking-custom-date-btn" id="pick-date-trigger" aria-expanded="false" aria-controls="booking-inline-calendar">
-              <i class="fas fa-calendar-alt"></i>
-              <span id="pick-date-text">Изберете конкретна дата</span>
-              <i class="fas fa-chevron-down calendar-toggle-chevron" id="calendar-toggle-chevron"></i>
-            </button>
-
-            <!-- Inline Month Calendar Component -->
-            <div class="booking-inline-calendar" id="booking-inline-calendar" hidden>
-              <!-- 2 Desks Checkbox Option -->
-              <div class="booking-two-desks-box">
-                <label class="booking-two-desks-label" for="booking-two-desks-checkbox">
-                  <input type="checkbox" id="booking-two-desks-checkbox" class="booking-two-desks-checkbox">
-                  <span class="two-desks-custom-check">
-                    <i class="fas fa-check"></i>
-                  </span>
-                  <span class="two-desks-text-wrap">
-                    <strong class="two-desks-title"><i class="fas fa-user-friends"></i> Трябват ми 2 бюра</strong>
-                    <span class="two-desks-sub">Проверка за две свободни места (2 × 10€ / ден)</span>
-                  </span>
-                  <span class="two-desks-spinner" id="two-desks-spinner" hidden></span>
-                </label>
-              </div>
-
-              <div class="calendar-header">
-                <button type="button" class="cal-nav-btn" id="cal-prev-month" aria-label="Предишен месец">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="cal-month-title" id="cal-month-title"></div>
-                <button type="button" class="cal-nav-btn" id="cal-next-month" aria-label="Следващ месец">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-              </div>
-
-              <!-- Weekday Header Row -->
-              <div class="cal-weekdays-row" id="cal-weekdays-row"></div>
-
-              <!-- Days Grid -->
-              <div class="cal-days-grid" id="cal-days-grid"></div>
-
-              <div class="cal-legend-bar">
-                <span class="legend-item"><span class="legend-dot green"></span> Свободни</span>
-                <span class="legend-item"><span class="legend-dot gray"></span> Заето / Уикенд</span>
-                <button type="button" class="cal-close-btn" id="cal-done-btn">Готово</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 1 Alert -->
-          <div id="step1-alert" class="booking-alert" hidden></div>
-
-          <!-- Step 1 Continue Button -->
-          <div class="booking-step1-actions">
-            <button type="button" class="booking-continue-btn" id="booking-step1-continue" disabled>
-              <span class="continue-btn-text" id="continue-btn-text">Продължи напред</span>
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
+        <div class="booking-loader" id="booking-loader">
+          <div class="booking-spinner"></div>
+          <p>Свързване с OhMyDesk наличност...</p>
         </div>
-
-        <!-- STEP 2: YOUR DETAILS & PLAN -->
-        <form id="custom-booking-form" class="booking-step-view" hidden novalidate>
-          <div class="booking-step2-top-bar">
-            <button type="button" class="booking-back-btn" id="booking-back-to-step1">
-              <i class="fas fa-arrow-left"></i> <span>Смени датата</span>
-            </button>
-            <div class="booking-date-summary-pill" id="step2-date-pill">
-              <i class="fas fa-calendar-check"></i>
-              <span id="step2-date-display"></span>
-            </div>
-          </div>
-
-          <!-- Day Pass Summary Card -->
-          <div class="booking-pass-card">
-            <div class="booking-pass-main">
-              <div class="pass-info-col">
-                <div class="pass-badge-row">
-                  <span class="pass-tag" id="step2-pass-tag">Дневен пропуск</span>
-                  <span class="pass-hours"><i class="fas fa-clock"></i> 09:30–18:00</span>
-                </div>
-                <h4 class="pass-name" id="step2-pass-title">Дневен абонамент</h4>
-              </div>
-              <div class="pass-price-col">
-                <span class="pass-price-num" id="step2-unit-price">10€</span>
-                <span class="pass-price-unit" id="step2-price-unit">/ ден</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Guest Info Inputs -->
-          <div class="booking-form-row">
-            <div class="booking-field-group">
-              <label for="custom-booking-name" class="booking-field-label">
-                <i class="fas fa-user"></i> Име и фамилия <span class="req-star">*</span>
-              </label>
-              <input type="text" id="custom-booking-name" name="name" class="booking-input" placeholder="напр. Александър Бодров" required autocomplete="name">
-            </div>
-            <div class="booking-field-group">
-              <label for="custom-booking-email" class="booking-field-label">
-                <i class="fas fa-envelope"></i> Имейл (за потвърждение)
-              </label>
-              <input type="email" id="custom-booking-email" name="email" class="booking-input" placeholder="alex@example.com" autocomplete="email">
-            </div>
-          </div>
-
-          <div class="booking-form-row">
-            <div class="booking-field-group">
-              <label for="custom-booking-phone" class="booking-field-label">
-                <i class="fas fa-phone"></i> Телефон / Telegram <span class="req-star">*</span>
-              </label>
-              <input type="tel" id="custom-booking-phone" name="phone" class="booking-input" placeholder="+359 88 ... или @username" required autocomplete="tel">
-            </div>
-            <div class="booking-field-group">
-              <label for="custom-booking-notes" class="booking-field-label">
-                <i class="fas fa-comment-dots"></i> Специални изисквания (по избор)
-              </label>
-              <input type="text" id="custom-booking-notes" name="notes" class="booking-input" placeholder="напр. 4K монитор, тихо кътче...">
-            </div>
-          </div>
-
-          <!-- Inline Warning/Error Alert Banner -->
-          <div id="custom-booking-alert" class="booking-alert" hidden></div>
-
-          <!-- Total & Confirm CTA -->
-          <div class="booking-summary-box">
-            <div class="booking-summary-left">
-              <span class="booking-summary-label">Общо за плащане на място</span>
-              <span class="booking-summary-total" id="booking-summary-total">10€</span>
-              <span class="booking-summary-meta" id="booking-summary-meta">Плащане с карта или в брой при настаняване</span>
-            </div>
-            <button type="submit" id="custom-booking-submit" class="booking-confirm-btn">
-              <span class="submit-spinner" hidden></span>
-              <i class="fas fa-bolt"></i>
-              <span class="btn-text">Потвърди резервацията</span>
-            </button>
-          </div>
-        </form>
-
-        <!-- STEP 3: Instant Success Confirmation -->
-        <div id="custom-booking-success" class="custom-booking-success" hidden>
-          <div class="success-icon-badge">🎉</div>
-          <h4>Бюрото е запазено успешно!</h4>
-          <p class="success-subtitle">Вашето място в CodeBurg е разпределено автоматично през OhMyDesk.</p>
-          
-          <div class="success-details-card">
-            <div class="success-detail-row">
-              <span>Разпределено бюро:</span>
-              <strong id="success-desk-label">--</strong>
-            </div>
-            <div class="success-detail-row">
-              <span>Начална дата:</span>
-              <strong id="success-date-val">--</strong>
-            </div>
-            <div class="success-detail-row">
-              <span>План:</span>
-              <strong id="success-plan-val">--</strong>
-            </div>
-            <div class="success-detail-row">
-              <span>Локация:</span>
-              <strong>ул. Пейо К. Яворов 1, Бургас</strong>
-            </div>
-          </div>
-
-          <div class="success-actions">
-            <button type="button" class="success-close-btn" id="success-close-btn">
-              Готово
-            </button>
-          </div>
-        </div>
+        <iframe
+          id="booking-iframe"
+          class="booking-iframe"
+          src="about:blank"
+          title="CodeBurg Desk Booking Portal"
+          allow="payment *">
+        </iframe>
       </div>
 
       <footer class="booking-dialog-footer">
@@ -1058,8 +869,11 @@
         </div>
         <div class="booking-footer-help">
           <i class="fas fa-shield-halved"></i>
-          <span>Директна интеграция през <strong>OhMyDesk API</strong></span>
+          <span>Директна интеграция през <strong>OhMyDesk</strong></span>
         </div>
+        <a href="https://ohmydesk.app/book/codeburg" target="_blank" rel="noopener" class="booking-external-link">
+          <span>Отвори самостоятелен портал</span> <i class="fas fa-arrow-up-right-from-square"></i>
+        </a>
       </footer>
     </div>
   </dialog>
