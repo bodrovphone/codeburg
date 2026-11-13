@@ -949,14 +949,14 @@ function initBookingDialog() {
   const iframe = document.getElementById('booking-iframe');
   const loader = document.getElementById('booking-loader');
 
-  const BASE_BOOKING_URL = 'https://ohmydesk.app/book/codeburg?embed=1&hideHeader=1';
+  const BASE_BOOKING_URL = 'https://ohmydesk.app/book/codeburg?plan=daily&embed=1&hideHeader=1';
 
   function openBookingDialog(plan) {
     if (iframe) {
       let targetUrl = BASE_BOOKING_URL;
-      if (plan && plan !== 'day') {
+      if (plan && plan !== 'day' && plan !== 'daily') {
         const planParam = plan === 'week' ? 'weekly' : plan === 'month' ? 'monthly' : plan === 'flex' ? 'flex' : plan;
-        targetUrl = 'https://ohmydesk.app/book/codeburg?embed=1&hideHeader=1&plan=' + encodeURIComponent(planParam);
+        targetUrl = 'https://ohmydesk.app/book/codeburg?plan=' + encodeURIComponent(planParam) + '&embed=1&hideHeader=1';
       }
 
       if (iframe.src !== targetUrl) {
@@ -991,7 +991,7 @@ function initBookingDialog() {
 
   // Intercept all booking triggers
   const bookingTriggers = document.querySelectorAll(
-    '.book-btn, .availability-book-btn, .open-booking-dialog, .pricing-book-btn, a[href*="ohmydesk.app/book/"]'
+    '.book-btn, .availability-book-btn, .open-booking-dialog, .pricing-book-btn, a[href*="ohmydesk.app/book/"]:not(.booking-external-link)'
   );
 
   bookingTriggers.forEach(btn => {
