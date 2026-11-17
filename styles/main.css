@@ -2398,11 +2398,6 @@ input[type="range"].stay-slider::-moz-range-thumb:active {
 .contact-btn:nth-child(3) { background: #fefce8; } /* Phone */
 .contact-btn:nth-child(3) i { color: #ca8a04; }
 
-.contact-btn:nth-child(4) { background: #faf5ff; } /* Viber */
-.contact-btn:nth-child(4) i { color: #9333ea; }
-
-.contact-btn:nth-child(5) { background: #fff1f2; } /* Instagram */
-.contact-btn:nth-child(5) i { color: #e11d48; }
 
 /* Afterwordings Section */
 #afterwordings {
